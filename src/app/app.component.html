@@ -1,0 +1,33 @@
+<!-- Top Navigation Bar -->
+<nav class="bg-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center">
+        <a routerLink="/" class="text-2xl font-bold text-indigo-600">FormFlow</a>
+      </div>
+      <div class="hidden md:flex items-center space-x-8">
+        <a routerLink="/create" class="text-gray-600 hover:text-indigo-600">Create Form</a>
+        <a routerLink="/forms" class="text-gray-600 hover:text-indigo-600">My Forms</a>
+        <ng-container *ngIf="authService.isLoggedIn; else notLoggedIn">
+          <button (click)="authService.logout()" class="text-gray-600 hover:text-indigo-600">
+            Sign Out
+          </button>
+        </ng-container>
+        <ng-template #notLoggedIn>
+          <a routerLink="/login" class="text-gray-600 hover:text-indigo-600">Login</a>
+          <a routerLink="/register" class="text-gray-600 hover:text-indigo-600">Register</a>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<router-outlet></router-outlet>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white mt-12 py-8">
+  <div class="max-w-7xl mx-auto px-4 text-center">
+    <p class="text-gray-400">&copy; 2023 FormFlow. All rights reserved.</p>
+  </div>
+</footer>

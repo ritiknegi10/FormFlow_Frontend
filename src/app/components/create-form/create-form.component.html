@@ -1,0 +1,43 @@
+<div class="min-h-screen bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold mb-6">Create New Form</h2>
+
+        <form [formGroup]="formBuilder" (ngSubmit)="onSubmit()">
+            <!-- Form Title -->
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Form Title</label>
+                <input type="text" formControlName="title"
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600">
+            </div>
+
+            <!-- Question Builder -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Questions</h3>
+                    <button type="button" (click)="addQuestion()"
+                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                        Add Question
+                    </button>
+                </div>
+
+                <!-- Question List -->
+                <div class="space-y-4">
+                    <div *ngFor="let question of questions.controls; let i = index" class="border p-4 rounded-lg">
+                        <input type="text" placeholder="Question text"
+                            class="w-full mb-2 px-2 py-1 border-b focus:outline-none">
+
+                        <select class="w-full p-2 border rounded-lg">
+                            <option value="text">Text Answer</option>
+                            <option value="multiple">Multiple Choice</option>
+                            <option value="dropdown">Dropdown</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                Save Form
+            </button>
+        </form>
+    </div>
+</div>

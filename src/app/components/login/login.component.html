@@ -1,0 +1,19 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-md p-8">
+        <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+
+        <form class="space-y-6" (ngSubmit)="onSubmit()">
+            <!-- Email and password fields same as before -->
+
+            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">
+                Login
+            </button>
+        </form>
+
+        <div class="mt-4 text-center">
+            <p class="text-gray-600">New user?
+                <a routerLink="/register" class="text-indigo-600 hover:text-indigo-800">Register here</a>
+            </p>
+        </div>
+    </div>
+</div>
