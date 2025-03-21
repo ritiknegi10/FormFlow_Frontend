@@ -10,6 +10,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { EditFormComponent } from './components/edit-form/edit-form.component';
+import { FormAnalyticsComponent } from './components/form-analytics/form-analytics.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { EditFormComponent } from './components/edit-form/edit-form.component';
     FormsListComponent,
     LoginComponent,
     RegisterComponent,
-    EditFormComponent
+    EditFormComponent,
+    FormAnalyticsComponent
   ],
   imports: [
     BrowserModule,
