@@ -50,5 +50,23 @@
     padding: 8px;
     margin: 5px 0;
     border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
+  
+  .view-btn {
+    background: #4F46E5;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+  }
+  
+  .view-btn:hover {
+    background: #3730A3;
+  }
+  
   

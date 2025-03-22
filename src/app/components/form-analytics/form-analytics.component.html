@@ -18,8 +18,9 @@
             <div class="responses-list">
               <div *ngFor="let question of questions">
                 <h4>{{ question.text }}</h4>
-                <div class="response-item" *ngFor="let response of question.responses">
-                  {{ response }}
+                <div class="response-item" *ngFor="let response of question.responses; let i = index">
+                  <span>{{ response }}</span>
+                  <button class="view-btn" (click)="viewResponse(response, i)">View</button>
                 </div>
               </div>
             </div>

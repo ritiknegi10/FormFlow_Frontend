@@ -14,5 +14,8 @@ export class FormAnalyticsComponent {
       responses: this.responses
     }
   ];
+  viewResponse(response: string, index: number) {
+    alert(`Response #${index + 1}: ${response}`);
+  }
 
 }
