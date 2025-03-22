@@ -9,9 +9,11 @@ import { EditFormComponent } from './components/edit-form/edit-form.component';
 import { FormAnalyticsComponent } from './components/form-analytics/form-analytics.component';
 import { ContactComponent } from './components/contact/contact.component';
 
+import { FormBuilderComponent } from './components/form-builder/form-builder.component';
+
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
-  { path: 'create', component: CreateFormComponent },
+  { path: 'create', component: FormBuilderComponent },
   { path: 'forms', component: FormsListComponent },
   { path: 'edit/:id', component: EditFormComponent },
   { path: 'analytics', component: FormAnalyticsComponent },  
