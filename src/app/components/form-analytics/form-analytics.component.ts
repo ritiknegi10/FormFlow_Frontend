@@ -6,5 +6,13 @@ import { Component } from '@angular/core';
   styleUrls: ['./form-analytics.component.scss']
 })
 export class FormAnalyticsComponent {
+  responses = ['Response 1', 'Response 2']; // Example responses
+
+  questions = [
+    {
+      text: 'Responses',
+      responses: this.responses
+    }
+  ];
 
 }
