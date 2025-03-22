@@ -1,14 +1,10 @@
-
-
-
 import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  templateUrl: './login.component.html'
 })
 export class LoginComponent {
   constructor(
@@ -16,7 +12,6 @@ export class LoginComponent {
     private router: Router
   ) {}
 
-  // Add this method
   onSubmit() {
     this.authService.login();
     this.router.navigate(['/']);

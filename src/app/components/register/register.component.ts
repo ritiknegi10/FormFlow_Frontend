@@ -1,12 +1,10 @@
-
 import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  templateUrl: './register.component.html'
 })
 export class RegisterComponent {
   constructor(
@@ -15,7 +13,7 @@ export class RegisterComponent {
   ) {}
 
   onSubmit() {
-    this.authService.login(); // Auto-login after registration for demo
+    this.authService.login(); // Auto-login after registration
     this.router.navigate(['/']);
   }
 }
