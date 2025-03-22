@@ -9,6 +9,8 @@ import { FormsListComponent } from './components/forms-list/forms-list.component
 import { ReactiveFormsModule } from '@angular/forms';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
+import { EditFormComponent } from './components/edit-form/edit-form.component';
+import { FormAnalyticsComponent } from './components/form-analytics/form-analytics.component';
 import { ContactComponent } from './components/contact/contact.component';
 
 @NgModule({
@@ -18,6 +20,9 @@ import { ContactComponent } from './components/contact/contact.component';
     CreateFormComponent,
     FormsListComponent,
     LoginComponent,
+    RegisterComponent,
+    EditFormComponent,
+    FormAnalyticsComponent,
     RegisterComponent,
     ContactComponent
   ],

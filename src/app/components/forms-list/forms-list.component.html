@@ -2,15 +2,14 @@
     <div class="max-w-4xl mx-auto">
         <h2 class="text-2xl font-bold mb-6">My Forms</h2>
 
-        <div class="grid gap-4 md:grid-cols-2">
-            <!-- Form Card -->
-            <div *ngFor="let form of forms" class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div *ngFor="let form of forms; let i = index" class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
                 <h3 class="text-lg font-semibold mb-2">{{ form.title }}</h3>
                 <p class="text-gray-600 text-sm mb-4">Responses: {{ form.responses }}</p>
                 <div class="flex space-x-2">
-                    <button class="text-indigo-600 hover:text-indigo-800">Edit</button>
-                    <button class="text-green-600 hover:text-green-800">Analytics</button>
-                    <button class="text-red-600 hover:text-red-800">Delete</button>
+                    <button [routerLink]="['/edit', i]" class="text-indigo-600 hover:text-indigo-800">Edit</button>
+                    <button [routerLink]="['/analytics']" class="text-green-600 hover:text-green-800">Analytics</button>
+                    <button (click)="deleteForm(i)" class="text-red-600 hover:text-red-800">Delete</button>
                 </div>
             </div>
         </div>

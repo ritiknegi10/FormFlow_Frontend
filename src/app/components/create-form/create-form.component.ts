@@ -1,7 +1,6 @@
-
-
 import { Component } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { FormService } from '../../services/form.service';
 
 @Component({
   selector: 'app-create-form',
@@ -12,7 +11,7 @@ export class CreateFormComponent {
   formBuilder: FormGroup;
   questions: FormArray;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private formService: FormService) {
     this.formBuilder = this.fb.group({
       title: [''],
       questions: this.fb.array([])
@@ -23,12 +22,31 @@ export class CreateFormComponent {
   addQuestion() {
     this.questions.push(this.fb.group({
       questionText: [''],
-      type: ['text']
-    }));
+      type: ['text'],
+      options: this.fb.array([])  
+    }));    
+  }
+
+  addOption(questionIndex: number) {
+    const options = this.getOptions(this.questions.at(questionIndex));
+    options.push(new FormControl(''));
+  }
+
+  removeOption(questionIndex: number, optionIndex: number) {
+    const options = this.getOptions(this.questions.at(questionIndex));
+    options.removeAt(optionIndex);
+  }
+
+  removeQuestion(index: number) {
+    this.questions.removeAt(index);
+  }
+
+  getOptions(question: any): FormArray {
+    return question.get('options') as FormArray;
   }
 
   onSubmit() {
-    console.log(this.formBuilder.value);
-    // Add form submission logic here
+    console.log('Form before saving:', JSON.stringify(this.formBuilder.value, null, 2));
+    this.formService.addForm(this.formBuilder.value);
   }
 }
