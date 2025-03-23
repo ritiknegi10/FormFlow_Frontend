@@ -11,6 +11,7 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { EditFormComponent } from './components/edit-form/edit-form.component';
 import { FormAnalyticsComponent } from './components/form-analytics/form-analytics.component';
+import { ViewResponseComponent } from './components/view-response/view-response.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { FormAnalyticsComponent } from './components/form-analytics/form-analyti
     LoginComponent,
     RegisterComponent,
     EditFormComponent,
-    FormAnalyticsComponent
+    FormAnalyticsComponent,
+    ViewResponseComponent
   ],
   imports: [
     BrowserModule,

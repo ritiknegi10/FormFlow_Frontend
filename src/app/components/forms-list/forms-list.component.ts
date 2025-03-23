@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormService } from '../../services/form.service';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-forms-list',
@@ -9,14 +11,21 @@ import { FormService } from '../../services/form.service';
 export class FormsListComponent implements OnInit {
   forms: any[] = [];
 
-  constructor(private formService: FormService) {}
+  constructor(private formService: FormService, private router: Router) {}
 
   ngOnInit() {
     this.formService.forms$.subscribe(forms => {
       this.forms = forms;
     });
+    
   }
+  
+  goToAnalytics(index: number) {
+    this.router.navigate(['/form-analytics', index]);
+  }
+  
 
+  
   deleteForm(index: number) {
     this.formService.deleteForm(index);
   }
