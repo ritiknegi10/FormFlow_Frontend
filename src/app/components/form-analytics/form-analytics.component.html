@@ -1,19 +1,30 @@
 <div class="min-h-screen bg-gray-50 p-8">
     <div class="max-w-4xl mx-auto">
         <h2 class="text-2xl font-bold mb-6">Form Analytics</h2>
-        <section id="overview">
-            <h2>Overview</h2>
-            <div class="metrics">
-                <div class="metric">Views: <span>12,345</span></div>
-                <div class="metric">Submissions: <span>678</span></div>
-                <div class="metric">Conversion Rate: <span>5.5%</span></div>
+        <div class="responses-container">
+            <!-- Header -->
+            <header class="responses-header">
+              <h2>Responses</h2>
+              <span class="response-count">{{ responses.length }} responses</span>
+            </header>
+          
+            <!-- Summary Section -->
+            <div class="summary-section">
+              <h3>Summary</h3>
+              <button class="link-btn">Detail Analysis</button>
             </div>
-        </section>
-        <section id="chart-section">
-            <h2>Form Performance</h2>
-            <canvas id="analyticsChart"></canvas>
-        </section>
-
+          
+            <!-- Responses List -->
+            <div class="responses-list">
+              <div *ngFor="let question of questions">
+                <h4>{{ question.text }}</h4>
+                <div class="response-item" *ngFor="let response of question.responses; let i = index">
+                  <span>{{ response }}</span>
+                  <button class="view-btn" (click)="viewResponse(response, i)">View</button>
+                </div>
+              </div>
+            </div>
+          </div>
         
     </div>
 </div>
