@@ -15,7 +15,7 @@ export class FormService {
     this.saveForms(updatedForms);
   }
   getLatestForm() {
-    const forms = this.formsSubject.value; // Get current forms array
+    const forms = this.formsSubject.value; 
     return forms.length > 0 ? forms[forms.length - 1] : null;
   }
   updateForm(index: number, updatedForm: any) {
@@ -31,78 +31,36 @@ export class FormService {
   }
   
   getResponseByIndex(index: number): any {
-    const responses = this.getResponses(); // Assuming getResponses() fetches all responses
+    const responses = this.getResponses(); 
     return responses[index] || null;
   }
 
   getResponsesByFormIndex(index: number): any {
     const allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
-    console.log("Fetching responses for Form", index, ":", allResponses[index]); // ✅ Debugging
+    console.log("Fetching responses for Form", index, ":", allResponses[index]); 
     return allResponses[index] || [];
   }
   
 
-  // getResponsesByFormIndex(index: number): any {
-  //   const allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
-  //   console.log("Fetched Responses for Form", index, ":", allResponses[index]); // ✅ Debugging
-  //   return allResponses[index] || [];
-  // }
   
-
-  // getResponsesByFormIndex(index: number): any {
-  //   const allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
-  //   return allResponses[index] || []; // Get responses specific to the form index
-  // }
 
   saveResponse(formIndex: number, responseData: any) {
     let allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
     
     if (!allResponses[formIndex]) {
-        allResponses[formIndex] = []; // Ensure responses are stored as an array
+        allResponses[formIndex] = []; 
     }
     
-    allResponses[formIndex].push(responseData); // Append new response
+    allResponses[formIndex].push(responseData); 
     localStorage.setItem('responses', JSON.stringify(allResponses));
 
-    console.log("Updated Responses:", JSON.parse(localStorage.getItem('responses') || '{}')); // ✅ Debugging
+    console.log("Updated Responses:", JSON.parse(localStorage.getItem('responses') || '{}')); 
 }
 
 getForms() {
-  return this.forms; // Ensure this method exists
+  return this.forms; 
 }
 
-  // saveResponse(formIndex: number, responseData: any) {
-  //   let allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
-  //   allResponses[formIndex] = responseData; // Store response per form index
-  //   localStorage.setItem('responses', JSON.stringify(allResponses));
-  
-  //   console.log("Updated Responses:", JSON.parse(localStorage.getItem('responses') || '{}')); // ✅ Debugging
-  // }
-  
-  
-  // saveResponse(formIndex: number, responseData: any) {
-  //   let allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
-  //   allResponses[formIndex] = responseData; // ✅ Store response for specific form index
-  //   localStorage.setItem('responses', JSON.stringify(allResponses));
-  // }
-  
-
-  // saveResponse(formIndex: number, responseData: any) {
-  //   const allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
-  //   allResponses[formIndex] = responseData; // Store response for the specific form
-  //   localStorage.setItem('responses', JSON.stringify(allResponses));
-  // }
-
-
-  // saveResponse(formIndex: number, response: any) {
-  //   const allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
-  //   if (!allResponses[formIndex]) {
-  //     allResponses[formIndex] = [];
-  //   }
-  //   allResponses[formIndex].push(response);
-  //   localStorage.setItem('responses', JSON.stringify(allResponses));
-  // }
-  
 
   getFormByIndex(index: number) {
     const storedForms = JSON.parse(localStorage.getItem('forms') || '[]');

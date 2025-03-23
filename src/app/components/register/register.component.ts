@@ -15,7 +15,7 @@ export class RegisterComponent {
   ) {}
 
   onSubmit() {
-    this.authService.login(); // Auto-login after registration for demo
+    this.authService.login();
     this.router.navigate(['/']);
   }
 }

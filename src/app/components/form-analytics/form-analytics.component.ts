@@ -15,7 +15,7 @@ export class FormAnalyticsComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.formId = Number(params.get('id')); // Get the form ID from URL
+      this.formId = Number(params.get('id')); 
       if (!isNaN(this.formId)) {
         this.loadResponses();
       }

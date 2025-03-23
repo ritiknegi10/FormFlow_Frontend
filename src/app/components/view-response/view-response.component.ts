@@ -9,15 +9,15 @@ import { FormService } from '../../services/form.service';
 })
 export class ViewResponseComponent implements OnInit {
   formId: number | null = null;
-  selectedForm: any = null;  // Store selected form details
-  responses: any[] = [];  // Store responses
+  selectedForm: any = null;  
+  responses: any[] = [];  
 
 
   constructor(private route: ActivatedRoute, private formService: FormService) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.formId = Number(params.get('id')); // Get form ID from route
+      this.formId = Number(params.get('id')); 
       if (!isNaN(this.formId)) {
         this.loadFormData();
       }
@@ -28,8 +28,8 @@ export class ViewResponseComponent implements OnInit {
 
   loadFormData() {
     if (this.formId !== null) {
-      this.selectedForm = this.formService.getFormByIndex(this.formId); // Fetch form details correctly
-      this.responses = this.formService.getResponsesByFormIndex(this.formId); // Fetch responses
+      this.selectedForm = this.formService.getFormByIndex(this.formId); 
+      this.responses = this.formService.getResponsesByFormIndex(this.formId); 
     }
   }
 }
