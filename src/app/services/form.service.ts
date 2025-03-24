@@ -7,13 +7,17 @@ import { BehaviorSubject } from 'rxjs';
 export class FormService {
   private forms = new BehaviorSubject<any[]>(this.loadForms());
   forms$ = this.forms.asObservable();
+  private formsSubject = new BehaviorSubject<any[]>([]);
 
   addForm(newForm: any) {
     const updatedForms = [...this.forms.getValue(), newForm];
     this.forms.next(updatedForms);
     this.saveForms(updatedForms);
   }
-
+  getLatestForm() {
+    const forms = this.formsSubject.value; 
+    return forms.length > 0 ? forms[forms.length - 1] : null;
+  }
   updateForm(index: number, updatedForm: any) {
     const forms = this.forms.getValue();
     
@@ -26,12 +30,48 @@ export class FormService {
     this.saveForms(forms);
   }
   
+  getResponseByIndex(index: number): any {
+    const responses = this.getResponses(); 
+    return responses[index] || null;
+  }
+
+  getResponsesByFormIndex(index: number): any {
+    const allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
+    console.log("Fetching responses for Form", index, ":", allResponses[index]); 
+    return allResponses[index] || [];
+  }
+  
+
+  
+
+  saveResponse(formIndex: number, responseData: any) {
+    let allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
+    
+    if (!allResponses[formIndex]) {
+        allResponses[formIndex] = []; 
+    }
+    
+    allResponses[formIndex].push(responseData); 
+    localStorage.setItem('responses', JSON.stringify(allResponses));
+
+    console.log("Updated Responses:", JSON.parse(localStorage.getItem('responses') || '{}')); 
+}
+
+getForms() {
+  return this.forms; 
+}
+
+
   getFormByIndex(index: number) {
     const storedForms = JSON.parse(localStorage.getItem('forms') || '[]');
     if (index >= 0 && index < storedForms.length) {
       return storedForms[index]; 
     }
     return null;
+  }
+
+  getResponses(): string[] {
+    return ["Default Response 1", "Default Response 2"];
   }
 
   deleteForm(index: number) {

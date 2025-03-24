@@ -12,6 +12,7 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { EditFormComponent } from './components/edit-form/edit-form.component';
 import { FormAnalyticsComponent } from './components/form-analytics/form-analytics.component';
+import { ViewResponseComponent } from './components/view-response/view-response.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { FormBuilderComponent } from './components/form-builder/form-builder.component';
 import { QuestionComponent } from './components/question/question.component';
@@ -37,6 +38,7 @@ import { AboutUsComponent } from './components/about-us/about-us.component';
     RegisterComponent,
     EditFormComponent,
     FormAnalyticsComponent,
+    ViewResponseComponent,
     RegisterComponent,
     ContactComponent,
     FormBuilderComponent,

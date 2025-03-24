@@ -1,45 +1,37 @@
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-form-analytics',
-//   templateUrl: './form-analytics.component.html',
-//   styleUrls: ['./form-analytics.component.scss']
-// })
-// export class FormAnalyticsComponent {
-//   responses = ['Response 1', 'Response 2','Response 3', 'Response 4','Response 5', 'Response 6']; // Example responses
-
-//   questions = [
-//     {
-//       text: 'Responses',
-//       responses: this.responses
-//     }
-//   ];
-//   viewResponse(response: string, index: number) {
-//     alert(`Response #${index + 1}: ${response}`);
-//   }
-
-// }
-
-
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormService } from '../../services/form.service';
 
 @Component({
   selector: 'app-form-analytics',
   templateUrl: './form-analytics.component.html',
   styleUrls: ['./form-analytics.component.scss']
 })
-export class FormAnalyticsComponent {
-  responses = ['Response 1', 'Response 2', 'Response 3', 
-              'Response 4', 'Response 5', 'Response 6'];
+export class FormAnalyticsComponent implements OnInit {
+  formId: number | null = null;
+  responses: any[] = [];
 
-  questions = [
-    {
-      text: 'Survey Responses Overview',
-      responses: this.responses
+  constructor(private route: ActivatedRoute, private formService: FormService, private router: Router) {}
+
+  ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      this.formId = Number(params.get('id')); 
+      if (!isNaN(this.formId)) {
+        this.loadResponses();
+      }
+    });
+  }
+
+  loadResponses() {
+    if (this.formId !== null) {
+      this.responses = this.formService.getResponsesByFormIndex(this.formId);
     }
-  ];
+  }
 
-  viewResponse(response: string, index: number) {
-    alert(`Response #${index + 1}:\n\n${response}`);
+  viewResponses() {
+    if (this.formId !== null) {
+      console.log("Navigating to View Responses with Form ID:", this.formId);
+      this.router.navigate(['/view-responses', this.formId]);
+    }
   }
 }

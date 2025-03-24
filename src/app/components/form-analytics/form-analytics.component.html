@@ -1,30 +1,22 @@
-<div class="min-h-screen bg-gray-50 p-8">
-    <div class="max-w-4xl mx-auto">
-        <h2 class="text-2xl font-bold mb-6">Form Analytics</h2>
-        <div class="responses-container">
-            <!-- Header -->
-            <header class="responses-header">
-              <h2>Responses</h2>
-              <span class="response-count">{{ responses.length }} responses</span>
-            </header>
-          
-            <!-- Summary Section -->
-            <div class="summary-section">
-              <h3>Summary</h3>
-              <button class="link-btn">Detail Analysis</button>
-            </div>
-          
-            <!-- Responses List -->
-            <div class="responses-list">
-              <div *ngFor="let question of questions">
-                <h4>{{ question.text }}</h4>
-                <div class="response-item" *ngFor="let response of question.responses; let i = index">
-                  <span>{{ response }}</span>
-                  <button class="view-btn" (click)="viewResponse(response, i)">View</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        
+<div class="min-h-screen flex flex-col bg-gray-50">
+  <div class="flex-grow flex items-center justify-center">
+    <div class="p-4 bg-white shadow-md rounded-lg border border-gray-200 max-w-md w-full mx-auto">
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Form Analytics</h2>
+
+      <div class="responses-list bg-gray-50 p-3 rounded-md">
+        <div class="response-item flex justify-between items-center bg-white p-2 rounded shadow-sm">
+          <p class="text-gray-700 text-sm">Total Responses: <span class="font-semibold">{{ responses.length }}</span></p>
+          <button class="view-btn bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-1 px-3 rounded"
+              (click)="viewResponses()">
+            View
+          </button>
+        </div>        
+      </div>
     </div>
+  </div>
+
+  <!-- Footer stays at the bottom -->
+  <footer class="bg-gray-200 text-center text-gray-600 p-3 mt-auto">
+    &copy; 2025 Your App Name. All rights reserved.
+  </footer>
 </div>

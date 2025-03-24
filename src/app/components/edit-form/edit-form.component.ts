@@ -85,9 +85,14 @@ export class EditFormComponent implements OnInit {
         options: q.options ? q.options.map((opt: any) => opt) : []
       }))
     };
-
+  
     console.log("Updated form before saving:", JSON.stringify(updatedForm, null, 2));
+  
     this.formService.updateForm(this.formIndex, updatedForm);
+    
+    // Redirect back to forms list (NOT form analytics)
     this.router.navigate(['/forms']);
   }
+  
+
 }
