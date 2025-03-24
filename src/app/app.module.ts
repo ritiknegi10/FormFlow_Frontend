@@ -23,6 +23,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { FaqComponent } from './components/faq/faq.component';
+import { AboutUsComponent } from './components/about-us/about-us.component';
 // --------MATERIAL---------
 
 @NgModule({
@@ -38,7 +40,9 @@ import { MatIconModule } from '@angular/material/icon';
     RegisterComponent,
     ContactComponent,
     FormBuilderComponent,
-    QuestionComponent
+    QuestionComponent,
+    AboutUsComponent,
+    FaqComponent
   ],
   imports: [
     BrowserModule,

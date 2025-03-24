@@ -10,6 +10,8 @@ import { FormAnalyticsComponent } from './components/form-analytics/form-analyti
 import { ContactComponent } from './components/contact/contact.component';
 
 import { FormBuilderComponent } from './components/form-builder/form-builder.component';
+import { AboutUsComponent } from './components/about-us/about-us.component';
+import { FaqComponent } from './components/faq/faq.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -20,6 +22,8 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
     { path: 'contact', component: ContactComponent },
+    {path:'about',component:AboutUsComponent},
+    {path:"faq", component:FaqComponent},
   { path: '**', redirectTo: '' }
 ];
 
