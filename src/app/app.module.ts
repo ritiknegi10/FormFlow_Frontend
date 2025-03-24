@@ -14,19 +14,10 @@ import { EditFormComponent } from './components/edit-form/edit-form.component';
 import { FormAnalyticsComponent } from './components/form-analytics/form-analytics.component';
 import { ViewResponseComponent } from './components/view-response/view-response.component';
 import { ContactComponent } from './components/contact/contact.component';
-import { FormBuilderComponent } from './components/form-builder/form-builder.component';
-import { QuestionComponent } from './components/question/question.component';
-
-// --------MATERIAL---------
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { FaqComponent } from './components/faq/faq.component';
 import { AboutUsComponent } from './components/about-us/about-us.component';
-// --------MATERIAL---------
+import { FaqComponent } from './components/faq/faq.component';
+
+
 
 @NgModule({
   declarations: [
@@ -39,10 +30,7 @@ import { AboutUsComponent } from './components/about-us/about-us.component';
     EditFormComponent,
     FormAnalyticsComponent,
     ViewResponseComponent,
-    RegisterComponent,
     ContactComponent,
-    FormBuilderComponent,
-    QuestionComponent,
     AboutUsComponent,
     FaqComponent
   ],
@@ -51,14 +39,7 @@ import { AboutUsComponent } from './components/about-us/about-us.component';
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,
-// --------MATERIAL---------
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatCardModule,
-    MatIconModule
-// --------MATERIAL---------
+
   ],
   providers: [],
   bootstrap: [AppComponent]
