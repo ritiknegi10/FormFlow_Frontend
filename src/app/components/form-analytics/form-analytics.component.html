@@ -10,7 +10,15 @@
               (click)="viewResponses()">
             View
           </button>
-        </div>        
+        </div>   
+        <button (click)="exportToExcel()" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
+          Download Excel
+        </button>
+        
+        <button (click)="exportToPDF()" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded ">
+          Download PDF
+        </button>
+             
       </div>
     </div>
   </div>
