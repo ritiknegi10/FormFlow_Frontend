@@ -71,43 +71,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
   
-<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 p-8">
+<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 pt-10 pb-20">
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
-        <h2 class="font-bold text-3xl text-center mt-6 mb-12">Create New Form</h2>
+        <h2 class="font-bold text-2xl text-center mt-6 mb-12">New Form</h2>
       
         <form [formGroup]="formBuilder" (ngSubmit)="onSubmit()"> 
             <!-- Form header -->
             <div class="space-y-4">
                 <div>
-                <label class="block text-gray-700 font-semibold">Form Title</label>
+                <label class="block text-gray-700 font-semibold mb-1 mt-4">Form Title</label>
                 <input type="text" formControlName="title"
-                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
                 
                 <div>
-                <label class="block text-gray-700 font-semibold">Form Description</label>
+                <label class="block text-gray-700 font-semibold mb-1 mt-4">Form Description</label>
                 <input type="text" formControlName="description"
-                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
             </div>
         
             <!-- Questions Section -->
-            <div class="mt-8">
+            <div class="mt-12">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Questions</h3>
         
                 <!-- Questions List -->
                 <div formArrayName="questions" class="space-y-6">
                 <div *ngFor="let question of questions.controls; let i = index" [formGroupName]="i"
-                    class="p-6 border rounded-xl bg-gray-100 shadow-sm">
+                    class="py-6 px-3 border rounded-xl bg-gray-200 hover:shadow-lg">
         
                     <!-- Question input -->
-                    <div class="flex gap-4 items-center">
+                    <div class="flex gap-2 items-center">
                     <input type="text" formControlName="questionText"
                         class="w-2/3 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                         placeholder="Enter question" />
         
                     <select formControlName="type"
-                        class="w-1/3 p-2 border rounded-lg">
+                        class="w-1/3 px-3 py-2 border rounded-lg">
                         <option value="shortText">Short Text</option>
                         <option value="paragraph">Paragraph</option>
                         <option value="multipleChoice">Multiple Choice</option>
@@ -118,21 +118,21 @@
         
                     <!-- Options -->
                     <div *ngIf="question.get('type')?.value !== 'shortText' && question.get('type')?.value !== 'paragraph'" class="mt-4">
-                    <h4 class="text-gray-700 font-semibold">Options</h4>
+                    <h4 class="text-gray-700 font-semibold px-2">Options</h4>
                     <div formArrayName="options" class="space-y-2 mt-2">
                         <div *ngFor="let option of getOptions(questions.at(i)).controls; let j = index" class="flex gap-2">
-                        <input type="text" [formControlName]="j" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Option">
-                        <button (click)="removeOption(i, j)" class="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600">✖</button>
+                        <input type="text" [formControlName]="j" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Option">
+                        <button (click)="removeOption(i, j)" class="px-3 rounded-full text-gray-700 hover:bg-gray-300">✖</button>
                         </div>
-                        <button (click)="addOption(i)" type="button" class="mt-2 px-4 py-2 text-indigo-600 text-sm font-semibold hover:bg-gray-200 rounded-lg">
+                        <button (click)="addOption(i)" type="button" class="px-4 py-2 text-indigo-600 text-sm font-semibold hover:bg-gray-300 rounded-lg">
                         + Add Option
                         </button>
                     </div>
                     </div>
         
                     <!-- Actions -->
-                    <div class="flex justify-between items-center mt-6">
-                        <label class="mr-5 flex items-center justify-center cursor-pointer">
+                    <div class="flex justify-between items-center mt-8 px-4">
+                        <label class="flex items-center justify-center cursor-pointer">
                     
                             <input type="checkbox" formControlName="required" class="sr-only peer">
                             <div class="relative w-12 h-6 bg-gray-300 rounded-full transition peer-checked:bg-indigo-600"></div>
@@ -141,33 +141,32 @@
                             
                         </label>
     
-                    <div class="flex gap-2">
+                    <div class="flex gap-1">
                         <button (click)="duplicateQuestion(i)" type="button"
-                        class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg">
-                        <i class="fa-regular fa-copy text-lg"></i>
-                        <!-- <i class="fa-regular fa-copy" style="font-size: 1.25rem;"></i> -->
+                        class="px-3 py-2 text-gray-700 hover:bg-gray-300 rounded-lg">
+                        <i class="fa-regular fa-copy text-2xl"></i>
     
     
                         </button>
                         <button (click)="removeQuestion(i)"
-                        class="px-3 py-2 bg-red-500 text-white hover:bg-red-600 rounded-lg">
-                        <i class="fa-solid fa-trash text-lg"></i>
+                        class="px-3 py-2 text-gray-700 hover:bg-gray-300 rounded-lg">
+                        <i class="fa-solid fa-trash text-2xl"></i>
                         </button>
                     </div>
                     </div>
         
                 </div>
-                </div>
+                </div>  
             </div>
         
             <!-- Form Footer -->
             <div class="mt-6 flex justify-between">
                 <button *ngIf="questions.length>=1" type="submit"
-                class="text-white bg-green-600 px-6 py-3 rounded-lg hover:bg-green-700">
+                class="text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700">
                 Save Form
                 </button>
                 <button (click)="addQuestion()" type="button"
-                class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
+                class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
                 + Add Question
                 </button>
             </div>
