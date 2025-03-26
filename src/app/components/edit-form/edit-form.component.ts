@@ -110,7 +110,6 @@ export class EditFormComponent implements OnInit {
             }))
         };
     
-    
         this.formService.updateForm(this.formIndex, updatedForm);
         
         this.router.navigate(['/forms']);

@@ -12,8 +12,12 @@
                 <div>
                 <label class="block text-gray-700 font-semibold mb-1 mt-4">Form Title</label>
                 <input type="text" formControlName="title"
-                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                <div class="hidden mt-1 text-sm text-red-500">*Enter Form Title</div>
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+
+                    <!-- Form title Validation -->
+                    <div *ngIf="(titleControl?.invalid && submitClicked) || titleControl?.touched" class="mt-1 text-sm text-red-500">
+                        *Enter Form Title
+                    </div>
                 </div>
                 
                 <div>
@@ -47,7 +51,8 @@
                         <option value="dropdown">Drop-down</option>
                     </select>
                     </div>
-                    <div class="hidden mt-1 text-sm text-red-500">*Enter question text</div>
+                    <!-- Question Validation -->
+                    <div *ngIf="isQuestionInvalid" class="mt-1 text-sm text-red-500">*Enter question text</div>
         
                     <!-- Options -->
                     <div *ngIf="question.get('type')?.value !== 'shortText' && question.get('type')?.value !== 'paragraph'" class="mt-4">
@@ -55,7 +60,11 @@
                     <div formArrayName="options" class="space-y-2 mt-2">
                         <div *ngFor="let option of getOptions(questions.at(i)).controls; let j = index" class="flex gap-2">
                         <input type="text" [formControlName]="j" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Option">
-                        <button (click)="removeOption(i, j)" class="px-3 rounded-full text-gray-700 hover:bg-gray-300">✖</button>
+                        <button 
+                        *ngIf="getOptions(questions.at(i)).length > 1" (click)="removeOption(i, j)" 
+                        class="px-3 rounded-full text-gray-700 hover:bg-gray-300">
+                            ✖
+                        </button>
                         </div>
                     
                         <button (click)="addOption(i)" type="button" class="px-4 py-2 text-indigo-600 text-sm hover:bg-gray-300 rounded-xl">
