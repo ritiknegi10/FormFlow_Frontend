@@ -58,20 +58,25 @@ export class EditFormComponent implements OnInit {
     }
 
     addQuestion() {
-        this.questions.push(this.createQuestionGroup({ questionText: '', type: 'text', options: []}));
+        this.questions.push(this.fb.group({
+            questionText: [''],
+            type: ['shortText'],
+            options: this.fb.array([]),
+            required: false, 
+        }));    
     }
 
     duplicateQuestion(index: number) {
-        const originalQuestion = this.questions.at(index).value; 
-        const duplicatedQuestion = this.fb.group({
+      const originalQuestion = this.questions.at(index).value; 
+      const duplicatedQuestion = this.fb.group({
         questionText: [originalQuestion.questionText],
         type: [originalQuestion.type],
         required: [originalQuestion.required],
         options: this.fb.array(
-            originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
+          originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
         )
-        });
-        this.questions.insert(index + 1, duplicatedQuestion); 
+      });
+      this.questions.insert(index + 1, duplicatedQuestion); 
     }
 
     removeQuestion(index: number) {
@@ -79,18 +84,21 @@ export class EditFormComponent implements OnInit {
     }
 
     addOption(questionIndex: number) {
-        const optionsArray = this.getOptions(questionIndex);
-        optionsArray.push(new FormControl(''));
+        const options = this.getOptions(this.questions.at(questionIndex));
+        options.push(new FormControl(''));
     }
+
 
     removeOption(questionIndex: number, optionIndex: number) {
-        this.getOptions(questionIndex).removeAt(optionIndex);
+        const options = this.getOptions(this.questions.at(questionIndex));
+        options.removeAt(optionIndex);
     }
 
-    getOptions(questionIndex: number): FormArray {
-        return this.questions.at(questionIndex).get('options') as FormArray;
-    }
 
+    getOptions(question: any): FormArray {
+        return question.get('options') as FormArray;
+    }
+    
     saveChanges() {
         const updatedForm = {
             ...this.form.value,
