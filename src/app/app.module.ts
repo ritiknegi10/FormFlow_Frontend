@@ -16,6 +16,8 @@ import { ViewResponseComponent } from './components/view-response/view-response.
 import { ContactComponent } from './components/contact/contact.component';
 import { AboutUsComponent } from './components/about-us/about-us.component';
 import { FaqComponent } from './components/faq/faq.component';
+import { SharelinkComponent } from './components/sharelink/sharelink.component';
+import { SubmitPageComponent } from './components/submit-page/submit-page.component';
 
 
 
@@ -32,7 +34,9 @@ import { FaqComponent } from './components/faq/faq.component';
     ViewResponseComponent,
     ContactComponent,
     AboutUsComponent,
-    FaqComponent
+    FaqComponent,
+    SharelinkComponent,
+    SubmitPageComponent
   ],
   imports: [
     BrowserModule,

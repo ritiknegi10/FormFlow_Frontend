@@ -29,4 +29,13 @@ export class FormsListComponent implements OnInit {
   deleteForm(index: number) {
     this.formService.deleteForm(index);
   }
+
+  copyLink(index: number) {   
+    const baseUrl = window.location.origin; 
+    const shareableLink = `${baseUrl}/sharelink/${index}`; 
+    navigator.clipboard.writeText(shareableLink).then(() => {
+      alert('Sharable link copied to clipboard!');
+    });
+  }
+  
 }
