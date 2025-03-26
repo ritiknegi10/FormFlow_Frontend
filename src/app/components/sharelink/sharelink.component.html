@@ -1,0 +1,49 @@
+<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 p-8 flex flex-col items-center">
+  <!-- Title and Description Centered Above -->
+  <div class="text-center mb-6 max-w-2xl">
+      <h2 class="text-3xl font-bold text-gray-900">{{ formData.title }}</h2>
+      <p class="text-gray-700 mt-2">{{ formData.description }}</p>
+  </div>
+
+  <!-- Form Container -->
+  <div class="max-w-3xl w-full bg-white p-6 rounded-lg shadow-md">
+      <div *ngFor="let question of formData.questions" class="mb-6">
+          <p class="text-lg font-semibold text-gray-800">
+              {{ question.questionText }}
+              <span *ngIf="question.required" class="text-red-500">*</span>
+          </p>
+
+          <!-- Short Text & Paragraph Input -->
+          <div *ngIf="question.type === 'shortText' || question.type === 'paragraph'">
+              <input type="text" 
+                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                     placeholder="Your answer" [required]="question.required">
+          </div>
+
+          <!-- Multiple Choice (Radio Buttons) -->
+          <div *ngIf="question.type === 'multipleChoice'" class="mt-2">
+              <div *ngFor="let option of question.options" class="flex items-center space-x-2">
+                  <input type="radio" name="{{question.questionText}}" class="text-indigo-600 focus:ring-indigo-500"
+                         [required]="question.required">
+                  <label class="text-gray-700">{{ option }}</label>
+              </div>
+          </div>
+
+          <!-- Checkboxes -->
+          <div *ngIf="question.type === 'checkboxes'" class="mt-2">
+              <div *ngFor="let option of question.options" class="flex items-center space-x-2">
+                  <input type="checkbox" class="text-indigo-600 focus:ring-indigo-500">
+                  <label class="text-gray-700">{{ option }}</label>
+              </div>
+          </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="mt-6 flex justify-center">
+          <button (click)="submitForm()"
+                  class="bg-indigo-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-indigo-700 transition">
+              Submit
+          </button>
+      </div>
+  </div>
+</div>

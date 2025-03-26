@@ -102,11 +102,9 @@ export class EditFormComponent implements OnInit {
             }))
         };
     
-        console.log("Updated form before saving:", JSON.stringify(updatedForm, null, 2));
     
         this.formService.updateForm(this.formIndex, updatedForm);
         
-        // Redirect back to forms list (NOT form analytics)
         this.router.navigate(['/forms']);
     }
 }
