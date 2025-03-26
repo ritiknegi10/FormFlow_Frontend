@@ -26,6 +26,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { FaqComponent } from './components/faq/faq.component';
 import { AboutUsComponent } from './components/about-us/about-us.component';
+import { HttpClientModule } from '@angular/common/http';
 // --------MATERIAL---------
 
 @NgModule({
@@ -49,6 +50,7 @@ import { AboutUsComponent } from './components/about-us/about-us.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
 // --------MATERIAL---------
