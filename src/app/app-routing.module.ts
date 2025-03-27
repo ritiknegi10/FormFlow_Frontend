@@ -13,21 +13,22 @@ import { AboutUsComponent } from './components/about-us/about-us.component';
 import { FaqComponent } from './components/faq/faq.component';
 import { SharelinkComponent } from './components/sharelink/sharelink.component';
 import { SubmitPageComponent } from './components/submit-page/submit-page.component';
+import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
-  { path: '', component: LandingPageComponent },
-  { path: 'create', component: CreateFormComponent },
-  { path: 'forms', component: FormsListComponent },
-  { path: 'edit/:id', component: EditFormComponent },
-  { path: 'form-analytics/:id', component: FormAnalyticsComponent },  
+  { path: '', component: LandingPageComponent, canActivate: [AuthGuard] },
+  { path: 'create', component: CreateFormComponent, canActivate: [AuthGuard]  },
+  { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard]  },
+  { path: 'edit/:id', component: EditFormComponent, canActivate: [AuthGuard]  },
+  { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard]  },  
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'view-responses/:id', component: ViewResponseComponent }, 
-  { path: 'contact', component: ContactComponent },
-  { path:'about',component:AboutUsComponent},
-  { path:"faq", component:FaqComponent},
-  { path: 'sharelink/:id', component: SharelinkComponent },
-  { path:'submit/:id', component: SubmitPageComponent},
+  { path: 'view-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard]  }, 
+    { path: 'contact', component: ContactComponent },
+    {path:'about',component:AboutUsComponent},
+    {path:"faq", component:FaqComponent},
+    { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard]  },
+    {path:'submit/:id', component: SubmitPageComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 
