@@ -1,6 +1,10 @@
 <div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 p-8">
     <div class="max-w-4xl mx-auto">
         <h2 class="text-2xl font-bold mb-6">My Forms</h2>
+        <h4 *ngIf="noForms" class="text-gray-600">
+            There are no forms created yet.
+            <a routerLink="/create" class="text-indigo-600 hover:text-indigo-800 hover:underline">Create one</a>
+        </h4>
 
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div *ngFor="let form of forms; let i = index"

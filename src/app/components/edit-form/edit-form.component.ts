@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { FormService } from '../../services/form.service';
 
 @Component({
@@ -11,6 +11,10 @@ import { FormService } from '../../services/form.service';
 export class EditFormComponent implements OnInit {
     form!: FormGroup;
     formIndex!: number;
+    submitClicked: boolean = false;
+    submitSuccess: boolean = false;
+    isQuestionInvalid: boolean = false;
+    singleOption: boolean = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -28,7 +32,7 @@ export class EditFormComponent implements OnInit {
 
         if (formData) {
             this.form = this.fb.group({
-            title: new FormControl(formData.title || ''),
+            title: new FormControl(formData.title || '', Validators.required),
             description: new FormControl(formData.description || ''),
             questions: this.fb.array(
                 formData.questions.map((q: any) => this.createQuestionGroup(q))
@@ -44,11 +48,11 @@ export class EditFormComponent implements OnInit {
 
     createQuestionGroup(question: any): FormGroup {
         return this.fb.group({
-        questionText: new FormControl(question.questionText || ''),
+        questionText: new FormControl(question.questionText || '', Validators.required),
         type: new FormControl(question.type || 'text'),
         required: new FormControl(question.required || false),
         options: this.fb.array(
-            question.options ? question.options.map((opt: any) => new FormControl(opt)) : []
+            question.options ? question.options.map((opt: any) => new FormControl(opt, Validators.required)) : []
         )
         });
     }
@@ -57,13 +61,32 @@ export class EditFormComponent implements OnInit {
         return this.form.get('questions') as FormArray;
     }
 
+    get titleControl() {
+        return this.form.get('title');
+    }
+
+    getQuestionTextControl(question: any){
+        return question.get('questionText');
+    }
     addQuestion() {
-        this.questions.push(this.fb.group({
-            questionText: [''],
+        const questionGroup = this.fb.group({
+            questionText: ['', Validators.required],
             type: ['shortText'],
             options: this.fb.array([]),
-            required: false, 
-        }));    
+            required: false,
+        });
+            
+        // Listen for type changes to add default option
+        questionGroup.get('type')?.valueChanges.subscribe(type => {
+            if (type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown') {
+                const options = questionGroup.get('options') as FormArray;
+                if (options.length === 0) {
+                    options.push(new FormControl('')); // Add default option
+                }
+            }
+        });
+            
+        this.questions.push(questionGroup);   
     }
 
     duplicateQuestion(index: number) {
@@ -86,6 +109,7 @@ export class EditFormComponent implements OnInit {
     addOption(questionIndex: number) {
         const options = this.getOptions(this.questions.at(questionIndex));
         options.push(new FormControl(''));
+        this.singleOption = false;
     }
 
 
@@ -98,8 +122,35 @@ export class EditFormComponent implements OnInit {
     getOptions(question: any): FormArray {
         return question.get('options') as FormArray;
     }
-    
+
     saveChanges() {
+        this.submitClicked = true;
+
+        if (this.titleControl?.invalid) return;
+        
+        this.isQuestionInvalid = false;
+        this.singleOption = false;
+        let isOptionInvalid = false;
+
+        this.questions.controls.forEach((control) => {
+            if(control instanceof FormGroup) {
+                const ques = control;
+                const optionsArray = this.getOptions(ques);
+                
+                if(this.getQuestionTextControl(ques)?.invalid) this.isQuestionInvalid = true;
+                   
+                optionsArray.controls.forEach(optionControl => {
+                    if (!optionControl.value.trim()) isOptionInvalid = true;
+                    else if(((ques.get('type')?.value === "multipleChoice") && (optionsArray.controls.length < 2))
+                                || (ques.get('type')?.value === "dropdown") && (optionsArray.controls.length < 2)) 
+                            this.singleOption = true;
+                        
+                });
+            }
+        });
+
+        if(this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
+
         const updatedForm = {
             ...this.form.value,
             questions: this.form.value.questions.map((q: any) => ({
@@ -111,6 +162,11 @@ export class EditFormComponent implements OnInit {
         };
     
         this.formService.updateForm(this.formIndex, updatedForm);
+        this.submitSuccess = true;
+
+        setTimeout(() => {
+            this.submitSuccess = false;
+        }, 5000);
         
         this.router.navigate(['/forms']);
     }

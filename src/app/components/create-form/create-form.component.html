@@ -2,7 +2,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
   
-<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 pt-10 pb-20">
+<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 pt-10 pb-20 relative">
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
         <h2 class="font-bold text-2xl text-center mt-6 mb-12">New Form</h2>
       
@@ -10,13 +10,13 @@
             <!-- Form header -->
             <div class="space-y-4">
                 <div>
-                <label class="block text-gray-700 font-semibold mb-1 mt-4">Form Title</label>
-                <input type="text" formControlName="title"
-                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                    <label class="block text-gray-700 font-semibold mb-1 mt-4">Form Title</label>
+                    <input type="text" formControlName="title"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
 
                     <!-- Form title Validation -->
-                    <div *ngIf="(titleControl?.invalid && submitClicked) || titleControl?.touched" class="mt-1 text-sm text-red-500">
-                        *Enter Form Title
+                    <div *ngIf="(titleControl?.invalid && submitClicked)" class="px-2 mt-1 text-sm text-red-500">
+                        *Enter form title
                     </div>
                 </div>
                 
@@ -52,19 +52,28 @@
                     </select>
                     </div>
                     <!-- Question Validation -->
-                    <div *ngIf="isQuestionInvalid" class="mt-1 text-sm text-red-500">*Enter question text</div>
+                    <div *ngIf="getQuestionTextControl(question)?.invalid && submitClicked" class="px-2 mt-1 text-sm text-red-500">*Enter question text</div>
         
                     <!-- Options -->
                     <div *ngIf="question.get('type')?.value !== 'shortText' && question.get('type')?.value !== 'paragraph'" class="mt-4">
                     <h4 class="text-gray-700 font-semibold px-2">Options</h4>
                     <div formArrayName="options" class="space-y-2 mt-2">
-                        <div *ngFor="let option of getOptions(questions.at(i)).controls; let j = index" class="flex gap-2">
-                        <input type="text" [formControlName]="j" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Option">
-                        <button 
-                        *ngIf="getOptions(questions.at(i)).length > 1" (click)="removeOption(i, j)" 
-                        class="px-3 rounded-full text-gray-700 hover:bg-gray-300">
-                            ✖
-                        </button>
+                        <div *ngFor="let option of getOptions(questions.at(i)).controls; let j = index" class="">
+                            <div class="flex gap-1">
+                            <input type="text" [formControlName]="j" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter option">
+                            <button 
+                                *ngIf="getOptions(questions.at(i)).length > 1" (click)="removeOption(i, j)" 
+                                class="px-3 text-lg rounded-full text-gray-700 hover:bg-gray-300">
+                                ✖
+                            </button>
+                            </div>
+                            
+                            <div *ngIf="(!option.value.trim()) && submitClicked" class="px-2 mt-1 text-sm text-red-500 text-center"> 
+                                *Enter option text
+                            </div>
+                            <div *ngIf="singleOption && submitClicked" class="px-2 mt-1 text-sm text-red-500 text-center"> 
+                                *Enter at least two options for {{ question.get('type')?.value }} question
+                            </div>
                         </div>
                     
                         <button (click)="addOption(i)" type="button" class="px-4 py-2 text-indigo-600 text-sm hover:bg-gray-300 rounded-xl">
@@ -107,16 +116,22 @@
         
             <!-- Form Footer -->
             <div class="mt-6 flex justify-between">
-                <button *ngIf="questions.length>=1" type="submit"
-                class="text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700">
-                Save Form
-                </button>
                 <button (click)="addQuestion()" type="button"
-                class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
-                + Add Question
+                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                    + Add Question
+                </button>
+                <button *ngIf="questions.length>=1" type="submit"
+                    class="text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700">
+                    Save Form
                 </button>
             </div>
       
         </form>
+    </div>
+    
+    <div *ngIf="submitSuccess"
+        class="absolute top-2 right-0 bg-green-200 px-14 py-4 text-lg cursor-pointer transition-all duration-10000 ease-out">
+        Form saved!
+        <i class="fa-solid fa-circle-check ml-1 text-green-700"></i>
     </div>
 </div>

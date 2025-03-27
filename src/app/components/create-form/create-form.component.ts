@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { FormService } from '../../services/form.service';
+import { single } from 'rxjs';
 
 @Component({
   selector: 'app-create-form',
@@ -11,7 +12,9 @@ export class CreateFormComponent {
     formBuilder: FormGroup;
     questions: FormArray;
     submitClicked: boolean = false;
+    submitSuccess: boolean = false;
     isQuestionInvalid: boolean = false;
+    singleOption: boolean = false;
 
     constructor(private fb: FormBuilder, private formService: FormService) {
         this.formBuilder = this.fb.group({
@@ -21,13 +24,23 @@ export class CreateFormComponent {
         });
         this.questions = this.formBuilder.get('questions') as FormArray;
     }
+    ngOnInit() {
+        if (localStorage.getItem("formSaved") === "true") {
+            this.submitSuccess = true;
+            localStorage.removeItem("formSaved");
+
+            setTimeout(() => {
+                this.submitSuccess = false;
+            }, 5000);
+        }
+    }
 
     get titleControl() {
         return this.formBuilder.get('title');
     }
 
-    getQuestionTextControl(question: FormGroup){
-        return question.get('questionText')
+    getQuestionTextControl(question: any){
+        return question.get('questionText');
     }
 
     addQuestion(){
@@ -49,6 +62,7 @@ export class CreateFormComponent {
         });
     
         this.questions.push(questionGroup);
+        
     }
 
     duplicateQuestion(index: number) {
@@ -71,6 +85,7 @@ export class CreateFormComponent {
     addOption(questionIndex: number) {
         const options = this.getOptions(this.questions.at(questionIndex));
         options.push(new FormControl(''));
+        this.singleOption = false;
     }
 
 
@@ -86,30 +101,39 @@ export class CreateFormComponent {
 
     onSubmit() {
         this.submitClicked = true;
-        if (this.titleControl?.invalid) {
-            alert("Please enter a valid form title.");
-            return;
-        }
 
+        if (this.titleControl?.invalid) return;
+        
         this.isQuestionInvalid = false;
-        this.questions.controls.forEach((control) => {
-            if(control instanceof FormGroup){
-                const ques = control;
+        this.singleOption = false;
+        let isOptionInvalid = false;
 
-                if(this.getQuestionTextControl(ques)?.invalid)
-                    this.isQuestionInvalid = true;
+        this.questions.controls.forEach((control) => {
+            if(control instanceof FormGroup) {
+                const ques = control;
+                const optionsArray = this.getOptions(ques);
+                
+                if(this.getQuestionTextControl(ques)?.invalid) this.isQuestionInvalid = true;
+                   
+                optionsArray.controls.forEach(optionControl => {
+                    if (!optionControl.value.trim()) isOptionInvalid = true;
+                    else if(((ques.get('type')?.value === "multipleChoice") && (optionsArray.controls.length < 2))
+                        || (ques.get('type')?.value === "dropdown") && (optionsArray.controls.length < 2)) 
+                    this.singleOption = true;                       
+                });
             }
         });
 
-        if(this.isQuestionInvalid){
-            alert("Please enter a valid question text");
-            return;
-        }
+        if(this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
 
-        console.log("Form saved");
-        console.log(JSON.stringify(this.formBuilder.value));
+        localStorage.setItem("formSaved", "true");
+        
+        // console.log("Form saved");
+        // console.log(JSON.stringify(this.formBuilder.value));
         this.formService.addForm(this.formBuilder.value);
-        alert("Form saved successfully");
-        // window.location.reload();
+        
+        window.location.reload();
+        window.scrollTo(0, 0);
+        
     }
 }

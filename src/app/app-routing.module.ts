@@ -23,11 +23,11 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'view-responses/:id', component: ViewResponseComponent }, 
-    { path: 'contact', component: ContactComponent },
-    {path:'about',component:AboutUsComponent},
-    {path:"faq", component:FaqComponent},
-    { path: 'sharelink/:id', component: SharelinkComponent },
-    {path:'submit/:id', component: SubmitPageComponent},
+  { path: 'contact', component: ContactComponent },
+  { path:'about',component:AboutUsComponent},
+  { path:"faq", component:FaqComponent},
+  { path: 'sharelink/:id', component: SharelinkComponent },
+  { path:'submit/:id', component: SubmitPageComponent},
   { path: '**', redirectTo: '' }
 ];
 

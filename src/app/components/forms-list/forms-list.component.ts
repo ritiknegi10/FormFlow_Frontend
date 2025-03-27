@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 })
 export class FormsListComponent implements OnInit {
   forms: any[] = [];
+  noForms: boolean = false;
 
   constructor(private formService: FormService, private router: Router) {}
 
@@ -17,17 +18,17 @@ export class FormsListComponent implements OnInit {
     this.formService.forms$.subscribe(forms => {
       this.forms = forms;
     });
-    
+    console.log(this.forms);
+    if(!this.forms.length) this.noForms = true;
   }
   
   goToAnalytics(index: number) {
     this.router.navigate(['/form-analytics', index]);
   }
   
-
-  
   deleteForm(index: number) {
     this.formService.deleteForm(index);
+    if(!this.forms.length) this.noForms = true;
   }
 
   copyLink(index: number) {   
