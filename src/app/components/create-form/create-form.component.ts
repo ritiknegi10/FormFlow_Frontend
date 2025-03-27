@@ -44,6 +44,7 @@ export class CreateFormComponent {
     }
 
     addQuestion(){
+        this.submitClicked=false;
         const questionGroup = this.fb.group({
             questionText: ['', Validators.required],
             type: ['shortText'],
@@ -53,12 +54,13 @@ export class CreateFormComponent {
     
         // Listen for type changes to add default option
         questionGroup.get('type')?.valueChanges.subscribe(type => {
-        if (type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown') {
-            const options = questionGroup.get('options') as FormArray;
-            if (options.length === 0) {
-                options.push(new FormControl('')); // Add default option
+            this.submitClicked=false;
+            if (type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown') {
+                const options = questionGroup.get('options') as FormArray;
+                if (options.length === 0) {
+                    options.push(new FormControl('')); // Add default option
+                }
             }
-        }
         });
     
         this.questions.push(questionGroup);
@@ -66,16 +68,17 @@ export class CreateFormComponent {
     }
 
     duplicateQuestion(index: number) {
-      const originalQuestion = this.questions.at(index).value; 
-      const duplicatedQuestion = this.fb.group({
-        questionText: [originalQuestion.questionText, Validators.required],
-        type: [originalQuestion.type],
-        required: [originalQuestion.required],
-        options: this.fb.array(
-          originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
-        )
-      });
-      this.questions.insert(index + 1, duplicatedQuestion); 
+        this.submitClicked=false;
+        const originalQuestion = this.questions.at(index).value; 
+        const duplicatedQuestion = this.fb.group({
+            questionText: [originalQuestion.questionText, Validators.required],
+            type: [originalQuestion.type],
+            required: [originalQuestion.required],
+            options: this.fb.array(
+            originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
+            )
+        });
+        this.questions.insert(index + 1, duplicatedQuestion); 
     }
 
     removeQuestion(index: number) {
@@ -83,6 +86,7 @@ export class CreateFormComponent {
     }
 
     addOption(questionIndex: number) {
+        this.submitClicked=false;
         const options = this.getOptions(this.questions.at(questionIndex));
         options.push(new FormControl(''));
         this.singleOption = false;
@@ -102,7 +106,10 @@ export class CreateFormComponent {
     onSubmit() {
         this.submitClicked = true;
 
-        if (this.titleControl?.invalid) return;
+        if (this.titleControl?.invalid){
+            // this.resetSubmitClicked();
+            return;
+        }
         
         this.isQuestionInvalid = false;
         this.singleOption = false;
@@ -124,7 +131,10 @@ export class CreateFormComponent {
             }
         });
 
-        if(this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
+        if(this.isQuestionInvalid || isOptionInvalid || this.singleOption){
+            // this.resetSubmitClicked();
+            return;
+        } 
 
         localStorage.setItem("formSaved", "true");
         
@@ -134,6 +144,10 @@ export class CreateFormComponent {
         
         window.location.reload();
         window.scrollTo(0, 0);
-        
+        this.resetSubmitClicked();
+    }
+
+    resetSubmitClicked() {
+        this.submitClicked = false;
     }
 }

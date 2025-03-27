@@ -69,6 +69,7 @@ export class EditFormComponent implements OnInit {
         return question.get('questionText');
     }
     addQuestion() {
+        this.submitClicked = true;
         const questionGroup = this.fb.group({
             questionText: ['', Validators.required],
             type: ['shortText'],
@@ -78,6 +79,7 @@ export class EditFormComponent implements OnInit {
             
         // Listen for type changes to add default option
         questionGroup.get('type')?.valueChanges.subscribe(type => {
+            this.submitClicked = true;
             if (type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown') {
                 const options = questionGroup.get('options') as FormArray;
                 if (options.length === 0) {
@@ -90,16 +92,17 @@ export class EditFormComponent implements OnInit {
     }
 
     duplicateQuestion(index: number) {
-      const originalQuestion = this.questions.at(index).value; 
-      const duplicatedQuestion = this.fb.group({
-        questionText: [originalQuestion.questionText],
-        type: [originalQuestion.type],
-        required: [originalQuestion.required],
-        options: this.fb.array(
-          originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
-        )
-      });
-      this.questions.insert(index + 1, duplicatedQuestion); 
+        this.submitClicked = true;
+        const originalQuestion = this.questions.at(index).value; 
+        const duplicatedQuestion = this.fb.group({
+            questionText: [originalQuestion.questionText],
+            type: [originalQuestion.type],
+            required: [originalQuestion.required],
+            options: this.fb.array(
+            originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
+            )
+        });
+        this.questions.insert(index + 1, duplicatedQuestion); 
     }
 
     removeQuestion(index: number) {
@@ -107,6 +110,7 @@ export class EditFormComponent implements OnInit {
     }
 
     addOption(questionIndex: number) {
+        this.submitClicked = true;
         const options = this.getOptions(this.questions.at(questionIndex));
         options.push(new FormControl(''));
         this.singleOption = false;
@@ -121,6 +125,11 @@ export class EditFormComponent implements OnInit {
 
     getOptions(question: any): FormArray {
         return question.get('options') as FormArray;
+    }
+
+    cancelEditform(){
+        this.router.navigate(['/forms']);
+        window.scrollTo(0, 0);
     }
 
     saveChanges() {
@@ -169,5 +178,6 @@ export class EditFormComponent implements OnInit {
         }, 5000);
         
         this.router.navigate(['/forms']);
+        window.scrollTo(0, 0);
     }
 }
