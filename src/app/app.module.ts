@@ -21,6 +21,7 @@ import { SharelinkComponent } from './components/sharelink/sharelink.component';
 import { SubmitPageComponent } from './components/submit-page/submit-page.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { SignOutComponent } from './components/sign-out/sign-out.component';
+import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
 
 
 
@@ -40,7 +41,8 @@ import { SignOutComponent } from './components/sign-out/sign-out.component';
     FaqComponent,
     SharelinkComponent,
     SubmitPageComponent,
-    SignOutComponent
+    SignOutComponent,
+    UserFormsListComponent
   ],
   imports: [
     BrowserModule,
