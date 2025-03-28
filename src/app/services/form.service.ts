@@ -44,7 +44,6 @@ export class FormService {
 
   getResponsesByFormIndex(index: number): any {
     const allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
-    console.log("Fetching responses for Form", index, ":", allResponses[index]); 
     return allResponses[index] || [];
   }
   

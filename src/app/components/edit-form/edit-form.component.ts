@@ -24,7 +24,7 @@ export class EditFormComponent implements OnInit {
         this.formIndex = Number(params.get('id'));
         const formData = this.formService.getFormByIndex(this.formIndex);
 
-        //console.log("Loaded formData:", formData); 
+        
 
         if (formData) {
             this.form = this.fb.group({
@@ -35,7 +35,7 @@ export class EditFormComponent implements OnInit {
             )
             });
 
-        // console.log("Form initialized:", this.form.value); 
+        
         } else {
             this.router.navigate(['/forms']);
         }

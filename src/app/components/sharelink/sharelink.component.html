@@ -20,6 +20,9 @@
                      placeholder="Your answer" [required]="question.required">
           </div>
 
+
+          
+
           <!-- Multiple Choice (Radio Buttons) -->
           <div *ngIf="question.type === 'multipleChoice'" class="mt-2">
               <div *ngFor="let option of question.options" class="flex items-center space-x-2">
@@ -28,6 +31,16 @@
                   <label class="text-gray-700">{{ option }}</label>
               </div>
           </div>
+
+          <div *ngIf="question.type === 'dropdown'" class="mt-2">
+            <label class="text-gray-700">{{ question.questionText }}</label>
+            <select class="border rounded px-3 py-2 w-full" [required]="question.required">
+                <option value="" disabled selected>-- Select an option --</option> 
+                <option *ngFor="let option of question.options" [value]="option">{{ option }}</option>
+            </select>
+        </div>
+        
+        
 
           <!-- Checkboxes -->
           <div *ngIf="question.type === 'checkboxes'" class="mt-2">
