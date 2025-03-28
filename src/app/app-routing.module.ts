@@ -16,6 +16,7 @@ import { SubmitPageComponent } from './components/submit-page/submit-page.compon
 import { AuthGuard } from './guards/auth.guard';
 import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
+import { OtpComponent } from './components/otp/otp.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent, canActivate: [AuthGuard] },
@@ -26,6 +27,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signout', component: SignOutComponent, canActivate: [AuthGuard]  },
   { path: 'register', component: RegisterComponent },
+  { path: 'otp', component: OtpComponent },
   { path: 'view-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard]  }, 
   { path: 'user-forms', component: UserFormsListComponent, canActivate: [AuthGuard]  }, 
     { path: 'contact', component: ContactComponent },

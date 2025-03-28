@@ -22,6 +22,7 @@ import { SubmitPageComponent } from './components/submit-page/submit-page.compon
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
+import { OtpComponent } from './components/otp/otp.component';
 
 
 
@@ -42,7 +43,8 @@ import { UserFormsListComponent } from './components/user-forms-list/user-forms-
     SharelinkComponent,
     SubmitPageComponent,
     SignOutComponent,
-    UserFormsListComponent
+    UserFormsListComponent,
+    OtpComponent
   ],
   imports: [
     BrowserModule,
