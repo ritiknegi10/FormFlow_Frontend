@@ -10,7 +10,10 @@
                 <div class="flex space-x-2">
                     <button [routerLink]="['/edit', i]" class="text-indigo-600 hover:text-indigo-800">Edit</button>
                     <button (click)="goToAnalytics(i)" class="text-green-600 hover:text-green-800">Analytics</button>
-                    <button (click)="deleteForm(i)" class="text-red-600 hover:text-red-800">Delete</button>
+                    <button (click)="confirmDeleteForm(form.id)" class="text-red-600 hover:text-red-800">
+                        Delete
+                      </button>
+                      
                 </div>
             </div>
         </div>
