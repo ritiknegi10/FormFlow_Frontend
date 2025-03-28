@@ -15,7 +15,7 @@
                         class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
 
                     <!-- Form title Validation -->
-                    <div *ngIf="(titleControl?.invalid && submitClicked)" class="px-2 mt-1 text-sm text-red-500">
+                    <div *ngIf="titleControl?.invalid && (submitClicked || titleControl?.touched)" class="px-2 mt-1 text-sm text-red-500">
                         *Enter form title
                     </div>
                 </div>
@@ -52,7 +52,8 @@
                     </select>
                     </div>
                     <!-- Question Validation -->
-                    <div *ngIf="getQuestionTextControl(question)?.invalid && submitClicked" class="px-2 mt-1 text-sm text-red-500">*Enter question text</div>
+                    <!-- <div *ngIf="getQuestionTextControl(question)?.invalid && submitClicked" class="px-2 mt-1 text-sm text-red-500">*Enter question text</div> -->
+                    <div *ngIf="getQuestionTextControl(question)?.invalid && (submitClicked || getQuestionTextControl(question)?.touched)" class="px-2 mt-1 text-sm text-red-500">*Enter question text</div>
         
                     <!-- Options -->
                     <div *ngIf="question.get('type')?.value !== 'shortText' && question.get('type')?.value !== 'paragraph'" class="mt-4">
@@ -68,7 +69,10 @@
                             </button>
                             </div>
                             
-                            <div *ngIf="(!option.value.trim()) && submitClicked" class="px-2 mt-1 text-sm text-red-500 text-center"> 
+                            <!-- <div *ngIf="(!option.value.trim()) && submitClicked" class="px-2 mt-1 text-sm text-red-500 text-center"> 
+                                *Enter option text
+                            </div> -->
+                            <div *ngIf="(!option.value.trim()) && (submitClicked || option.touched)" class="px-2 mt-1 text-sm text-red-500 text-center">
                                 *Enter option text
                             </div>
                             <div *ngIf="singleOption && submitClicked" class="px-2 mt-1 text-sm text-red-500 text-center"> 
