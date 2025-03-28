@@ -26,6 +26,16 @@ export class SharelinkComponent implements OnInit{
       }
     });
   }
+
+  // Handle ratings
+  ratingValue = 0;
+  ratingStars(n: number): Array<number> { 
+    return Array(n); 
+  }
+  updateRatingValue(n: number) {
+    this.ratingValue = n;
+  }
+
   submitForm() {
     alert("The form is submitted successfully!!");
     this.router.navigate(['/submit', this.formData.title]);

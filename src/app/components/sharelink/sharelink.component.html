@@ -1,3 +1,6 @@
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
 <div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 p-8 flex flex-col items-center">
   <!-- Title and Description Centered Above -->
   <div class="text-center mb-6 max-w-2xl">
@@ -36,6 +39,19 @@
                   <label class="text-gray-700">{{ option }}</label>
               </div>
           </div>
+
+        <!-- Rating -->
+        <div *ngIf="question.get('type')?.value === 'rating'" class="flex gap-2 mt-3">
+            <span *ngFor="let star of ratingStars(question.get('rating')?.value); let i = index" 
+                class="cursor-pointer text-2xl text-gray-400"
+                (click)="updateRatingValue(i + 1)"
+                [ngClass]="{ 'text-yellow-500': i < ratingValue }">
+                <i class="fa-star"
+                    [ngClass]="{ 'fa-solid': i < ratingValue, 'fa-regular': i >= ratingValue }">
+                </i>
+            </span>
+        </div>
+        
       </div>
 
       <!-- Submit Button -->
