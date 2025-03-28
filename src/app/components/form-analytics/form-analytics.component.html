@@ -5,26 +5,28 @@
 
       <div class="responses-list bg-gray-50 p-3 rounded-md">
         <div class="response-item flex justify-between items-center bg-white p-2 rounded shadow-sm">
-          <p class="text-gray-700 text-sm">Total Responses: <span class="font-semibold">{{ responses.length }}</span></p>
+          <p class="text-gray-700 text-sm">Total Responses: <span class="font-semibold">{{ responses.length }}</span>
+          </p>
           <button class="view-btn bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-1 px-3 rounded"
-              (click)="viewResponses()">
+            (click)="viewResponses()">
             View
           </button>
-        </div>   
+        </div>
         <button (click)="exportToExcel()" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
           Download Excel
         </button>
-        
+
         <button (click)="exportToPDF()" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded ">
           Download PDF
         </button>
-             
+
       </div>
     </div>
   </div>
 
+
   <!-- Footer stays at the bottom -->
   <footer class="bg-gray-200 text-center text-gray-600 p-3 mt-auto">
-    &copy; 2025 Your App Name. All rights reserved.
+    &copy; FormFlow
   </footer>
 </div>

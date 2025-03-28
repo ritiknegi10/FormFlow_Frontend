@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -38,5 +39,23 @@ export class FormsListComponent implements OnInit {
       alert('Sharable link copied to clipboard!');
     });
   }
+
+  confirmDeleteForm(formId: number) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.deleteForm(formId);
+        Swal.fire('Deleted!', 'The form has been deleted.', 'success');
+      }
+    });
+  }
   
+
 }
