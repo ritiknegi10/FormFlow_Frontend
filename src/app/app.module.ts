@@ -20,6 +20,7 @@ import { FaqComponent } from './components/faq/faq.component';
 import { SharelinkComponent } from './components/sharelink/sharelink.component';
 import { SubmitPageComponent } from './components/submit-page/submit-page.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { SignOutComponent } from './components/sign-out/sign-out.component';
 
 
 
@@ -38,7 +39,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     AboutUsComponent,
     FaqComponent,
     SharelinkComponent,
-    SubmitPageComponent
+    SubmitPageComponent,
+    SignOutComponent
   ],
   imports: [
     BrowserModule,

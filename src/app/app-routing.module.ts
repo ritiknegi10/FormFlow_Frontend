@@ -14,6 +14,7 @@ import { FaqComponent } from './components/faq/faq.component';
 import { SharelinkComponent } from './components/sharelink/sharelink.component';
 import { SubmitPageComponent } from './components/submit-page/submit-page.component';
 import { AuthGuard } from './guards/auth.guard';
+import { SignOutComponent } from './components/sign-out/sign-out.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent, canActivate: [AuthGuard] },
@@ -22,6 +23,8 @@ const routes: Routes = [
   { path: 'edit/:id', component: EditFormComponent, canActivate: [AuthGuard]  },
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard]  },  
   { path: 'login', component: LoginComponent },
+  { path: 'signout', component: SignOutComponent },
+
   { path: 'register', component: RegisterComponent },
   { path: 'view-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard]  }, 
     { path: 'contact', component: ContactComponent },
