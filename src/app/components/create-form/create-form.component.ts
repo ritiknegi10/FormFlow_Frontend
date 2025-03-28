@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { FormService } from '../../services/form.service';
+import { single } from 'rxjs';
 
 @Component({
   selector: 'app-create-form',
@@ -10,36 +11,74 @@ import { FormService } from '../../services/form.service';
 export class CreateFormComponent {
     formBuilder: FormGroup;
     questions: FormArray;
+    submitClicked: boolean = false;
+    submitSuccess: boolean = false;
+    isQuestionInvalid: boolean = false;
+    singleOption: boolean = false;
 
     constructor(private fb: FormBuilder, private formService: FormService) {
         this.formBuilder = this.fb.group({
-        title: [''],
+        title: ['', Validators.required],
         description: [''],
         questions: this.fb.array([])
         });
         this.questions = this.formBuilder.get('questions') as FormArray;
     }
+    ngOnInit() {
+        if (localStorage.getItem("formSaved") === "true") {
+            this.submitSuccess = true;
+            localStorage.removeItem("formSaved");
 
-    addQuestion() {
-        this.questions.push(this.fb.group({
-            questionText: [''],
+            setTimeout(() => {
+                this.submitSuccess = false;
+            }, 5000);
+        }
+    }
+
+    get titleControl() {
+        return this.formBuilder.get('title');
+    }
+
+    getQuestionTextControl(question: any){
+        return question.get('questionText');
+    }
+
+    addQuestion(){
+        this.submitClicked=false;
+        const questionGroup = this.fb.group({
+            questionText: ['', Validators.required],
             type: ['shortText'],
             options: this.fb.array([]),
-            required: false, 
-        }));    
+            required: false,
+        });
+    
+        // Listen for type changes to add default option
+        questionGroup.get('type')?.valueChanges.subscribe(type => {
+            this.submitClicked=false;
+            if (type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown') {
+                const options = questionGroup.get('options') as FormArray;
+                if (options.length === 0) {
+                    options.push(new FormControl('')); // Add default option
+                }
+            }
+        });
+    
+        this.questions.push(questionGroup);
+        
     }
 
     duplicateQuestion(index: number) {
-      const originalQuestion = this.questions.at(index).value; 
-      const duplicatedQuestion = this.fb.group({
-        questionText: [originalQuestion.questionText],
-        type: [originalQuestion.type],
-        required: [originalQuestion.required],
-        options: this.fb.array(
-          originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
-        )
-      });
-      this.questions.insert(index + 1, duplicatedQuestion); 
+        this.submitClicked=false;
+        const originalQuestion = this.questions.at(index).value; 
+        const duplicatedQuestion = this.fb.group({
+            questionText: [originalQuestion.questionText, Validators.required],
+            type: [originalQuestion.type],
+            required: [originalQuestion.required],
+            options: this.fb.array(
+            originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
+            )
+        });
+        this.questions.insert(index + 1, duplicatedQuestion); 
     }
 
     removeQuestion(index: number) {
@@ -47,8 +86,10 @@ export class CreateFormComponent {
     }
 
     addOption(questionIndex: number) {
+        this.submitClicked=false;
         const options = this.getOptions(this.questions.at(questionIndex));
         options.push(new FormControl(''));
+        this.singleOption = false;
     }
 
 
@@ -63,10 +104,50 @@ export class CreateFormComponent {
     }
 
     onSubmit() {
-        console.log("Form saved");
-        console.log(this.formBuilder.value);
+        this.submitClicked = true;
+
+        if (this.titleControl?.invalid){
+            // this.resetSubmitClicked();
+            return;
+        }
+        
+        this.isQuestionInvalid = false;
+        this.singleOption = false;
+        let isOptionInvalid = false;
+
+        this.questions.controls.forEach((control) => {
+            if(control instanceof FormGroup) {
+                const ques = control;
+                const optionsArray = this.getOptions(ques);
+                
+                if(this.getQuestionTextControl(ques)?.invalid) this.isQuestionInvalid = true;
+                   
+                optionsArray.controls.forEach(optionControl => {
+                    if (!optionControl.value.trim()) isOptionInvalid = true;
+                    else if(((ques.get('type')?.value === "multipleChoice") && (optionsArray.controls.length < 2))
+                        || (ques.get('type')?.value === "dropdown") && (optionsArray.controls.length < 2)) 
+                    this.singleOption = true;                       
+                });
+            }
+        });
+
+        if(this.isQuestionInvalid || isOptionInvalid || this.singleOption){
+            // this.resetSubmitClicked();
+            return;
+        } 
+
+        localStorage.setItem("formSaved", "true");
+        
+        // console.log("Form saved");
+        // console.log(JSON.stringify(this.formBuilder.value));
         this.formService.addForm(this.formBuilder.value);
-        alert("Form saved successfully");
+        
         window.location.reload();
+        window.scrollTo(0, 0);
+        this.resetSubmitClicked();
+    }
+
+    resetSubmitClicked() {
+        this.submitClicked = false;
     }
 }

@@ -28,11 +28,18 @@ export class FormService {
     forms[index] = updatedForm;
     this.forms.next(forms);
     this.saveForms(forms);
+    const formsArray = this.formsSubject.getValue();
+    formsArray[index] = updatedForm;
+    this.formsSubject.next(formsArray);
   }
   
   getResponseByIndex(index: number): any {
     const responses = this.getResponses(); 
     return responses[index] || null;
+  }
+  getFormsByIndex(index: number) {
+    const formsArray = this.formsSubject.getValue();  
+    return formsArray[index] || null;
   }
 
   getResponsesByFormIndex(index: number): any {

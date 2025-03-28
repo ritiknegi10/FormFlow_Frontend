@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -16,6 +17,10 @@ import { ViewResponseComponent } from './components/view-response/view-response.
 import { ContactComponent } from './components/contact/contact.component';
 import { AboutUsComponent } from './components/about-us/about-us.component';
 import { FaqComponent } from './components/faq/faq.component';
+import { SharelinkComponent } from './components/sharelink/sharelink.component';
+import { SubmitPageComponent } from './components/submit-page/submit-page.component';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { SignOutComponent } from './components/sign-out/sign-out.component';
 
 
 
@@ -32,16 +37,20 @@ import { FaqComponent } from './components/faq/faq.component';
     ViewResponseComponent,
     ContactComponent,
     AboutUsComponent,
-    FaqComponent
+    FaqComponent,
+    SharelinkComponent,
+    SubmitPageComponent,
+    SignOutComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,
+    HttpClientModule
 
   ],
-  providers: [],
+  providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

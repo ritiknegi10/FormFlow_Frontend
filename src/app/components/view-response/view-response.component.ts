@@ -24,8 +24,6 @@ export class ViewResponseComponent implements OnInit {
     });
   }
 
-  
-
   loadFormData() {
     if (this.formId !== null) {
       this.selectedForm = this.formService.getFormByIndex(this.formId); 
