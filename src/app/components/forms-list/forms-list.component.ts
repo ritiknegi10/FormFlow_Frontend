@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 
 
+
+
 @Component({
   selector: 'app-forms-list',
   templateUrl: './forms-list.component.html',
@@ -31,7 +33,7 @@ export class FormsListComponent implements OnInit {
     this.formService.deleteForm(index);
   }
 
-  confirmDeleteForm(formId: number) {
+  confirmDeleteForm(index: number) {
     Swal.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone!',
@@ -42,7 +44,7 @@ export class FormsListComponent implements OnInit {
       confirmButtonText: 'Yes, delete it!',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.deleteForm(formId);
+        this.deleteForm(index);
         Swal.fire('Deleted!', 'The form has been deleted.', 'success');
       }
     });
