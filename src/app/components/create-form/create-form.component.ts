@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { FormService } from '../../services/form.service';
-import { single } from 'rxjs';
 
 @Component({
   selector: 'app-create-form',
@@ -18,7 +17,7 @@ export class CreateFormComponent {
 
     constructor(private fb: FormBuilder, private formService: FormService) {
         this.formBuilder = this.fb.group({
-        title: ['', Validators.required],
+        title: [''],
         description: [''],
         questions: this.fb.array([])
         });
@@ -35,7 +34,7 @@ export class CreateFormComponent {
         }
     }
 
-    get titleControl() {
+    getTitleControl() {
         return this.formBuilder.get('title');
     }
 
@@ -44,9 +43,9 @@ export class CreateFormComponent {
     }
 
     addQuestion(){
-        this.submitClicked=false;
+        this.submitClicked = false;
         const questionGroup = this.fb.group({
-            questionText: ['', Validators.required],
+            questionText: [''],
             type: ['shortText'],
             options: this.fb.array([]),
             required: false,
@@ -63,19 +62,18 @@ export class CreateFormComponent {
             }
         });
     
-        this.questions.push(questionGroup);
-        
+        this.questions.push(questionGroup);       
     }
 
     duplicateQuestion(index: number) {
-        this.submitClicked=false;
+        this.submitClicked = false;
         const originalQuestion = this.questions.at(index).value; 
         const duplicatedQuestion = this.fb.group({
-            questionText: [originalQuestion.questionText, Validators.required],
+            questionText: [originalQuestion.questionText],
             type: [originalQuestion.type],
             required: [originalQuestion.required],
             options: this.fb.array(
-            originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
+                originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
             )
         });
         this.questions.insert(index + 1, duplicatedQuestion); 
@@ -86,18 +84,16 @@ export class CreateFormComponent {
     }
 
     addOption(questionIndex: number) {
-        this.submitClicked=false;
+        this.submitClicked = false;
         const options = this.getOptions(this.questions.at(questionIndex));
         options.push(new FormControl(''));
         this.singleOption = false;
     }
 
-
     removeOption(questionIndex: number, optionIndex: number) {
         const options = this.getOptions(this.questions.at(questionIndex));
         options.removeAt(optionIndex);
     }
-
 
     getOptions(question: any): FormArray {
         return question.get('options') as FormArray;
@@ -106,22 +102,22 @@ export class CreateFormComponent {
     onSubmit() {
         this.submitClicked = true;
 
-        if (this.titleControl?.invalid){
-            // this.resetSubmitClicked();
-            return;
-        }
-        
+        // Title validation
+        if (!this.getTitleControl()?.value.trim()) return;
+            
         this.isQuestionInvalid = false;
         this.singleOption = false;
         let isOptionInvalid = false;
 
+        // Question text validation
         this.questions.controls.forEach((control) => {
             if(control instanceof FormGroup) {
                 const ques = control;
                 const optionsArray = this.getOptions(ques);
                 
-                if(this.getQuestionTextControl(ques)?.invalid) this.isQuestionInvalid = true;
-                   
+                if(!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
+                
+                // Option text validation
                 optionsArray.controls.forEach(optionControl => {
                     if (!optionControl.value.trim()) isOptionInvalid = true;
                     else if(((ques.get('type')?.value === "multipleChoice") && (optionsArray.controls.length < 2))
@@ -131,23 +127,16 @@ export class CreateFormComponent {
             }
         });
 
-        if(this.isQuestionInvalid || isOptionInvalid || this.singleOption){
-            // this.resetSubmitClicked();
-            return;
-        } 
+        if(this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
+        
+        // Form saved
 
         localStorage.setItem("formSaved", "true");
-        
-        // console.log("Form saved");
         // console.log(JSON.stringify(this.formBuilder.value));
         this.formService.addForm(this.formBuilder.value);
         
         window.location.reload();
         window.scrollTo(0, 0);
-        this.resetSubmitClicked();
-    }
-
-    resetSubmitClicked() {
         this.submitClicked = false;
     }
 }

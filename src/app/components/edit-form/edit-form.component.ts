@@ -32,7 +32,7 @@ export class EditFormComponent implements OnInit {
 
         if (formData) {
             this.form = this.fb.group({
-            title: new FormControl(formData.title || '', Validators.required),
+            title: new FormControl(formData.title || ''),
             description: new FormControl(formData.description || ''),
             questions: this.fb.array(
                 formData.questions.map((q: any) => this.createQuestionGroup(q))
@@ -48,11 +48,11 @@ export class EditFormComponent implements OnInit {
 
     createQuestionGroup(question: any): FormGroup {
         return this.fb.group({
-        questionText: new FormControl(question.questionText || '', Validators.required),
+        questionText: new FormControl(question.questionText || ''),
         type: new FormControl(question.type || 'text'),
         required: new FormControl(question.required || false),
         options: this.fb.array(
-            question.options ? question.options.map((opt: any) => new FormControl(opt, Validators.required)) : []
+            question.options ? question.options.map((opt: any) => new FormControl(opt)) : []
         )
         });
     }
@@ -61,17 +61,18 @@ export class EditFormComponent implements OnInit {
         return this.form.get('questions') as FormArray;
     }
 
-    get titleControl() {
+    getTitleControl() {
         return this.form.get('title');
     }
 
     getQuestionTextControl(question: any){
         return question.get('questionText');
     }
+
     addQuestion() {
-        this.submitClicked = true;
+        this.submitClicked = false;
         const questionGroup = this.fb.group({
-            questionText: ['', Validators.required],
+            questionText: [''],
             type: ['shortText'],
             options: this.fb.array([]),
             required: false,
@@ -92,7 +93,7 @@ export class EditFormComponent implements OnInit {
     }
 
     duplicateQuestion(index: number) {
-        this.submitClicked = true;
+        this.submitClicked = false;
         const originalQuestion = this.questions.at(index).value; 
         const duplicatedQuestion = this.fb.group({
             questionText: [originalQuestion.questionText],
@@ -110,18 +111,16 @@ export class EditFormComponent implements OnInit {
     }
 
     addOption(questionIndex: number) {
-        this.submitClicked = true;
+        this.submitClicked = false;
         const options = this.getOptions(this.questions.at(questionIndex));
         options.push(new FormControl(''));
         this.singleOption = false;
     }
 
-
     removeOption(questionIndex: number, optionIndex: number) {
         const options = this.getOptions(this.questions.at(questionIndex));
         options.removeAt(optionIndex);
     }
-
 
     getOptions(question: any): FormArray {
         return question.get('options') as FormArray;
@@ -135,30 +134,34 @@ export class EditFormComponent implements OnInit {
     saveChanges() {
         this.submitClicked = true;
 
-        if (this.titleControl?.invalid) return;
-        
+        // Title validation
+        if (!this.getTitleControl()?.value.trim()) return;
+            
         this.isQuestionInvalid = false;
         this.singleOption = false;
         let isOptionInvalid = false;
 
+        // Question text validation
         this.questions.controls.forEach((control) => {
             if(control instanceof FormGroup) {
                 const ques = control;
                 const optionsArray = this.getOptions(ques);
                 
-                if(this.getQuestionTextControl(ques)?.invalid) this.isQuestionInvalid = true;
-                   
+                if(!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
+                
+                // Option text validation
                 optionsArray.controls.forEach(optionControl => {
                     if (!optionControl.value.trim()) isOptionInvalid = true;
                     else if(((ques.get('type')?.value === "multipleChoice") && (optionsArray.controls.length < 2))
-                                || (ques.get('type')?.value === "dropdown") && (optionsArray.controls.length < 2)) 
-                            this.singleOption = true;
-                        
+                        || (ques.get('type')?.value === "dropdown") && (optionsArray.controls.length < 2)) 
+                    this.singleOption = true;                       
                 });
             }
         });
 
         if(this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
+
+        // Changes saved
 
         const updatedForm = {
             ...this.form.value,
@@ -179,5 +182,7 @@ export class EditFormComponent implements OnInit {
         
         this.router.navigate(['/forms']);
         window.scrollTo(0, 0);
+        this.submitClicked = false;
     }
+
 }
