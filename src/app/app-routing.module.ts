@@ -24,7 +24,7 @@ const routes: Routes = [
   { path: 'edit/:id', component: EditFormComponent, canActivate: [AuthGuard]  },
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard]  },  
   { path: 'login', component: LoginComponent },
-  { path: 'signout', component: SignOutComponent },
+  { path: 'signout', component: SignOutComponent, canActivate: [AuthGuard]  },
   { path: 'register', component: RegisterComponent },
   { path: 'view-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard]  }, 
   { path: 'user-forms', component: UserFormsListComponent, canActivate: [AuthGuard]  }, 

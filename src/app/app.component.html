@@ -9,9 +9,9 @@
         <a routerLink="/forms" class="text-gray-600 hover:text-indigo-600">My Forms</a>
         <a routerLink="/contact" class="text-gray-600 hover:text-indigo-600">Contact</a>
         <ng-container *ngIf="authService.isLoggedIn; else notLoggedIn">
-          <button (click)="authService.logout()" class="text-gray-600 hover:text-indigo-600">
+          <a routerLink="/signout" class="text-gray-600 hover:text-indigo-600">
             Sign Out
-          </button>
+          </a>
         </ng-container>
         <ng-template #notLoggedIn>
           <a routerLink="/login" class="text-gray-600 hover:text-indigo-600">Login</a>
