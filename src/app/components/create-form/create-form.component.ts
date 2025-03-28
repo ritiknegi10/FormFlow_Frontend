@@ -14,6 +14,7 @@ export class CreateFormComponent {
     submitSuccess: boolean = false;
     isQuestionInvalid: boolean = false;
     singleOption: boolean = false;
+    ratingOptions: number[] =[3, 4, 5, 6, 7, 8, 9, 10];
 
     constructor(private fb: FormBuilder, private formService: FormService) {
         this.formBuilder = this.fb.group({
@@ -48,6 +49,7 @@ export class CreateFormComponent {
             questionText: [''],
             type: ['shortText'],
             options: this.fb.array([]),
+            rating: ['5'],
             required: false,
         });
     
@@ -74,7 +76,8 @@ export class CreateFormComponent {
             required: [originalQuestion.required],
             options: this.fb.array(
                 originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
-            )
+            ),
+            rating: [originalQuestion.rating]
         });
         this.questions.insert(index + 1, duplicatedQuestion); 
     }

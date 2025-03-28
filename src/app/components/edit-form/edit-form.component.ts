@@ -12,9 +12,9 @@ export class EditFormComponent implements OnInit {
     form!: FormGroup;
     formIndex!: number;
     submitClicked: boolean = false;
-    submitSuccess: boolean = false;
     isQuestionInvalid: boolean = false;
     singleOption: boolean = false;
+    ratingOptions: number[] =[3, 4, 5, 6, 7, 8, 9, 10];
 
     constructor(
         private route: ActivatedRoute,
@@ -49,11 +49,12 @@ export class EditFormComponent implements OnInit {
     createQuestionGroup(question: any): FormGroup {
         return this.fb.group({
         questionText: new FormControl(question.questionText || ''),
-        type: new FormControl(question.type || 'text'),
+        type: new FormControl(question.type || 'shortText'),
         required: new FormControl(question.required || false),
         options: this.fb.array(
             question.options ? question.options.map((opt: any) => new FormControl(opt)) : []
-        )
+        ),
+        rating: new FormControl(question.rating || '5')
         });
     }
 
@@ -75,6 +76,7 @@ export class EditFormComponent implements OnInit {
             questionText: [''],
             type: ['shortText'],
             options: this.fb.array([]),
+            rating: ['5'],
             required: false,
         });
             
@@ -101,7 +103,8 @@ export class EditFormComponent implements OnInit {
             required: [originalQuestion.required],
             options: this.fb.array(
             originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []
-            )
+            ),
+            rating: [originalQuestion.rating]
         });
         this.questions.insert(index + 1, duplicatedQuestion); 
     }
@@ -174,11 +177,6 @@ export class EditFormComponent implements OnInit {
         };
     
         this.formService.updateForm(this.formIndex, updatedForm);
-        this.submitSuccess = true;
-
-        setTimeout(() => {
-            this.submitSuccess = false;
-        }, 5000);
         
         this.router.navigate(['/forms']);
         window.scrollTo(0, 0);

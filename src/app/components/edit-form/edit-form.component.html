@@ -49,13 +49,15 @@
                         <option value="multipleChoice">Multiple Choice</option>
                         <option value="checkboxes">Checkboxes</option>
                         <option value="dropdown">Drop-down</option>
+                        <option value="rating">Rating</option>
                     </select>
                     </div>
                     <!-- Question text Validation -->
                     <div *ngIf="!getQuestionTextControl(question)?.value.trim() && (submitClicked || getQuestionTextControl(question)?.touched)" class="px-2 mt-1 text-sm text-red-500">*Enter question text</div>
         
                     <!-- Options -->
-                    <div *ngIf="question.get('type')?.value !== 'shortText' && question.get('type')?.value !== 'paragraph'" class="mt-4">
+                    <div *ngIf="question.get('type')?.value === 'multipleChoice' || question.get('type')?.value === 'checkboxes' || question.get('type')?.value === 'dropdown'" 
+                        class="mt-4">
                     <h4 class="text-gray-700 font-semibold px-2">Options</h4>
                     <div formArrayName="options" class="space-y-2 mt-2">
                         <div *ngFor="let option of getOptions(questions.at(i)).controls; let j = index" class="">
@@ -81,6 +83,16 @@
                         + Add Option
                         </button>
                     </div>
+                    </div>
+
+                    <!-- Rating  -->
+                    <div *ngIf="question.get('type')?.value === 'rating'"
+                        class="mt-2">
+                        <p class="text-gray-700 font-semibold p-2">Select maximum number of ratings</p>
+                        <select formControlName="rating"
+                            class="w-18 ml-2 p-2 border rounded-md focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <option *ngFor="let num of ratingOptions" [value]="num">{{ num }}</option>
+                        </select>
                     </div>
         
                     <!-- Actions -->
@@ -134,9 +146,9 @@
         </form>
     </div>
     
-    <div *ngIf="submitSuccess"
+    <!-- <div *ngIf="submitSuccess"
         class="absolute top-2 right-0 bg-green-200 px-14 py-4 text-lg cursor-pointer transition-all duration-10000 ease-out">
         Saved changes
         <i class="fa-solid fa-circle-check ml-1 text-green-700"></i>
-    </div>
+    </div> -->
 </div>
