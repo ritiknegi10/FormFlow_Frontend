@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { FormService } from '../../services/form.service';
+import { single } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-form',
@@ -16,7 +18,7 @@ export class CreateFormComponent {
     singleOption: boolean = false;
     ratingOptions: number[] =[3, 4, 5, 6, 7, 8, 9, 10];
 
-    constructor(private fb: FormBuilder, private formService: FormService) {
+    constructor(private fb: FormBuilder, private formService: FormService, private router: Router) {
         this.formBuilder = this.fb.group({
         title: [''],
         description: [''],
@@ -142,6 +144,7 @@ export class CreateFormComponent {
         window.scrollTo(0, 0);
         this.submitClicked = false;
         console.log(this.formBuilder.value)
+        this.router.navigate(['/forms']);
         //window.location.reload();
         //window.scrollTo(0, 0);
         
