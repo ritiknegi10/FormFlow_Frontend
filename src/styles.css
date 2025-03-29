@@ -17,3 +17,13 @@
 .animate-pulse-slow {
     animation: pulse-glow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+@keyframes icon-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes text-shimmer {
+    0% { background-position: -100% 0; }
+    100% { background-position: 200% 0; }
+}

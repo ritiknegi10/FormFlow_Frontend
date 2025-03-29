@@ -1,37 +1,201 @@
-<div class="min-h-screen bg-gradient-to-br from-indigo-200 via-purple-200 to-green-200 text-white">
-    <!-- Hero Section -->
-    <div class="py-32 px-4">
-        <div class="max-w-7xl mx-auto text-center text-black">
-            <h1 class="text-6xl font-extrabold mb-6 drop-shadow-lg">
-                Create Powerful Forms with Ease
-            </h1>
-            <p class="text-xl text-black mb-8">
-                Build, distribute, and analyze forms like never before
-            </p>
-            <button routerLink="/create"
-                class="bg-white text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-indigo-100 transition-all shadow-lg hover:shadow-2xl">
-                Start Creating Now
-            </button>
+<div class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 overflow-hidden relative">
+    <div class="absolute inset-0 z-0 opacity-20">
+        <div class="particle-field"></div>
+    </div>
+
+    <div class="absolute inset-0 z-1">
+        <div
+            class="floating-island -left-32 -top-32 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-indigo-600/20 blur-3xl rounded-[50%] animate-float">
+        </div>
+        <div
+            class="floating-island -right-48 top-1/3 w-64 h-64 bg-gradient-to-tr from-indigo-400/30 to-purple-300/30 blur-2xl rounded-[50%] animate-float-delayed">
         </div>
     </div>
 
-    <!-- Features Section -->
-    <div class="py-16">
-        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
-            <div
-                class="text-black bg-white bg-opacity-20 backdrop-blur-md p-6 rounded-xl shadow-lg text-center transition-transform transform hover:-translate-y-2 hover:shadow-2xl">
-                <h3 class="text-2xl font-bold mb-4">🚀 Drag & Drop Builder</h3>
-                <p class="text-black">Intuitive interface for creating complex forms effortlessly.</p>
+    <div class="relative z-10 py-24 px-4">
+        <div class="max-w-7xl mx-auto text-center space-y-10">
+            <div class="mx-auto w-48 h-48 mb-12 relative">
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full blur-2xl animate-pulse">
+                </div>
+                <div
+                    class="relative z-10 bg-white/5 backdrop-blur-xl rounded-full p-8 border border-white/10 shadow-2xl">
+                    <svg class="w-full h-full text-indigo-300 animate-float" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                </div>
             </div>
-            <div
-                class="text-black bg-white bg-opacity-20 backdrop-blur-md p-6 rounded-xl shadow-lg text-center transition-transform transform hover:-translate-y-2 hover:shadow-2xl">
-                <h3 class="text-2xl font-bold mb-4">📊 Real-time Analytics</h3>
-                <p class="text-black">Gain instant insights with real-time data visualization.</p>
+
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 space-y-4">
+                <div
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-indigo-200 to-blue-200 animate-text-shimmer">
+                    Revolutionize Your
+                </div>
+                <div class="relative inline-block">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-300">Data
+                        Flow</span>
+                    <div class="absolute inset-x-0 -bottom-4 h-2 bg-purple-400/30 blur-md animate-pulse"></div>
+                </div>
+            </h1>
+
+            <p class="text-xl md:text-2xl text-indigo-100 max-w-2xl mx-auto leading-relaxed font-medium">
+                Craft stunning interactive forms with FormFlow.
+                <span class="block mt-3 text-purple-200/80">Real-time analytics • Team
+                    collaboration</span>
+            </p>
+
+            <div class="mt-16 relative group">
+                <div
+                    class="absolute -inset-2 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-2xl blur-2xl opacity-30 group-hover:opacity-50 transition-opacity">
+                </div>
+                <button routerLink="/create" class="relative z-10 px-12 py-6 bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-bold text-xl rounded-2xl 
+                           shadow-2xl hover:shadow-3xl transform transition-all hover:-translate-y-1 hover:scale-105">
+                    <div class="flex items-center gap-4">
+                        <span>Launch Creator</span>
+                        <svg class="w-6 h-6 animate-bounce-horizontal" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </div>
+                    <div class="absolute inset-0 rounded-2xl border border-white/20 mix-blend-overlay"></div>
+                </button>
             </div>
-            <div
-                class="text-black bg-white bg-opacity-20 backdrop-blur-md p-6 rounded-xl shadow-lg text-center transition-transform transform hover:-translate-y-2 hover:shadow-2xl">
-                <h3 class="text-2xl font-bold mb-4">🤝 Collaboration</h3>
-                <p class="text-black">Work seamlessly with your team in real-time.</p>
+
+            <!-- <div class="mt-24 mx-auto max-w-4xl relative">
+                <div
+                    class="absolute -inset-8 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 blur-3xl rounded-3xl">
+                </div>
+                <div class="relative bg-white/5 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/10 p-8">
+                    <div class="grid grid-cols-2 gap-8">
+                        <div class="space-y-6 animate-preview-left">
+                            <div class="h-4 bg-gradient-to-r from-purple-400/30 to-indigo-400/30 rounded-full w-3/4">
+                            </div>
+                            <div class="h-4 bg-gradient-to-r from-indigo-400/30 to-purple-400/30 rounded-full w-1/2">
+                            </div>
+                            <div class="h-24 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-xl"></div>
+                        </div>
+                        <div class="animate-preview-right">
+                            <div class="bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-xl p-6">
+                                <div class="flex gap-4">
+                                    <div class="w-8 h-8 bg-purple-400/30 rounded-full"></div>
+                                    <div class="w-8 h-8 bg-indigo-400/30 rounded-full"></div>
+                                    <div class="w-8 h-8 bg-purple-400/30 rounded-full"></div>
+                                </div>
+                                <div class="mt-6 h-4 bg-purple-400/30 rounded-full w-2/3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+
+
+
+    <div class="relative py-24 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="group bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-indigo-400/30 
+                      transition-all hover:-translate-y-2 shadow-xl hover:shadow-2xl">
+                    <div class="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Smart Form Builder</h3>
+                    <p class="text-indigo-200 leading-relaxed">
+                        Drag-and-drop interface with AI suggestions and conditional logic for complex workflows.
+                    </p>
+                    <div class="mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="w-full bg-indigo-500/10 rounded-full h-1.5 mb-2">
+                            <div class="bg-indigo-400 h-1.5 rounded-full w-3/4"></div>
+                        </div>
+                        <span class="text-sm text-indigo-400">74% faster form creation</span>
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="group bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-400/30 
+                      transition-all hover:-translate-y-2 shadow-xl hover:shadow-2xl">
+                    <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Live Analytics</h3>
+                    <p class="text-indigo-200 leading-relaxed">
+                        Real-time dashboards with sentiment analysis and predictive trends.
+                    </p>
+                    <div class="mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="flex items-center space-x-2 text-purple-400">
+                            <svg class="w-5 h-5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm">+45% response rate avg.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="group bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-blue-400/30 
+                      transition-all hover:-translate-y-2 shadow-xl hover:shadow-2xl">
+                    <div class="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Team Collaboration</h3>
+                    <p class="text-indigo-200 leading-relaxed">
+                        Multi-user editing with version control and granular permission settings.
+                    </p>
+                    <div class="mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="flex -space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-500/20 border-2 border-blue-400"></div>
+                            <div class="w-8 h-8 rounded-full bg-purple-500/20 border-2 border-purple-400"></div>
+                            <div class="w-8 h-8 rounded-full bg-indigo-500/20 border-2 border-indigo-400"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative z-10 py-24">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="p-8 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-2xl backdrop-blur-sm 
+                          border border-white/10 hover:border-purple-400/30 transition-all">
+                    <div class="text-5xl font-bold text-white mb-3 bg-gradient-to-r from-purple-300 to-indigo-200 
+                              bg-clip-text text-transparent">25+</div>
+                    <div class="text-indigo-200 font-medium">Forms Created</div>
+                </div>
+
+                <div class="p-8 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-2xl backdrop-blur-sm 
+                border border-white/10 hover:border-purple-400/30 transition-all">
+                    <div class="text-5xl font-bold text-white mb-3 bg-gradient-to-r from-purple-300 to-indigo-200 
+                    bg-clip-text text-transparent">25+</div>
+                    <div class="text-indigo-200 font-medium">Integrations</div>
+                </div>
+                <div class="p-8 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-2xl backdrop-blur-sm 
+      border border-white/10 hover:border-purple-400/30 transition-all">
+                    <div class="text-5xl font-bold text-white mb-3 bg-gradient-to-r from-purple-300 to-indigo-200 
+          bg-clip-text text-transparent">100</div>
+                    <div class="text-indigo-200 font-medium">Uptime %</div>
+                </div>
+                <div class="p-8 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-2xl backdrop-blur-sm 
+                border border-white/10 hover:border-purple-400/30 transition-all">
+                    <div class="text-5xl font-bold text-white mb-3 bg-gradient-to-r from-purple-300 to-indigo-200 
+                    bg-clip-text text-transparent">25+</div>
+                    <div class="text-indigo-200 font-medium">Responses Analyzed</div>
+                </div>
             </div>
         </div>
     </div>

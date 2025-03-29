@@ -5,31 +5,37 @@ import { Component } from '@angular/core';
   templateUrl: './faq.component.html',
   styleUrls: ['./faq.component.scss']
 })
+
 export class FaqComponent {
   faqs = [
     {
-      question: 'How secure is my form data?',
-      answer: 'We use enterprise-grade AES-256 encryption for data at rest and TLS 1.3 for data in transit. All data is stored in GDPR-compliant servers with regular third-party security audits.',
+      question: 'Can I view my submitted responses?',
+      answer: 'Yes! All responses are available in real-time through your form dashboard. You can filter, export, or analyze responses directly in FormFlow.',
+      tips: 'Use our response tracking feature to get notified of new submissions',
       isOpen: false
     },
     {
-      question: 'Can I collaborate with my team?',
-      answer: 'Yes! FormFlow offers real-time collaboration with role-based access control, version history tracking, and comments. Share forms with team members and control their access levels.',
+      question: 'Is my form data secure?',
+      answer: 'All form data is encrypted both in transit and at rest. We comply with GDPR regulations and offer two-factor authentication for account security.',
+      tips: 'Enable 2FA in your account settings for added security',
       isOpen: false
     },
     {
-      question: 'What integration options are available?',
-      answer: 'We support direct integrations with Google Sheets, Zapier, and REST API. Export data in CSV, JSON, or Excel formats. Webhooks available for real-time notifications.',
+      question: 'Can I see my form versions?',
+      answer: 'Absolutely! FormFlow automatically maintains version history. Access previous versions from the form editor and restore any previous state with one click.',
+      tips: 'Create manual version snapshots before major changes',
       isOpen: false
     },
     {
-      question: 'How does pricing work?',
-      answer: 'We offer a free tier for basic usage. Paid plans start at $29/month with volume discounts available. You can upgrade, downgrade, or cancel anytime.',
+      question: 'Can I edit my form after creating it?',
+      answer: 'Yes, forms can be edited anytime. Changes autosave as you work. Note: Published forms will update immediately unless you create a new version.',
+      tips: 'Duplicate forms to experiment with changes safely',
       isOpen: false
     },
     {
-      question: 'Is there mobile support?',
-      answer: 'Yes! FormFlow is fully responsive and works on all devices. We also offer dedicated iOS and Android apps for form creation and response tracking.',
+      question: 'How do I export response data?',
+      answer: 'Responses can be exported in CSV, Excel, or JSON formats. Set up automatic exports to cloud storage or use our API for real-time data access.',
+      tips: 'Use our Google Sheets integration for automatic syncing',
       isOpen: false
     }
   ];
