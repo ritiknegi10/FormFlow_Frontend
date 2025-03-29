@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { FormService } from '../../services/form.service';
 import { single } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-form',
@@ -16,7 +17,7 @@ export class CreateFormComponent {
     isQuestionInvalid: boolean = false;
     singleOption: boolean = false;
 
-    constructor(private fb: FormBuilder, private formService: FormService) {
+    constructor(private fb: FormBuilder, private formService: FormService, private router: Router) {
         this.formBuilder = this.fb.group({
         title: ['', Validators.required],
         description: [''],
@@ -132,6 +133,7 @@ export class CreateFormComponent {
         // console.log(JSON.stringify(this.formBuilder.value));
         this.formService.addForm(this.formBuilder.value);
         console.log(this.formBuilder.value)
+        this.router.navigate(['/forms']);
         //window.location.reload();
         //window.scrollTo(0, 0);
         
