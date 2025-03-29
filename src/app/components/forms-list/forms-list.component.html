@@ -12,11 +12,12 @@
                 <h3 class="text-lg font-semibold mb-2">{{ form.title }}</h3>
                 <p class="text-gray-600 text-sm mb-4">Responses: {{ form.responses }}</p>
                 <div class="flex space-x-2">
-                    <button [routerLink]="['/edit', i]" class="text-indigo-600 hover:text-indigo-800">Edit</button>
-
-                    <button (click)="goToAnalytics(i)" class="text-green-600 hover:text-green-800">Analytics</button>
-                    <button (click)="confirmDeleteForm(i)" class="text-red-600 hover:text-red-800">Delete</button>
-                    <button (click)="copyLink(i)" class="text-blue-600 hover:text-red-800">
+                    <button [routerLink]="['/edit', form.id]"
+                        class="text-indigo-600 hover:text-indigo-800">Edit</button>
+                    <button (click)="goToAnalytics(form.id)"
+                        class="text-green-600 hover:text-green-800">Analytics</button>
+                    <button (click)="confirmDeleteForm(form.id)" class="text-red-600 hover:text-red-800">Delete</button>
+                    <button (click)="copyLink(form.id)" class="text-blue-600 hover:text-red-800">
                         Share
                     </button>
                 </div>

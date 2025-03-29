@@ -141,5 +141,9 @@ export class CreateFormComponent {
         window.location.reload();
         window.scrollTo(0, 0);
         this.submitClicked = false;
+        console.log(this.formBuilder.value)
+        //window.location.reload();
+        //window.scrollTo(0, 0);
+        
     }
 }
