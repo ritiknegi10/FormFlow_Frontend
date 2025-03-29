@@ -15,19 +15,21 @@ export class FormsListComponent implements OnInit {
   constructor(private formService: FormService, private router: Router) {}
 
   ngOnInit() {
-    this.formService.forms$.subscribe(forms => {
+    this.formService.getForms().subscribe(forms => {
       this.forms = forms;
-    });
-    console.log(this.forms);
-    if(!this.forms.length) this.noForms = true;
+      this.noForms = this.forms.length === 0;
+      console.log(forms);
+    }); 
   }
+  
   
   goToAnalytics(index: number) {
     this.router.navigate(['/form-analytics', index]);
   }
   
-  deleteForm(index: number) {
-    this.formService.deleteForm(index);
+  deleteForm(id: number) {
+    this.formService.deleteForm(id);
+    window.location.reload();
     if(!this.forms.length) this.noForms = true;
   }
 

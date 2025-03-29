@@ -1,19 +1,55 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
+import { BehaviorSubject, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FormService {
+
+  private apiUrl = 'http://localhost:8080/forms';
+  
+  constructor(private http: HttpClient, private router: Router) {}
+
   private forms = new BehaviorSubject<any[]>(this.loadForms());
   forms$ = this.forms.asObservable();
   private formsSubject = new BehaviorSubject<any[]>([]);
 
   addForm(newForm: any) {
-    const updatedForms = [...this.forms.getValue(), newForm];
-    this.forms.next(updatedForms);
-    this.saveForms(updatedForms);
+    const backendFormat = {
+      title: newForm.title,
+      description: newForm.description,
+      formSchema: JSON.stringify({
+        fields: newForm.questions.map((q: any) => ({
+          label: q.questionText,
+          type: this.mapQuestionType(q.type),
+          required: q.required,
+          options: q.options.length ? q.options : undefined,
+        }))
+      })
+    }
+    console.log(backendFormat)
+
+    this.http.post(`${this.apiUrl}/create`, backendFormat).subscribe(response => {
+      console.log("Form saved successfully", response);
+    }, error => {
+      console.error("Error saving form", error);
+    });
   }
+  
+
+  private mapQuestionType(type: string): string {
+    const typeMapping: { [key: string]: string } = {
+      shortText: "text",
+      multipleChoice: "select",
+      checkboxes: "checkbox",
+      dropdown: "select",
+      number: "number"
+    };
+    return typeMapping[type] || "text"; // Default to "text"
+  }
+
   getLatestForm() {
     const forms = this.formsSubject.value; 
     return forms.length > 0 ? forms[forms.length - 1] : null;
@@ -47,9 +83,6 @@ export class FormService {
     console.log("Fetching responses for Form", index, ":", allResponses[index]); 
     return allResponses[index] || [];
   }
-  
-
-  
 
   saveResponse(formIndex: number, responseData: any) {
     let allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
@@ -65,29 +98,28 @@ export class FormService {
 }
 
 getForms() {
-  return this.forms; 
+  return this.http.get<any[]>(`${this.apiUrl}/myCreated`).pipe(
+    tap(forms => {
+      this.formsSubject.next(forms);
+      console.log('API Response:', forms);
+    })
+  );
 }
 
 
-  getFormByIndex(index: number) {
-    const storedForms = JSON.parse(localStorage.getItem('forms') || '[]');
-    if (index >= 0 && index < storedForms.length) {
-      return storedForms[index]; 
-    }
-    return null;
-  }
+getFormById(id: number) {
+  return this.http.get<any>(`${this.apiUrl}/${id}`);
+}
 
   getResponses(): string[] {
     return ["Default Response 1", "Default Response 2"];
   }
 
-  deleteForm(index: number) {
-    const forms = this.forms.getValue();
-    if (index >= 0 && index < forms.length) {
-      forms.splice(index, 1); 
-      this.forms.next([...forms]); 
-      this.saveForms(forms); 
-    }
+  deleteForm(id: number) {
+    this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => {
+      const updatedForms = this.formsSubject.getValue().filter(form => form.id !== id);
+      this.formsSubject.next(updatedForms);
+    });
   }
 
   private saveForms(forms: any[]) {

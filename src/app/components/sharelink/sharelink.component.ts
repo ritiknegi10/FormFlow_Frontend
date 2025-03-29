@@ -21,7 +21,7 @@ export class SharelinkComponent implements OnInit{
     this.route.paramMap.subscribe(params => {
       const formIndex = params.get('id');  
       if (formIndex !== null) {
-        this.formData = this.formService.getFormByIndex(Number(formIndex));
+        this.formData = this.formService.getFormById(Number(formIndex));
         this.answers = new Array(this.formData.questions.length).fill(null);
       }
     });

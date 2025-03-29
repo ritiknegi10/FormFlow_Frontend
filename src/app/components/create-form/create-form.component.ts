@@ -131,9 +131,9 @@ export class CreateFormComponent {
         // console.log("Form saved");
         // console.log(JSON.stringify(this.formBuilder.value));
         this.formService.addForm(this.formBuilder.value);
-        
-        window.location.reload();
-        window.scrollTo(0, 0);
+        console.log(this.formBuilder.value)
+        //window.location.reload();
+        //window.scrollTo(0, 0);
         
     }
 }

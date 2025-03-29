@@ -25,26 +25,27 @@ export class EditFormComponent implements OnInit {
 
     ngOnInit() {
         this.route.paramMap.subscribe(params => {
-        this.formIndex = Number(params.get('id'));
-        const formData = this.formService.getFormByIndex(this.formIndex);
-
-        //console.log("Loaded formData:", formData); 
-
-        if (formData) {
-            this.form = this.fb.group({
-            title: new FormControl(formData.title || '', Validators.required),
-            description: new FormControl(formData.description || ''),
-            questions: this.fb.array(
-                formData.questions.map((q: any) => this.createQuestionGroup(q))
-            )
+            const formId = Number(params.get('id'));
+            this.formService.getFormById(formId).subscribe(formData => {
+                this.form = formData;
+                console.log(formData);
+                if (formData) {
+                    this.form = this.fb.group({
+                        title: new FormControl(formData.title || '', Validators.required),
+                        description: new FormControl(formData.description || ''),
+                        questions: this.fb.array(
+                            formData.questions.map((q: any) => this.createQuestionGroup(q))
+                        )
+                    });
+    
+                    // console.log("Form initialized:", this.form.value);
+                } else {
+                    this.router.navigate(['/forms']);
+                }
             });
-
-        // console.log("Form initialized:", this.form.value); 
-        } else {
-            this.router.navigate(['/forms']);
-        }
         });
     }
+    
 
     createQuestionGroup(question: any): FormGroup {
         return this.fb.group({
