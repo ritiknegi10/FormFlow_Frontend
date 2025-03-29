@@ -1,3 +1,12 @@
+<<<<<<< Updated upstream
+=======
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" 
+          integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+>>>>>>> Stashed changes
 <div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 p-8 flex flex-col items-center">
   <!-- Title and Description Centered Above -->
   <div class="text-center mb-6 max-w-2xl">
@@ -15,7 +24,7 @@
 
           <!-- Short Text & Paragraph Input -->
           <div *ngIf="question.type === 'shortText' || question.type === 'paragraph'">
-              <input type="text" 
+              <input type="text" [formControlName]="question.questionText"
                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
                      placeholder="Your answer" [required]="question.required">
           </div>
@@ -26,8 +35,8 @@
           <!-- Multiple Choice (Radio Buttons) -->
           <div *ngIf="question.type === 'multipleChoice'" class="mt-2">
               <div *ngFor="let option of question.options" class="flex items-center space-x-2">
-                  <input type="radio" name="{{question.questionText}}" class="text-indigo-600 focus:ring-indigo-500"
-                         [required]="question.required">
+                  <input type="radio" [formControlName]="question.questionText" [value]="option"
+                         class="text-indigo-600 focus:ring-indigo-500" [required]="question.required">
                   <label class="text-gray-700">{{ option }}</label>
               </div>
           </div>
@@ -45,13 +54,40 @@
           <!-- Checkboxes -->
           <div *ngIf="question.type === 'checkboxes'" class="mt-2">
               <div *ngFor="let option of question.options" class="flex items-center space-x-2">
-                  <input type="checkbox" class="text-indigo-600 focus:ring-indigo-500">
+                  <input type="checkbox" (change)="onCheckboxChange($event, question.questionText)"
+                         class="text-indigo-600 focus:ring-indigo-500">
                   <label class="text-gray-700">{{ option }}</label>
               </div>
           </div>
+<<<<<<< Updated upstream
+=======
+
+          <!-- Dropdown -->
+          <div *ngIf="question.type === 'dropdown'" class="mt-2">
+              <select [formControlName]="question.questionText"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+                  <option value="" disabled selected>Select an option</option>
+                  <option *ngFor="let option of question.options" [value]="option">
+                      {{ option }}
+                  </option>
+              </select>
+          </div>
+
+          <!-- Rating Section Restored -->
+          <div *ngIf="question.type === 'rating'" class="flex gap-2 mt-3">
+              <span *ngFor="let star of ratingStars(5); let i = index" 
+                    class="cursor-pointer text-2xl text-gray-400"
+                    (click)="updateRatingValue(i + 1)"
+                    [ngClass]="{ 'text-yellow-500': i < ratingValue }">
+                  <i class="fa-star"
+                      [ngClass]="{ 'fa-solid': i < ratingValue, 'fa-regular': i >= ratingValue }">
+                  </i>
+              </span>
+          </div>
+>>>>>>> Stashed changes
       </div>
 
-      <!-- Submit Button -->
+      <!-- Submit Button Restored -->
       <div class="mt-6 flex justify-center">
           <button (click)="submitForm()"
                   class="bg-indigo-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-indigo-700 transition">
