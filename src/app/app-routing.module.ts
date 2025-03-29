@@ -19,7 +19,7 @@ import { UserFormsListComponent } from './components/user-forms-list/user-forms-
 import { OtpComponent } from './components/otp/otp.component';
 
 const routes: Routes = [
-  { path: '', component: LandingPageComponent, canActivate: [AuthGuard] },
+  { path: '', component: LandingPageComponent },
   { path: 'create', component: CreateFormComponent, canActivate: [AuthGuard]  },
   { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard]  },
   { path: 'edit/:id', component: EditFormComponent, canActivate: [AuthGuard]  },

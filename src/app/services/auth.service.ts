@@ -10,7 +10,16 @@ export class AuthService {
   
   private apiUrl = 'http://localhost:8080/auth';
 
-  constructor(private http: HttpClient, private router: Router) {}
+
+
+  private loggedIn = new BehaviorSubject<boolean>(false);
+  // Add this observable
+  isLoggedIn$ = this.loggedIn.asObservable();
+
+  constructor(private http: HttpClient, private router: Router) {
+    // Initialize login state
+    this.loggedIn.next(!!this.getToken());
+  }
 
   login(credentials: { username: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials,{ responseType: 'text' });

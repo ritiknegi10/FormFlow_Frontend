@@ -11,6 +11,7 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
   errorMessage: string = '';
+  submitClicked = false;
 
   constructor(
     public authService: AuthService,
@@ -18,6 +19,8 @@ export class LoginComponent {
   ) {}
 
   onSubmit() {
+    this.submitClicked = true;
+
     this.authService.login({ username: this.username, password: this.password })
       .subscribe({
         next: (token: string) => {
