@@ -69,7 +69,7 @@ export class SharelinkComponent implements OnInit{
     }
   
     alert("The form is submitted successfully!!");
-    this.router.navigate(['/submit', this.formData.title]);
+    this.router.navigate(['/submit', encodeURIComponent(this.formData.title)]);
   }
   
 
