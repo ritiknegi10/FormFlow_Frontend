@@ -33,6 +33,7 @@ export class ViewResponseComponent implements OnInit {
   
       this.responseService.getResponsesByFormId(this.formId).subscribe(responses => {
         this.responses = responses;
+        console.log(responses)
       });
     }
   }

@@ -31,7 +31,7 @@ export class FormsListComponent implements OnInit {
     this.formService.getForms().subscribe(forms => {
       this.forms = forms;
       this.noForms = !this.forms.length;
-      console.log(forms);
+      //console.log(forms);
     }); 
   }
   
@@ -45,9 +45,9 @@ export class FormsListComponent implements OnInit {
     if(!this.forms.length) this.noForms = true;
   }
 
-  copyLink(index: number) {   
+  copyLink(id: number) {   
     const baseUrl = window.location.origin; 
-    const shareableLink = `${baseUrl}/sharelink/${index}`; 
+    const shareableLink = `${baseUrl}/sharelink/${id}`; 
     navigator.clipboard.writeText(shareableLink).then(() => {
       alert('Sharable link copied to clipboard!');
     });

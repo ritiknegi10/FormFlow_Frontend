@@ -56,19 +56,26 @@ export class FormService {
     const forms = this.formsSubject.value; 
     return forms.length > 0 ? forms[forms.length - 1] : null;
   }
-  updateForm(index: number, updatedForm: any) {
-    const forms = this.forms.getValue();
-    
-    updatedForm.questions = updatedForm.questions.map((q: any) =>
-      typeof q === 'string' ? { text: q } : q
-    );
-  
-    forms[index] = updatedForm;
-    this.forms.next(forms);
-    this.saveForms(forms);
-    const formsArray = this.formsSubject.getValue();
-    formsArray[index] = updatedForm;
-    this.formsSubject.next(formsArray);
+  updateForm(id: number, updatedForm: any) {
+    const backendFormat = {
+      title: updatedForm.title,
+      description: updatedForm.description,
+      formSchema: JSON.stringify({
+        fields: updatedForm.questions.map((q: any) => ({
+          label: q.questionText,
+          type: q.type,
+          required: q.required,
+          options: q.options.length ? q.options : undefined,
+        }))
+      })
+    }
+    console.log(backendFormat)
+
+    this.http.put(`${this.apiUrl}/${id}`, backendFormat).subscribe(response => {
+      console.log("Form saved successfully", response);
+    }, error => {
+      console.error("Error saving form", error);
+    });
   }
   
   getResponseByIndex(index: number): any {
@@ -103,7 +110,7 @@ getForms() {
   return this.http.get<any[]>(`${this.apiUrl}/myCreated`).pipe(
     tap(forms => {
       this.formsSubject.next(forms);
-      console.log('API Response:', forms);
+      //console.log('API Response:', forms);
     })
   );
 }
