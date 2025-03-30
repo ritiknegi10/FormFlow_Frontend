@@ -30,6 +30,20 @@ export class SharelinkComponent implements OnInit{
       }
     });
   }
+
+  updateCheckbox(index: number, option: string, event: any) {
+    if (!this.answers[index]) {
+      this.answers[index] = []; 
+    }
+    if (event.target.checked) {
+      
+      this.answers[index].push(option);
+    } else {
+      
+      this.answers[index] = this.answers[index].filter((item: string) => item !== option);
+    }
+  }
+  
   
   // Handle ratings
   ratingValue = 0;
@@ -41,8 +55,19 @@ export class SharelinkComponent implements OnInit{
   }
 
   submitForm() {
+    const missingAnswers = this.formData.formSchema.fields.some((question: any, index: number) => {
+      return question.required && (this.answers[index] === null || this.answers[index] === '' || 
+        (Array.isArray(this.answers[index]) && this.answers[index].length === 0));
+    });
+  
+    if (missingAnswers) {
+      alert("Please answer all required questions before submitting.");
+      return;
+    }
+  
     alert("The form is submitted successfully!!");
     this.router.navigate(['/submit', this.formData.title]);
   }
+  
 
 }

@@ -39,17 +39,17 @@ export class FormService {
   }
   
 
-  // private mapQuestionType(type: string): string {
-  //   const typeMapping: { [key: string]: string } = {
-  //     shortText: "shortText",
-  //     paragraph: "paragraph",
-  //     multipleChoice: "multipleChoice",
-  //     checkboxes: "checkboxes",
-  //     dropdown: "dropdown",
-  //     rating: "rating"
-  //   };
-  //   return typeMapping[type] || "shortText"; // Default to "shortText"
-  // }
+  private mapQuestionType(type: string): string {
+    const typeMapping: { [key: string]: string } = {
+      shortText: "shortText",
+      paragraph: "paragraph",
+      multipleChoice: "multipleChoice",
+      checkboxes: "checkboxes",
+      dropdown: "dropdown",
+      rating: "rating"
+    };
+    return typeMapping[type] || "shortText"; // Default to "shortText"
+  }
 
   getLatestForm() {
     const forms = this.formsSubject.value; 
