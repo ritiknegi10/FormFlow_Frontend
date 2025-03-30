@@ -1,134 +1,137 @@
-<head>
+<!-- <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-  
+
 <div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 pt-10 pb-20 relative">
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
         <h2 class="font-bold text-2xl text-center mt-6 mb-12">New Form</h2>
-      
-        <form [formGroup]="formBuilder" (ngSubmit)="onSubmit()"> 
-            <!-- Form header -->
+
+        <form [formGroup]="formBuilder" (ngSubmit)="onSubmit()">
             <div class="space-y-4">
                 <div>
                     <label class="block text-gray-700 font-semibold mb-1 mt-4">Form Title</label>
                     <input type="text" formControlName="title"
-                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
 
-                    <!-- Form title Validation -->
-                    <div *ngIf="!getTitleControl()?.value.trim() && (submitClicked || getTitleControl()?.touched)" class="px-2 mt-1 text-sm text-red-500">
+                    <div *ngIf="!getTitleControl()?.value.trim() && (submitClicked || getTitleControl()?.touched)"
+                        class="px-2 mt-1 text-sm text-red-500">
                         *Enter form title
                     </div>
                 </div>
-                
+
                 <div>
-                <label class="block text-gray-700 font-semibold mb-1 mt-4">Form Description</label>
-                <input type="text" formControlName="description"
-                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    <label class="block text-gray-700 font-semibold mb-1 mt-4">Form Description</label>
+                    <input type="text" formControlName="description"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
             </div>
-        
-            <!-- Questions Section -->
+
             <div class="mt-12">
                 <h3 class="text-lg font-semibold text-gray-700 mb-3">Questions</h3>
-        
-                <!-- Questions List -->
-                <div formArrayName="questions" class="space-y-6">
-                <div *ngFor="let question of questions.controls; let i = index" [formGroupName]="i"
-                    class="py-6 px-3 border rounded-xl bg-gray-200 hover:shadow-lg">
-        
-                    <!-- Question input -->
-                    <div class="flex gap-2 items-center">
-                    <input type="text" formControlName="questionText"
-                        class="w-2/3 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                        placeholder="Enter question" />
-        
-                    <select formControlName="type"
-                        class="w-1/3 p-2 border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none">
-                        <option value="shortText">Short Text</option>
-                        <option value="paragraph">Paragraph</option>
-                        <option value="multipleChoice">Multiple Choice</option>
-                        <option value="checkboxes">Checkboxes</option>
-                        <option value="dropdown">Drop-down</option>
-                        <option value="rating">Rating</option>
-                    </select>
-                    </div>
-                    <!-- Question Validation -->
-                    <div *ngIf="!getQuestionTextControl(question)?.value.trim() && (submitClicked || getQuestionTextControl(question)?.touched)" 
-                        class="px-2 mt-1 text-sm text-red-500">*Enter question text</div>
-        
-                    <!-- Options -->
-                    <div *ngIf="question.get('type')?.value === 'multipleChoice' || question.get('type')?.value === 'checkboxes' || question.get('type')?.value === 'dropdown'" 
-                        class="mt-4">
-                    <h4 class="text-gray-700 font-semibold px-2">Options</h4>
-                    <div formArrayName="options" class="space-y-2 mt-2">
-                        <div *ngFor="let option of getOptions(questions.at(i)).controls; let j = index" class="">
-                            <div class="flex gap-1">
-                            <input type="text" [formControlName]="j" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter option">
-                            <button 
-                                *ngIf="getOptions(questions.at(i)).length > 1" (click)="removeOption(i, j)" 
-                                class="px-3 text-lg rounded-full text-gray-700 hover:bg-gray-300">
-                                ✖
-                            </button>
-                            </div>
-                            
-                            <!-- Option Validation -->
-                            <div *ngIf="(!option.value.trim()) && (submitClicked || option.touched)" class="px-2 mt-1 text-sm text-red-500 text-center">
-                                *Enter option text
-                            </div>
-                            <div *ngIf="singleOption && submitClicked" class="px-2 mt-1 text-sm text-red-500 text-center"> 
-                                *Enter at least two options for {{ question.get('type')?.value }} question
-                            </div>
-                        </div>
-                    
-                        <button (click)="addOption(i)" type="button" class="px-4 py-2 text-indigo-600 text-sm hover:bg-gray-300 rounded-xl">
-                        + Add Option
-                        </button>
-                    </div>
-                    </div>
 
-                    <!-- Rating  -->
-                    <div *ngIf="question.get('type')?.value === 'rating'"
-                        class="mt-2">
-                        <p class="text-gray-700 font-semibold p-2">Select maximum number of ratings</p>
-                        <select formControlName="rating"
-                            class="w-18 ml-2 p-2 border rounded-md focus:ring-2 focus:ring-indigo-400 outline-none">
-                            <option *ngFor="let num of ratingOptions" [value]="num">{{ num }}</option>
-                        </select>
+                <div formArrayName="questions" class="space-y-6">
+                    <div *ngFor="let question of questions.controls; let i = index" [formGroupName]="i"
+                        class="py-6 px-3 border rounded-xl bg-gray-200 hover:shadow-lg">
+
+                        <div class="flex gap-2 items-center">
+                            <input type="text" formControlName="questionText"
+                                class="w-2/3 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                                placeholder="Enter question" />
+
+                            <select formControlName="type"
+                                class="w-1/3 p-2 border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none">
+                                <option value="shortText">Short Text</option>
+                                <option value="paragraph">Paragraph</option>
+                                <option value="multipleChoice">Multiple Choice</option>
+                                <option value="checkboxes">Checkboxes</option>
+                                <option value="dropdown">Drop-down</option>
+                                <option value="rating">Rating</option>
+                            </select>
+                        </div>
+                        <div *ngIf="!getQuestionTextControl(question)?.value.trim() && (submitClicked || getQuestionTextControl(question)?.touched)"
+                            class="px-2 mt-1 text-sm text-red-500">*Enter question text</div>
+
+                        <div *ngIf="question.get('type')?.value === 'multipleChoice' || question.get('type')?.value === 'checkboxes' || question.get('type')?.value === 'dropdown'"
+                            class="mt-4">
+                            <h4 class="text-gray-700 font-semibold px-2">Options</h4>
+                            <div formArrayName="options" class="space-y-2 mt-2">
+                                <div *ngFor="let option of getOptions(questions.at(i)).controls; let j = index"
+                                    class="">
+                                    <div class="flex gap-1">
+                                        <input type="text" [formControlName]="j"
+                                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                                            placeholder="Enter option">
+                                        <button *ngIf="getOptions(questions.at(i)).length > 1"
+                                            (click)="removeOption(i, j)"
+                                            class="px-3 text-lg rounded-full text-gray-700 hover:bg-gray-300">
+                                            ✖
+                                        </button>
+                                    </div>
+
+                                    <div *ngIf="(!option.value.trim()) && (submitClicked || option.touched)"
+                                        class="px-2 mt-1 text-sm text-red-500 text-center">
+                                        *Enter option text
+                                    </div>
+                                    <div *ngIf="singleOption && submitClicked"
+                                        class="px-2 mt-1 text-sm text-red-500 text-center">
+                                        *Enter at least two options for {{ question.get('type')?.value }} question
+                                    </div>
+                                </div>
+
+                                <button (click)="addOption(i)" type="button"
+                                    class="px-4 py-2 text-indigo-600 text-sm hover:bg-gray-300 rounded-xl">
+                                    + Add Option
+                                </button>
+                            </div>
+                        </div>
+
+                        <div *ngIf="question.get('type')?.value === 'rating'" class="mt-2">
+                            <p class="text-gray-700 font-semibold p-2">Select maximum number of ratings</p>
+                            <select formControlName="rating"
+                                class="w-18 ml-2 p-2 border rounded-md focus:ring-2 focus:ring-indigo-400 outline-none">
+                                <option *ngFor="let num of ratingOptions" [value]="num">{{ num }}</option>
+                            </select>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-8 px-4">
+                            <label class="flex items-center justify-center cursor-pointer">
+
+                                <input type="checkbox" formControlName="required" class="sr-only peer">
+                                <div
+                                    class="relative w-12 h-6 bg-gray-300 rounded-full transition peer-checked:bg-indigo-600">
+                                </div>
+                                <div
+                                    class="relative right-5 w-4 h-4 bg-white rounded-full transition-all duration-300 peer-checked:right-11">
+                                </div>
+                                <span class="-ml-3 text-base font-medium text-gray-700">Required</span>
+
+                            </label>
+
+                            <div class="flex gap-1">
+                                <div class="relative flex justify-center">
+                                    <button (click)="duplicateQuestion(i)" type="button"
+                                        class="px-3 py-2 text-gray-700 hover:bg-gray-300 rounded-lg peer">
+                                        <i class="fa-regular fa-copy text-2xl"></i></button>
+                                    <div
+                                        class="absolute top-12 invisible peer-hover:visible text-nowrap transition-all duration-100 text-white text-xs px-2 py-1 rounded-lg bg-gray-700 bg-opacity-80">
+                                        Duplicate question</div>
+                                </div>
+
+                                <div class="relative flex justify-center">
+                                    <button (click)="removeQuestion(i)"
+                                        class="px-3 py-2 text-gray-700 hover:bg-gray-300 rounded-lg peer">
+                                        <i class="fa-solid fa-trash text-2xl"></i></button>
+                                    <div
+                                        class="absolute top-12 invisible peer-hover:visible text-nowrap transition-all duration-100 text-white text-xs px-2 py-1 rounded-lg bg-gray-700 bg-opacity-80">
+                                        Delete question</div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-        
-                    <!-- Actions -->
-                    <div class="flex justify-between items-center mt-8 px-4">
-                        <label class="flex items-center justify-center cursor-pointer">
-                    
-                            <input type="checkbox" formControlName="required" class="sr-only peer">
-                            <div class="relative w-12 h-6 bg-gray-300 rounded-full transition peer-checked:bg-indigo-600"></div>
-                            <div class="relative right-5 w-4 h-4 bg-white rounded-full transition-all duration-300 peer-checked:right-11"></div>
-                            <span class="-ml-3 text-base font-medium text-gray-700">Required</span>
-                            
-                        </label>
-                        
-                        <div class="flex gap-1">
-                        <div class="relative flex justify-center">
-                            <button (click)="duplicateQuestion(i)" type="button"
-                            class="px-3 py-2 text-gray-700 hover:bg-gray-300 rounded-lg peer">
-                            <i class="fa-regular fa-copy text-2xl"></i></button>
-                            <div class="absolute top-12 invisible peer-hover:visible text-nowrap transition-all duration-100 text-white text-xs px-2 py-1 rounded-lg bg-gray-700 bg-opacity-80" >Duplicate question</div>
-                        </div>
-                        
-                        <div class="relative flex justify-center">
-                            <button (click)="removeQuestion(i)"
-                            class="px-3 py-2 text-gray-700 hover:bg-gray-300 rounded-lg peer">
-                            <i class="fa-solid fa-trash text-2xl"></i></button>
-                            <div class="absolute top-12 invisible peer-hover:visible text-nowrap transition-all duration-100 text-white text-xs px-2 py-1 rounded-lg bg-gray-700 bg-opacity-80" >Delete question</div>
-                        </div>
-                        </div>
-                    </div>
-        
                 </div>
-                </div>  
             </div>
-        
-            <!-- Form Footer -->
+
             <div class="mt-6 flex justify-between">
                 <button (click)="addQuestion()" type="button"
                     class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
@@ -139,9 +142,245 @@
                     Save Form
                 </button>
             </div>
-      
+
         </form>
     </div>
-    
-    
+
+
+</div> -->
+
+
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
+    <div class="max-w-6xl mx-auto">
+        <!-- Floating Navigation  -->
+        <div class="fixed right-8 top-1/2 -translate-y-1/2 hidden lg:block">
+            <div class="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-gray-200">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">Form Navigation</h4>
+                <div class="space-y-2">
+                    <div *ngFor="let question of questions.controls; let i = index"
+                        class="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                        <span
+                            class="w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs">
+                            {{ i + 1 }}
+                        </span>
+                        <span class="text-gray-600 truncate max-w-[160px]">
+                            {{ getQuestionTextControl(question)?.value || 'New Question' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="text-center mb-12">
+            <div class="mb-6 animate-pulse">
+                <svg class="w-16 h-16 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M9 12h3m-3 4h3m6-4h3m-3 4h3m-9-4v4m-6 1V10a2 2 0 012-2h4a2 2 0 012 2v7m-6 0h6" />
+                </svg>
+            </div>
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Build Your Form
+            </h2>
+            <p class="text-lg text-gray-600 mt-3">Create beautiful forms with interactive elements</p>
+        </div>
+
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-8">
+            <form [formGroup]="formBuilder" (ngSubmit)="onSubmit()">
+                <div class="mb-12 space-y-6">
+                    <div>
+                        <label class="block text-lg font-semibold text-gray-900 mb-3  items-center">
+                            <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Form Details
+                        </label>
+                        <input type="text" formControlName="title" placeholder="Form Title"
+                            class="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all">
+
+                        <div *ngIf="!getTitleControl()?.value.trim() && (submitClicked || getTitleControl()?.touched)"
+                            class="mt-2 text-red-500 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            Form title is required
+                        </div>
+                    </div>
+
+                    <div>
+                        <textarea formControlName="description" rows="3" placeholder="Form Description"
+                            class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all"></textarea>
+                    </div>
+                </div>
+
+                <div class="space-y-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Form Questions
+                    </h3>
+
+                    <div formArrayName="questions" class="space-y-6">
+                        <div *ngFor="let question of questions.controls; let i = index" [formGroupName]="i" class="p-6 bg-white border-2 border-gray-100 rounded-xl hover:border-indigo-100 transition-all
+                                    shadow-sm hover:shadow-md group relative">
+
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2 text-gray-500">
+                                    <span class="text-sm font-medium">Question {{ i + 1 }}</span>
+                                    <div class="w-px h-4 bg-gray-200"></div>
+                                    <span class="text-sm capitalize">{{ question.get('type')?.value }}</span>
+                                </div>
+                                <div
+                                    class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button (click)="duplicateQuestion(i)" type="button"
+                                        class="p-2 hover:bg-gray-100 rounded-lg text-gray-600 tooltip">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        <span class="tooltip-text">Duplicate</span>
+                                    </button>
+                                    <button (click)="removeQuestion(i)" type="button"
+                                        class="p-2 hover:bg-gray-100 rounded-lg text-red-500 tooltip">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        <span class="tooltip-text">Delete</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="flex gap-4 items-start">
+                                    <input type="text" formControlName="questionText" placeholder="Enter your question"
+                                        class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-4 
+                                               focus:ring-indigo-100 focus:border-indigo-500 transition-all">
+
+                                    <select formControlName="type" class="w-48 px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-4 
+                                               focus:ring-indigo-100 focus:border-indigo-500 transition-all">
+                                        <option value="shortText">📝 Short Text</option>
+                                        <option value="paragraph">📄 Paragraph</option>
+                                        <option value="multipleChoice">☑️ Multiple Choice</option>
+                                        <option value="checkboxes">✅ Checkboxes</option>
+                                        <option value="dropdown">▾ Dropdown</option>
+                                        <option value="rating">⭐ Rating</option>
+                                    </select>
+                                </div>
+
+                                <div *ngIf="!getQuestionTextControl(question)?.value.trim() && (submitClicked || getQuestionTextControl(question)?.touched)"
+                                    class="text-red-500 flex items-center gap-2 text-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    Question text is required
+                                </div>
+
+                                <div *ngIf="question.get('type')?.value === 'multipleChoice' || 
+                                            question.get('type')?.value === 'checkboxes' || 
+                                            question.get('type')?.value === 'dropdown'" class="space-y-3">
+                                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                                        <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                        Options
+                                    </div>
+
+                                    <div formArrayName="options" class="space-y-2 ml-4">
+                                        <div *ngFor="let option of getOptions(questions.at(i)).controls; let j = index"
+                                            class="flex items-center gap-2">
+                                            <input type="text" [formControlName]="j" placeholder="Option text" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 
+                                                       focus:ring-indigo-100 focus:border-indigo-500 transition-all">
+
+                                            <button *ngIf="getOptions(questions.at(i)).length > 1"
+                                                (click)="removeOption(i, j)"
+                                                class="p-1 text-gray-400 hover:text-red-500 rounded-full">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button (click)="addOption(i)" type="button" class="ml-4 px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg 
+                                                   flex items-center gap-2 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Add Option
+                                    </button>
+                                </div>
+
+                                <div *ngIf="question.get('type')?.value === 'rating'"
+                                    class="flex items-center gap-4 ml-4">
+                                    <div class="text-sm text-gray-600">Maximum rating:</div>
+                                    <div class="flex gap-2">
+                                        <button *ngFor="let num of ratingOptions"
+                                            [class.bg-indigo-600]="question.get('rating')?.value === num"
+                                            [class.text-white]="question.get('rating')?.value === num"
+                                            (click)="question.get('rating')?.setValue(num)" class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center 
+                                                       hover:bg-indigo-50 transition-colors cursor-pointer">
+                                            {{ num }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
+                                <label class="flex items-center gap-2 cursor-pointer text-gray-600">
+                                    <input type="checkbox" formControlName="required" class="sr-only peer">
+                                    <div class="relative w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-indigo-600 
+                                              transition-colors duration-200">
+                                        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm 
+                                                  transition-transform duration-200 peer-checked:translate-x-5"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">Required</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 flex flex-col sm:flex-row gap-4 justify-between">
+                    <button (click)="addQuestion()" type="button"
+                        class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg 
+                                   flex items-center gap-2 transition-transform transform hover:-translate-y-0.5 shadow-sm hover:shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add New Question
+                    </button>
+
+                    <button *ngIf="questions.length >= 1" type="submit"
+                        class="px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold 
+                                   rounded-lg hover:shadow-lg transition-all transform hover:-translate-y-0.5 shadow-sm">
+                        Publish Form
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success/Error Notifications -->
+    <div *ngIf="submitSuccess"
+        class="fixed top-4 right-4 z-50 flex items-center bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-lg animate-slide-in">
+        <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="font-medium">Form Published Successfully!</span>
+    </div>
+
 </div>
