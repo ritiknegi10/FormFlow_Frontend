@@ -31,6 +31,7 @@ export class AuthService {
 
   saveToken(token: string) {
     localStorage.setItem('jwt', token);
+    this.loggedIn.next(true);
   }
 
   getToken(): string | null {
@@ -43,6 +44,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('jwt');
+    this.loggedIn.next(false); 
     this.router.navigate(['/login']);
   }
 }
