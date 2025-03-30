@@ -26,6 +26,7 @@ export class FormService {
           type: q.type,
           required: q.required,
           options: q.options.length ? q.options : undefined,
+          rating: q.rating ? q.rating : 5
         }))
       })
     }
