@@ -349,11 +349,11 @@
                                     class="flex items-center gap-4 ml-4">
                                     <div class="text-sm text-gray-600">Maximum rating:</div>
                                     <div class="flex gap-2">
-                                        <button *ngFor="let num of ratingOptions"
+                                        <button *ngFor="let num of ratingOptions" type="button"
                                             [class.bg-indigo-600]="question.get('rating')?.value === num"
                                             [class.text-white]="question.get('rating')?.value === num"
                                             (click)="question.get('rating')?.setValue(num)" class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center 
-                                                       hover:bg-indigo-50 transition-colors cursor-pointer">
+                                                   hover:bg-indigo-50 transition-colors cursor-pointer">
                                             {{ num }}
                                         </button>
                                     </div>
