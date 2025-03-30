@@ -135,7 +135,7 @@ export class CreateFormComponent {
         
         this.submitClicked = false;
         console.log(this.formBuilder.value)
-        //this.router.navigate(['/forms']);
+        this.router.navigate(['/forms']);
         //window.location.reload();
         //window.scrollTo(0, 0);
         

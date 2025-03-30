@@ -51,7 +51,7 @@
 
                 <!-- Rating Feature -->
                 <div *ngSwitchCase="'rating'" class="flex gap-2 mt-3">
-                    <span *ngFor="let star of ratingStars(5); let j = index" 
+                    <span *ngFor="let star of ratingStars(question.rating); let j = index" 
                         class="cursor-pointer text-3xl text-gray-400 transition hover:scale-110"
                         (click)="updateRatingValue(j + 1)"
                         [ngClass]="{ 'text-yellow-500': j < ratingValue }">
