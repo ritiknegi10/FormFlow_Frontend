@@ -23,7 +23,7 @@ export class FormService {
       formSchema: JSON.stringify({
         fields: newForm.questions.map((q: any) => ({
           label: q.questionText,
-          type: this.mapQuestionType(q.type),
+          type: q.type,
           required: q.required,
           options: q.options.length ? q.options : undefined,
         }))
@@ -39,16 +39,17 @@ export class FormService {
   }
   
 
-  private mapQuestionType(type: string): string {
-    const typeMapping: { [key: string]: string } = {
-      shortText: "text",
-      multipleChoice: "select",
-      checkboxes: "checkbox",
-      dropdown: "select",
-      number: "number"
-    };
-    return typeMapping[type] || "text"; // Default to "text"
-  }
+  // private mapQuestionType(type: string): string {
+  //   const typeMapping: { [key: string]: string } = {
+  //     shortText: "shortText",
+  //     paragraph: "paragraph",
+  //     multipleChoice: "multipleChoice",
+  //     checkboxes: "checkboxes",
+  //     dropdown: "dropdown",
+  //     rating: "rating"
+  //   };
+  //   return typeMapping[type] || "shortText"; // Default to "shortText"
+  // }
 
   getLatestForm() {
     const forms = this.formsSubject.value; 

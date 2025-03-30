@@ -27,14 +27,7 @@ export class CreateFormComponent {
         this.questions = this.formBuilder.get('questions') as FormArray;
     }
     ngOnInit() {
-        if (localStorage.getItem("formSaved") === "true") {
-            this.submitSuccess = true;
-            localStorage.removeItem("formSaved");
-
-            setTimeout(() => {
-                this.submitSuccess = false;
-            }, 5000);
-        }
+        
     }
 
     getTitleControl() {

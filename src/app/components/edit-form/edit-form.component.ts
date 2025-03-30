@@ -25,37 +25,45 @@ export class EditFormComponent implements OnInit {
 
     ngOnInit() {
         this.route.paramMap.subscribe(params => {
-            const formId = Number(params.get('id'));
-            this.formService.getFormById(formId).subscribe(formData => {
+            this.formIndex = Number(params.get('id'));
+            this.formService.getFormById(this.formIndex).subscribe(formData => {
                 this.form = formData;
+                const formSchema = JSON.parse(formData.formSchema);
+                const questions = formSchema.fields;
+                
                 console.log(formData);
+                console.log(formData.title);
+                console.log(questions);
+
                 if (formData) {
                     this.form = this.fb.group({
                         title: new FormControl(formData.title || ''),
                         description: new FormControl(formData.description || ''),
                         questions: this.fb.array(
-                            formData.questions.map((q: any) => this.createQuestionGroup(q))
+                            questions.map((q: any) => this.createQuestionGroup(q))
                         )
                     });
-    
-                    // console.log("Form initialized:", this.form.value);
+
                 } else {
                     this.router.navigate(['/forms']);
                 }
             });
         });
+        // console.log(this.form.value);
     }
     
 
     createQuestionGroup(question: any): FormGroup {
+
         return this.fb.group({
-        questionText: new FormControl(question.questionText || ''),
-        type: new FormControl(question.type || 'shortText'),
-        required: new FormControl(question.required || false),
-        options: this.fb.array(
-            question.options ? question.options.map((opt: any) => new FormControl(opt)) : []
-        ),
-        rating: new FormControl(question.rating || '5')
+
+            questionText: new FormControl(question.label || ''),
+            type: new FormControl(question.type || 'shortText'),
+            required: new FormControl(question.required || false),
+            options: this.fb.array(
+                question.options ? question.options.map((opt: any) => new FormControl(opt)) : []
+            ),
+            rating: new FormControl(question.rating || '5')
         });
     }
 
@@ -176,6 +184,7 @@ export class EditFormComponent implements OnInit {
                 options: q.options ? q.options.map((opt: any) => opt) : []
             }))
         };
+        console.log(updatedForm);
     
         this.formService.updateForm(this.formIndex, updatedForm);
         

@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 p-8">
+<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 p-8 relative">
     <div class="max-w-4xl mx-auto">
         <h2 class="text-2xl font-bold mb-6">My Forms</h2>
         <h4 *ngIf="noForms" class="text-gray-600">
@@ -23,5 +23,11 @@
                 </div>
             </div>
         </div>
+    </div>
+    <!-- Form saved message -->
+    <div *ngIf="submitSuccess"
+        class="absolute top-2 right-0 bg-green-200 px-14 py-4 text-lg cursor-pointer transition-all duration-10000 ease-out">
+        Form saved!
+        <i class="fa-solid fa-circle-check ml-1 text-green-700"></i>
     </div>
 </div>

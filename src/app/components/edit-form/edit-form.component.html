@@ -6,7 +6,7 @@
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
         <h2 class="font-bold text-2xl text-center mt-6 mb-12">Edit Form</h2>
       
-        <form [formGroup]="form" (ngSubmit)="saveChanges()"> 
+        <form *ngIf="form" [formGroup]="form" (ngSubmit)="saveChanges()"> 
             <!-- Form header -->
             <div class="space-y-4">
                 <div>

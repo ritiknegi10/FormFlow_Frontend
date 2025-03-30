@@ -14,17 +14,26 @@ import Swal from 'sweetalert2';
 export class FormsListComponent implements OnInit {
   forms: any[] = [];
   noForms: boolean = false;
-
+  submitSuccess: boolean = false;
   constructor(private formService: FormService, private router: Router) {}
 
   ngOnInit() {
+    window.scrollTo(0, 0);
+    if (localStorage.getItem("formSaved") === "true") {
+      this.submitSuccess = true;
+      console.log("form saved");
+      localStorage.removeItem("formSaved");
+
+      setTimeout(() => {
+          this.submitSuccess = false;
+      }, 5000);
+    }
     this.formService.getForms().subscribe(forms => {
       this.forms = forms;
-      this.noForms = this.forms.length === 0;
+      this.noForms = !this.forms.length;
       console.log(forms);
     }); 
   }
-  
   
   goToAnalytics(index: number) {
     this.router.navigate(['/form-analytics', index]);
