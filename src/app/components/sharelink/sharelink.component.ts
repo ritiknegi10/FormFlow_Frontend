@@ -48,9 +48,12 @@ export class SharelinkComponent implements OnInit{
   // Handle ratings
   ratingValue = 0;
   ratingStars(n: number): Array<number> { 
+    // console.log("in ratingStars function");
+    // console.log(n);
     return Array(n); 
   }
   updateRatingValue(n: number) {
+    console.log(n);
     this.ratingValue = n;
   }
 
