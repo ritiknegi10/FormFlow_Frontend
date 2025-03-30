@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormService } from '../../services/form.service';
+import { ResponseService } from 'src/app/services/response.service';
 
 @Component({
   selector: 'app-view-response',
@@ -13,7 +14,7 @@ export class ViewResponseComponent implements OnInit {
   responses: any[] = [];  
 
 
-  constructor(private route: ActivatedRoute, private formService: FormService) {}
+  constructor(private route: ActivatedRoute, private formService: FormService, private responseService: ResponseService) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -26,8 +27,32 @@ export class ViewResponseComponent implements OnInit {
 
   loadFormData() {
     if (this.formId !== null) {
-      this.selectedForm = this.formService.getFormById(this.formId); 
-      this.responses = this.formService.getResponsesByFormIndex(this.formId); 
+      this.formService.getFormById(this.formId).subscribe(form => {
+        this.selectedForm = form;
+      });
+  
+      this.responseService.getResponsesByFormId(this.formId).subscribe(responses => {
+        this.responses = responses;
+      });
     }
   }
+
+  getKeys(response: any): string[] {
+    try {
+      return Object.keys(JSON.parse(response.responseData));
+    } catch (error) {
+      console.error("Error parsing responseData:", error);
+      return [];
+    }
+  }
+  
+  getValue(response: any, key: string): string {
+    try {
+      return JSON.parse(response.responseData)[key] || "N/A";
+    } catch (error) {
+      console.error("Error parsing responseData:", error);
+      return "N/A";
+    }
+  }
+  
 }
