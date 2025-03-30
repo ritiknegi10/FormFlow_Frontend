@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,4 +15,9 @@ export class ResponseService {
   getResponsesByFormId(formId: number) {
     return this.http.get<any[]>(`${this.apiUrl}/${formId}`);
   }
+  
+  getUserSubmissions(userId: number) {
+    return this.http.get<any[]>(`${this.apiUrl}/my-submissions/${userId}`);
+}
+
 }

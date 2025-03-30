@@ -17,7 +17,7 @@
                     Submitted on: {{ submission.submissionDate | date:'medium' }}
                 </p>
                 <div class="flex space-x-2">
-                    <button (click)="viewResponse(submission.formId, submission.responseData.index)"
+                    <button (click)="viewResponse(submission.formId)"
                         class="text-indigo-600 hover:text-indigo-800">
                         View Response
                     </button>
