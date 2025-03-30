@@ -140,8 +140,6 @@ export class CreateFormComponent {
         // console.log(JSON.stringify(this.formBuilder.value));
         this.formService.addForm(this.formBuilder.value);
         
-        // window.location.reload();
-        // window.scrollTo(0, 0);
         this.submitClicked = false;
         console.log(this.formBuilder.value)
         this.router.navigate(['/forms']);

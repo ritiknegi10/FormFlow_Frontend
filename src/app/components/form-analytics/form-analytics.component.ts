@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormService } from '../../services/form.service';
+import { ResponseService } from '../../services/response.service';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -14,11 +14,12 @@ export class FormAnalyticsComponent implements OnInit {
   formId: number | null = null;
   responses: any[] = [];
 
-  constructor(private route: ActivatedRoute, private formService: FormService, private router: Router) {}
+  constructor(private route: ActivatedRoute, private responseService: ResponseService, private router: Router) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.formId = Number(params.get('id')); 
+      console.log(this.formId)
       if (!isNaN(this.formId)) {
         this.loadResponses();
       }
@@ -27,7 +28,9 @@ export class FormAnalyticsComponent implements OnInit {
 
   loadResponses() {
     if (this.formId !== null) {
-      this.responses = this.formService.getResponsesByFormIndex(this.formId);
+      this.responseService.getResponsesByFormId(this.formId).subscribe(responses => {
+        this.responses = responses;
+      });
     }
   }
 

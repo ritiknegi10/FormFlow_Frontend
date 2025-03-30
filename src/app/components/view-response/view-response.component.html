@@ -1,31 +1,26 @@
-<div class="min-h-screen flex flex-col  bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100">
+<div class="min-h-screen flex flex-col bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100">
   <div class="flex-grow p-6 flex items-center justify-center">
     <div class="form-analytics-container bg-white shadow-md rounded-lg p-6 max-w-2xl w-full">
       <h2 class="text-2xl font-bold mb-4 text-center">{{ selectedForm?.title || 'Form Responses' }}</h2>
 
-      <div *ngIf="selectedForm; else noData">
+      <!-- <div *ngIf="selectedForm; else noData">
         <h3 class="text-lg font-semibold mb-2">Questions:</h3>
-        <div *ngFor="let question of selectedForm.questions; let i = index"
-          class="bg-gray-100 p-3 rounded-md shadow-sm mb-2">
+        <div *ngFor="let question of selectedForm.questions" class="bg-gray-100 p-3 rounded-md shadow-sm mb-2">
           <p class="font-medium">{{ question.questionText }}</p>
           <p class="text-sm text-gray-600">Type: {{ question.type }}</p>
+        </div> -->
 
-          <!-- Show text input for 'text' type -->
-          <input *ngIf="question.type === 'text'" type="text" [value]="responses[i]?.answer || 'No response'"
-            class="mt-2 p-2 border border-gray-300 rounded-md w-full bg-gray-100 cursor-not-allowed" readonly />
-
-          <!-- Show options for 'multiple choice' and 'dropdown' -->
-          <div *ngIf="question.type === 'multiple' || question.type === 'dropdown'">
-            <div *ngFor="let option of question.options" class="mt-2">
-              <input type="radio" [checked]="responses[i]?.answer === option" disabled /> {{ option }}
-            </div>
-          </div>
-        </div>
+        <div>
 
         <h3 class="text-lg font-semibold mt-4">Responses:</h3>
         <div *ngIf="responses.length > 0; else noResponses">
-          <div *ngFor="let response of responses" class="bg-blue-50 p-3 rounded-md shadow-sm mb-2">
-            <p>{{ response | json }}</p>
+          <div *ngFor="let response of responses" class="bg-blue-50 p-4 rounded-lg shadow-md mb-3">
+            <div *ngFor="let key of getKeys(response)">
+              <p class="font-semibold">{{ key }}
+                <br>
+                <span class="font-normal">{{ getValue(response, key) }}</span></p>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">Submitted at: {{ response.submittedAt | date:'short' }}</p>
           </div>
         </div>
 
@@ -40,8 +35,7 @@
     </div>
   </div>
 
-  <!-- Footer stays at the bottom -->
-  <footer class="bg-gray-200 text-center text-gray-600 p-3 mt-auto">
+  <!-- <footer class="bg-gray-200 text-center text-gray-600 p-3 mt-auto">
     &copy; 2025 Your App Name. All rights reserved.
-  </footer>
+  </footer> -->
 </div>
