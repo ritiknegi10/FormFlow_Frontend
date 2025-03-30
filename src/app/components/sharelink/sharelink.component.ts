@@ -21,12 +21,16 @@ export class SharelinkComponent implements OnInit{
     this.route.paramMap.subscribe(params => {
       const formIndex = params.get('id');  
       if (formIndex !== null) {
-        this.formData = this.formService.getFormById(Number(formIndex));
-        this.answers = new Array(this.formData.questions.length).fill(null);
+        this.formService.getFormById(Number(formIndex)).subscribe(form => {
+          this.formData = form; 
+          this.formData.formSchema = JSON.parse(this.formData.formSchema); // Parse formSchema if it's a JSON string
+          this.answers = new Array(this.formData.formSchema.fields.length).fill(null);
+          console.log("Fetched Form Data:", this.formData);
+        });
       }
     });
   }
-
+  
   // Handle ratings
   ratingValue = 0;
   ratingStars(n: number): Array<number> { 
