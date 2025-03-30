@@ -34,7 +34,7 @@ const routes: Routes = [
     {path:'about',component:AboutUsComponent},
     {path:"faq", component:FaqComponent},
     { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard]  },
-    {path:'submit/:id', component: SubmitPageComponent, canActivate: [AuthGuard] },
+    { path: 'submit/:title', component: SubmitPageComponent , canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

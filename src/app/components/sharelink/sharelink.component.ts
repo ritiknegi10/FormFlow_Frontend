@@ -48,9 +48,12 @@ export class SharelinkComponent implements OnInit{
   // Handle ratings
   ratingValue = 0;
   ratingStars(n: number): Array<number> { 
+    // console.log("in ratingStars function");
+    // console.log(n);
     return Array(n); 
   }
   updateRatingValue(n: number) {
+    console.log(n);
     this.ratingValue = n;
   }
 
@@ -66,7 +69,7 @@ export class SharelinkComponent implements OnInit{
     }
   
     alert("The form is submitted successfully!!");
-    this.router.navigate(['/submit', this.formData.title]);
+    this.router.navigate(['/submit', encodeURIComponent(this.formData.title)]);
   }
   
 

@@ -44,7 +44,7 @@ export class CreateFormComponent {
             questionText: [''],
             type: ['shortText'],
             options: this.fb.array([]),
-            rating: ['5'],
+            rating: [5],
             required: false,
         });
     
