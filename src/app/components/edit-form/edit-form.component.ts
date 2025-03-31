@@ -31,9 +31,9 @@ export class EditFormComponent implements OnInit {
                 const formSchema = JSON.parse(formData.formSchema);
                 const questions = formSchema.fields;
                 
-                console.log(formData);
-                console.log(formData.title);
-                console.log(questions);
+                // console.log(formData);
+                // console.log(formData.title);
+                // console.log(questions);
 
                 if (formData) {
                     this.form = this.fb.group({

@@ -15,6 +15,15 @@ export class ResponseService {
   getResponsesByFormId(formId: number) {
     return this.http.get<any[]>(`${this.apiUrl}/${formId}`);
   }
+
+  submitResponse(formId: number, response: any) {
+    console.log(formId)
+    return this.http.post(`${this.apiUrl}/submit/${formId}`, JSON.stringify(response)).subscribe(response => {
+      console.log("Response saved successfully", response);
+    }, error => {
+      console.error("Error saving form", error);
+    });
+  }
   
   getUserSubmissions(userId: number) {
     return this.http.get<any[]>(`${this.apiUrl}/my-submissions/${userId}`);
