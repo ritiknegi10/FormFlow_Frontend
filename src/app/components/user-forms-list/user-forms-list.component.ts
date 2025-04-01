@@ -22,15 +22,34 @@ export class UserFormsListComponent implements OnInit {
   ngOnInit() {
     this.loadSubmissions();
   }
-
-  private loadSubmissions() {
-    const currentUser = this.getCurrentUser();
-    if (!currentUser) {
-      this.router.navigate(['/login']);
-      return;
+  private getCurrentUser(): { userId: number } | null {
+    const token = this.authService.getToken();
+    if (!token) {
+      console.error('Token is missing');
+      return null;
     }
-    
-    this.responseService.getUserSubmissions(currentUser.userId).subscribe({
+  
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload.userId) {
+        console.error('Invalid token payload:', payload);
+        return null;
+      }
+      return { userId: payload.userId };
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
+  
+  private loadSubmissions() {
+    // const currentUser = this.getCurrentUser();
+    // if (!currentUser) {
+    //   this.router.navigate(['/login']);
+    //   return;
+    // }
+  
+    this.responseService.getUserSubmissions(2).subscribe({
       next: (data) => {
         this.submittedForms = data.map((form: any) => ({
           formId: form.id,
@@ -40,19 +59,12 @@ export class UserFormsListComponent implements OnInit {
         this.noSubmissions = this.submittedForms.length === 0;
       },
       error: (error) => {
-        console.error('Error fetching submissions:', error);
+          console.error('Error fetching submissions:', error);
       }
     });
   }
-
-  private getCurrentUser(): { userId: number } | null {
-    const token = this.authService.getToken();
-    if (!token) return null;
-    
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return { userId: payload.userId };
-  }
-
+  
+  
   viewResponse(formId: number) {
     this.router.navigate([`/form-response/${formId}`]);
   }

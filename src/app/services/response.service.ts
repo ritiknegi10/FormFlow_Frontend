@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -25,8 +26,13 @@ export class ResponseService {
     });
   }
   
-  getUserSubmissions(userId: number) {
-    return this.http.get<any[]>(`${this.apiUrl}/my-submissions/${userId}`);
-}
+  getUserSubmissions(userId: number): Observable<any[]> {
+    const token = localStorage.getItem('jwt'); // Retrieve token
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}` // Add Authorization header
+    });
+  
+    return this.http.get<any[]>(`${this.apiUrl}/my-submissions/${userId}`, { headers });
+  }
 
 }
