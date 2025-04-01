@@ -26,13 +26,17 @@ export class ResponseService {
     });
   }
   
-  getUserSubmissions(userId: number): Observable<any[]> {
+  getUserSubmissions(): Observable<any[]> {
     const token = localStorage.getItem('jwt'); // Retrieve token
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}` // Add Authorization header
-    });
+    // const headers = new HttpHeaders({
+    //   'Authorization': `Bearer ${token}` // Add Authorization header
+    // });
   
-    return this.http.get<any[]>(`${this.apiUrl}/my-submissions/${userId}`, { headers });
+    return this.http.get<any[]>(`${this.apiUrl}/my-submissions/`);
+  }
+
+  getResponsesByFormIdandUser(formId: number){
+    return this.http.get<any[]>(`${this.apiUrl}/my-submissions/${formId}`);
   }
 
 }

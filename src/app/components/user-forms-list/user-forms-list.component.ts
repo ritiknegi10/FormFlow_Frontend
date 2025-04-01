@@ -22,25 +22,6 @@ export class UserFormsListComponent implements OnInit {
   ngOnInit() {
     this.loadSubmissions();
   }
-  private getCurrentUser(): { userId: number } | null {
-    const token = this.authService.getToken();
-    if (!token) {
-      console.error('Token is missing');
-      return null;
-    }
-  
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      if (!payload.userId) {
-        console.error('Invalid token payload:', payload);
-        return null;
-      }
-      return { userId: payload.userId };
-    } catch (error) {
-      console.error('Error decoding token:', error);
-      return null;
-    }
-  }
   
   private loadSubmissions() {
     // const currentUser = this.getCurrentUser();
@@ -49,7 +30,7 @@ export class UserFormsListComponent implements OnInit {
     //   return;
     // }
   
-    this.responseService.getUserSubmissions(2).subscribe({
+    this.responseService.getUserSubmissions().subscribe({
       next: (data) => {
         this.submittedForms = data.map((form: any) => ({
           formId: form.id,
@@ -66,6 +47,14 @@ export class UserFormsListComponent implements OnInit {
   
   
   viewResponse(formId: number) {
-    this.router.navigate([`/form-response/${formId}`]);
+    this.router.navigate([`/view-responses/my-responses/${formId}`]);
+  }
+
+  loadResponses(formId: number) {
+    this.responseService.getResponsesByFormIdandUser(formId).subscribe({
+      next: (responses) => {
+        console.log(responses)
+      }
+    })
   }
 }
