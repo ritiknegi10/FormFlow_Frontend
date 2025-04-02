@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +57,7 @@ export class FormService {
     const forms = this.formsSubject.value; 
     return forms.length > 0 ? forms[forms.length - 1] : null;
   }
-  updateForm(id: number, updatedForm: any) {
+  updateForm(id: number, updatedForm: any): Observable<any> { // Change return type to Observable<any>
     const backendFormat = {
       title: updatedForm.title,
       description: updatedForm.description,
@@ -68,14 +69,10 @@ export class FormService {
           options: q.options.length ? q.options : undefined,
         }))
       })
-    }
-    console.log(backendFormat)
+    };
+    console.log(backendFormat);
 
-    this.http.put(`${this.apiUrl}/${id}`, backendFormat).subscribe(response => {
-      console.log("Form saved successfully", response);
-    }, error => {
-      console.error("Error saving form", error);
-    });
+    return this.http.put(`${this.apiUrl}/${id}`, backendFormat); // Return the Observable from http.put
   }
   
   getResponseByIndex(index: number): any {
