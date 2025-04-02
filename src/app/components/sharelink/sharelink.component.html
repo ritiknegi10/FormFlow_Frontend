@@ -31,6 +31,17 @@
                     </option>
                 </select>
 
+                <!-- Date Input -->
+                <input *ngSwitchCase="'date'" type="date" [(ngModel)]="answers[i]" (blur)="markAsTouched(i)"
+                    [ngClass]="{'border-red-500': (submitClicked || touchedFields[i]) && question.required && !answers[i]}"
+                    class="border border-gray-300 p-3 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                
+                <!-- Time Input -->
+                <input *ngSwitchCase="'time'" type="time" [(ngModel)]="answers[i]" (blur)="markAsTouched(i)"
+                    [ngClass]="{'border-red-500': (submitClicked || touchedFields[i]) && question.required && !answers[i]}"
+                    class="border border-gray-300 p-3 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+
+
                 <!-- Multiple Choice -->
                 <div *ngSwitchCase="'multipleChoice'" class="mt-2 space-y-2">
                     <label *ngFor="let option of question.options" class="flex items-center space-x-2">

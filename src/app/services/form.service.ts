@@ -46,7 +46,9 @@ export class FormService {
       multipleChoice: "multipleChoice",
       checkboxes: "checkboxes",
       dropdown: "dropdown",
-      rating: "rating"
+      rating: "rating",
+      date:"date",
+      time:"time"
     };
     return typeMapping[type] || "shortText"; // Default to "shortText"
   }
