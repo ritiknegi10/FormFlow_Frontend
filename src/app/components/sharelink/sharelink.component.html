@@ -15,16 +15,16 @@
             <ng-container [ngSwitch]="question.type">
                 <!-- Short Text -->
                 <input *ngSwitchCase="'shortText'" type="text" [(ngModel)]="answers[i]" (blur)="markAsTouched(i)"
-                [ngClass]="{'border-red-500': submitClicked && question.required && !answers[i]}"
+                [ngClass]="{'border-red-500': (submitClicked || touchedFields[i]) && question.required && !answers[i]}"
                     class="border border-gray-300 p-3 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />     
               <!-- Short Text -->
               <input *ngSwitchCase="'paragraph'" type="text" [(ngModel)]="answers[i]" (blur)="markAsTouched(i)"
-                    [ngClass]="{'border-red-500': submitClicked && question.required && !answers[i]}"
+                    [ngClass]="{'border-red-500': (submitClicked || touchedFields[i]) && question.required && !answers[i]}"
                     class="border border-gray-300 p-3 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
 
                 <!-- Dropdown -->
                 <select *ngSwitchCase="'dropdown'" [(ngModel)]="answers[i]" (blur)="markAsTouched(i)" 
-                    [ngClass]="{'border-red-500': submitClicked && question.required && !answers[i]}"
+                    [ngClass]="{'border-red-500': (submitClicked || touchedFields[i]) && question.required && !answers[i]}"
                     class="border border-gray-300 p-3 w-full rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     <option *ngFor="let option of question.options" [value]="option">
                         {{ option }}

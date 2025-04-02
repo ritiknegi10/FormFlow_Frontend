@@ -1,14 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormService } from '../../services/form.service';
-<<<<<<< Updated upstream
-=======
 import { ResponseService } from 'src/app/services/response.service';
 import Swal from 'sweetalert2';
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 
 @Component({
   selector: 'app-sharelink',
@@ -20,22 +15,13 @@ export class SharelinkComponent implements OnInit{
   formData: any;
   formIndex!: number;
   answers: any[] = [];
-<<<<<<< Updated upstream
-  
-
-=======
   parsedFormSchema: any = { fields: [] };
   submitClicked: boolean=false;
   touchedFields: boolean[] = [];
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-
-  constructor(private route: ActivatedRoute, private formService: FormService, private router: Router) {}
-=======
 
 
   constructor(private route: ActivatedRoute, private formService: FormService, private router: Router, private responseService: ResponseService) { }
->>>>>>> Stashed changes
+
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -64,15 +50,8 @@ export class SharelinkComponent implements OnInit{
     }
   }
   
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  
-=======
-=======
->>>>>>> Stashed changes
 
 
->>>>>>> Stashed changes
   // Handle ratings
   ratingValue = 0;
   ratingStars(n: number): Array<number> { 
@@ -99,11 +78,8 @@ export class SharelinkComponent implements OnInit{
     if (missingAnswers) {
       return;
     }
-<<<<<<< Updated upstream
+
   
-    alert("The form is submitted successfully!!");
-    this.router.navigate(['/submit', encodeURIComponent(this.formData.title)]);
-=======
     console.log(this.answers)
     const mappedResponse = this.formData.formSchema.fields.reduce((acc: Record<string, any>, field: any, index: number) => {
       const answer = this.answers[index];
@@ -112,8 +88,7 @@ export class SharelinkComponent implements OnInit{
       }
       return acc;
     }, {});
-    
-    this.responseService.submitResponse(this.formId, mappedResponse);
+
     Swal.fire({
       icon: 'success',
       title: 'Form Submitted!',
@@ -121,10 +96,6 @@ export class SharelinkComponent implements OnInit{
       confirmButtonColor: '#4CAF50', // Green color
     });    
     this.router.navigate(['/submit', this.formData.title]);
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   }
   
 
