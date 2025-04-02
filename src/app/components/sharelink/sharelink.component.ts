@@ -5,6 +5,9 @@ import { FormService } from '../../services/form.service';
 =======
 import { ResponseService } from 'src/app/services/response.service';
 import Swal from 'sweetalert2';
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 @Component({
@@ -24,9 +27,15 @@ export class SharelinkComponent implements OnInit{
   parsedFormSchema: any = { fields: [] };
   submitClicked: boolean=false;
   touchedFields: boolean[] = [];
+<<<<<<< Updated upstream
 >>>>>>> Stashed changes
 
   constructor(private route: ActivatedRoute, private formService: FormService, private router: Router) {}
+=======
+
+
+  constructor(private route: ActivatedRoute, private formService: FormService, private router: Router, private responseService: ResponseService) { }
+>>>>>>> Stashed changes
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -56,8 +65,11 @@ export class SharelinkComponent implements OnInit{
   }
   
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   
 =======
+=======
+>>>>>>> Stashed changes
 
 
 >>>>>>> Stashed changes
@@ -109,6 +121,9 @@ export class SharelinkComponent implements OnInit{
       confirmButtonColor: '#4CAF50', // Green color
     });    
     this.router.navigate(['/submit', this.formData.title]);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   }
   
