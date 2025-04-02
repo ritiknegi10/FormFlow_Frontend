@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormService } from '../../services/form.service';
+<<<<<<< Updated upstream
+=======
+import { ResponseService } from 'src/app/services/response.service';
+import Swal from 'sweetalert2';
+>>>>>>> Stashed changes
 
 @Component({
   selector: 'app-sharelink',
@@ -12,8 +17,14 @@ export class SharelinkComponent implements OnInit{
   formData: any;
   formIndex!: number;
   answers: any[] = [];
+<<<<<<< Updated upstream
   
 
+=======
+  parsedFormSchema: any = { fields: [] };
+  submitClicked: boolean=false;
+  touchedFields: boolean[] = [];
+>>>>>>> Stashed changes
 
   constructor(private route: ActivatedRoute, private formService: FormService, private router: Router) {}
 
@@ -44,7 +55,12 @@ export class SharelinkComponent implements OnInit{
     }
   }
   
+<<<<<<< Updated upstream
   
+=======
+
+
+>>>>>>> Stashed changes
   // Handle ratings
   ratingValue = 0;
   ratingStars(n: number): Array<number> { 
@@ -57,19 +73,43 @@ export class SharelinkComponent implements OnInit{
     this.ratingValue = n;
   }
 
+  markAsTouched(index: number) {
+    this.touchedFields[index] = true;
+  }
+
   submitForm() {
+    this.submitClicked=true;
     const missingAnswers = this.formData.formSchema.fields.some((question: any, index: number) => {
       return question.required && (this.answers[index] === null || this.answers[index] === '' || 
         (Array.isArray(this.answers[index]) && this.answers[index].length === 0));
     });
   
     if (missingAnswers) {
-      alert("Please answer all required questions before submitting.");
       return;
     }
+<<<<<<< Updated upstream
   
     alert("The form is submitted successfully!!");
     this.router.navigate(['/submit', encodeURIComponent(this.formData.title)]);
+=======
+    console.log(this.answers)
+    const mappedResponse = this.formData.formSchema.fields.reduce((acc: Record<string, any>, field: any, index: number) => {
+      const answer = this.answers[index];
+      if (answer !== null && answer !== undefined) {
+        acc[field.label] = Array.isArray(answer) ? answer : answer.toString(); // Keep arrays, convert others to strings
+      }
+      return acc;
+    }, {});
+    
+    this.responseService.submitResponse(this.formId, mappedResponse);
+    Swal.fire({
+      icon: 'success',
+      title: 'Form Submitted!',
+      text: 'Your responses have been recorded successfully.',
+      confirmButtonColor: '#4CAF50', // Green color
+    });    
+    this.router.navigate(['/submit', this.formData.title]);
+>>>>>>> Stashed changes
   }
   
 
