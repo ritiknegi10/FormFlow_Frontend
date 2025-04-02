@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { FormService } from '../../services/form.service';
 
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+
 @Component({
     selector: 'app-edit-form',
     templateUrl: './edit-form.component.html',
@@ -50,6 +52,10 @@ export class EditFormComponent implements OnInit {
             });
         });
         // console.log(this.form.value);
+    }
+
+    drop(event: CdkDragDrop<any[]>): void {
+        moveItemInArray(this.questions.controls, event.previousIndex, event.currentIndex);
     }
     
 

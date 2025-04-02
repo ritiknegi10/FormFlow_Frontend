@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { FormService } from '../../services/form.service';
 import { single } from 'rxjs';
 import { Router } from '@angular/router';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-create-form',
@@ -17,6 +18,10 @@ export class CreateFormComponent {
     isQuestionInvalid: boolean = false;
     singleOption: boolean = false;
     ratingOptions: number[] =[3, 4, 5, 6, 7, 8, 9, 10];
+
+    drop(event: CdkDragDrop<any[]>) {
+        moveItemInArray(this.questions.controls, event.previousIndex, event.currentIndex);
+      }
 
     constructor(private fb: FormBuilder, private formService: FormService, private router: Router) {
         this.formBuilder = this.fb.group({
