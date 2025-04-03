@@ -72,7 +72,11 @@ export class FormService {
     };
     console.log(backendFormat);
 
-    return this.http.put(`${this.apiUrl}/${id}`, backendFormat); // Return the Observable from http.put
+    this.http.post(`${this.apiUrl}/edit/${id}`, backendFormat).subscribe(response => {
+      console.log("Form saved successfully", response);
+    }, error => {
+      console.error("Error saving form", error);
+    });
   }
   
   getResponseByIndex(index: number): any {
