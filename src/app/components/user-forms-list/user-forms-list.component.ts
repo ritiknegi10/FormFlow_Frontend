@@ -43,13 +43,13 @@ export class UserFormsListComponent implements OnInit {
   }
   
   private loadSubmissions() {
-    // const currentUser = this.getCurrentUser();
-    // if (!currentUser) {
-    //   this.router.navigate(['/login']);
-    //   return;
-    // }
+    const currentUser = this.getCurrentUser();
+    if (!currentUser) {
+      this.router.navigate(['/login']);
+      return;
+    }
   
-    this.responseService.getUserSubmissions(2).subscribe({
+    this.responseService.getUserSubmissions(currentUser.userId).subscribe({
       next: (data) => {
         this.submittedForms = data.map((form: any) => ({
           formId: form.id,

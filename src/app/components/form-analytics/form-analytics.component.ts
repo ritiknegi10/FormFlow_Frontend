@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+
 @Component({
   selector: 'app-form-analytics',
   templateUrl: './form-analytics.component.html',
@@ -13,6 +14,7 @@ import autoTable from 'jspdf-autotable';
 export class FormAnalyticsComponent implements OnInit {
   formId: number | null = null;
   responses: any[] = [];
+  
 
   constructor(private route: ActivatedRoute, private responseService: ResponseService, private router: Router) {}
 
@@ -30,6 +32,7 @@ export class FormAnalyticsComponent implements OnInit {
     if (this.formId !== null) {
       this.responseService.getResponsesByFormId(this.formId).subscribe(responses => {
         this.responses = responses;
+       
       });
     }
   }

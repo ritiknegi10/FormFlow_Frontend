@@ -14,6 +14,8 @@ export class RegisterComponent {
   errorMessage: string = '';
   showSuccess: boolean = false;
   submitClicked = false; 
+  captchaVerified: boolean = false;
+  captchaErrorMessage: string = '';
 
 
   constructor(
@@ -39,8 +41,18 @@ export class RegisterComponent {
 //   }
 // }
 
+resolvedCaptcha(response: string) {
+  this.captchaVerified = !!response;
+  this.captchaErrorMessage = '';
+  
+}
+
 onSubmit() {
   this.submitClicked = true;
+  if (!this.captchaVerified) {
+    this.captchaErrorMessage = "Please verify the captcha before proceeding.";
+    return;
+  }
   
   this.authService.register({ 
     username: this.username,
