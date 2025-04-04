@@ -14,6 +14,8 @@ import autoTable from 'jspdf-autotable';
 export class FormAnalyticsComponent implements OnInit {
   formId: number | null = null;
   responses: any[] = [];
+  chartData: any[] = [];
+  pieChartData: any[] = [];
   
 
   constructor(private route: ActivatedRoute, private responseService: ResponseService, private router: Router) {}
@@ -28,10 +30,38 @@ export class FormAnalyticsComponent implements OnInit {
     });
   }
 
+  generateChartData() {
+    const questionCounts = new Map();
+    this.responses.forEach(res => {
+      Object.keys(res).forEach(key => {
+        if (key !== 'id') {
+          questionCounts.set(key, (questionCounts.get(key) || 0) + 1);
+        }
+      });
+    });
+  
+    this.chartData = Array.from(questionCounts, ([name, value]) => ({ name, value }));
+  }
+
+  generatePieChartData() {
+    const choiceCounts = new Map();
+    
+    this.responses.forEach(response => {
+      Object.keys(response).forEach(question => {
+        if (typeof response[question] === 'string') {
+          choiceCounts.set(response[question], (choiceCounts.get(response[question]) || 0) + 1);
+        }
+      });
+    });
+  
+    this.pieChartData = Array.from(choiceCounts, ([name, value]) => ({ name, value }));
+  }
   loadResponses() {
     if (this.formId !== null) {
       this.responseService.getResponsesByFormId(this.formId).subscribe(responses => {
         this.responses = responses;
+        this.generateChartData();
+      this.generatePieChartData();
        
       });
     }
