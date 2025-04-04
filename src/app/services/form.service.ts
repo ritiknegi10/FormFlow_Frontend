@@ -57,7 +57,7 @@ export class FormService {
     const forms = this.formsSubject.value; 
     return forms.length > 0 ? forms[forms.length - 1] : null;
   }
-  updateForm(id: number, updatedForm: any): Observable<any> { // Change return type to Observable<any>
+  updateForm(id: number, updatedForm: any): Observable<any>{ 
     const backendFormat = {
       title: updatedForm.title,
       description: updatedForm.description,
@@ -72,11 +72,7 @@ export class FormService {
     };
     console.log(backendFormat);
 
-    this.http.post(`${this.apiUrl}/edit/${id}`, backendFormat).subscribe(response => {
-      console.log("Form saved successfully", response);
-    }, error => {
-      console.error("Error saving form", error);
-    });
+    return this.http.post(`${this.apiUrl}/edit/${id}`, backendFormat);
   }
   
   getResponseByIndex(index: number): any {
