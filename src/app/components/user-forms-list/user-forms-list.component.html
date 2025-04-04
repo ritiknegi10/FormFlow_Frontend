@@ -13,11 +13,8 @@
             <div *ngFor="let submission of submittedForms"
                 class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
                 <h3 class="text-lg font-semibold mb-2">{{ submission.formTitle }}</h3>
-                <p class="text-gray-600 text-sm mb-4">
-                    Submitted on: {{ submission.submissionDate | date:'medium' }}
-                </p>
                 <div class="flex space-x-2">
-                    <button (click)="viewResponse(submission.formId, submission.responseData.index)"
+                    <button (click)="viewResponse(submission.formId)"
                         class="text-indigo-600 hover:text-indigo-800">
                         View Response
                     </button>

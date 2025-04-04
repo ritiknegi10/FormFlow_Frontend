@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 p-8 relative">
+<!-- <div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 p-8 relative">
     <div class="max-w-4xl mx-auto">
         <h2 class="text-2xl font-bold mb-6">My Forms</h2>
         <h4 *ngIf="noForms" class="text-gray-600">
@@ -15,7 +15,7 @@
                     <button [routerLink]="['/edit', form.id]"
                         class="text-indigo-600 hover:text-indigo-800">Edit</button>
                     <button (click)="goToAnalytics(form.id)"
-                        class="text-green-600 hover:text-green-800">Analytics</button>
+                        class="text-green-600 hover:text-green-800">Response</button>
                     <button (click)="confirmDeleteForm(form.id)" class="text-red-600 hover:text-red-800">Delete</button>
                     <button (click)="copyLink(form.id)" class="text-blue-600 hover:text-red-800">
                         Share
@@ -24,10 +24,113 @@
             </div>
         </div>
     </div>
-    <!-- Form saved message -->
     <div *ngIf="submitSuccess"
         class="absolute top-2 right-0 bg-green-200 px-14 py-4 text-lg cursor-pointer transition-all duration-10000 ease-out">
         Form saved!
         <i class="fa-solid fa-circle-check ml-1 text-green-700"></i>
+    </div>
+</div> -->
+
+
+
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+            <div class="mb-6 animate-pulse">
+                <svg class="w-16 h-16 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                My Forms
+            </h2>
+            <p class="text-lg text-gray-600 mt-3">Manage and track your created forms</p>
+        </div>
+
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-8">
+
+            <div *ngIf="noForms" class="text-center py-12">
+                <div class="mb-6 text-indigo-400">
+                    <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+
+                <p class="text-gray-600 mb-4">No forms created yet</p>
+                <a routerLink="/create" class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg 
+                          transition-transform transform hover:-translate-y-0.5 shadow-sm hover:shadow-md">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Create New Form
+                </a>
+            </div>
+
+            <div *ngIf="!noForms" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div *ngFor="let form of forms" class="group bg-white border-2 border-gray-100 rounded-xl hover:border-indigo-100 
+                            transition-all shadow-sm hover:shadow-md p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 truncate">{{ form.title }}<span class="text-xs mx-4">v{{ form.version }}</span></h3>
+                        <button class="bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full text-xs" *ngIf="form.version>1" click="getAllVersions(form.parentFormId, form.version)">Show versions</button>
+                        <span class="bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full text-xs">
+                            {{ form.responses.length }} {{ form.responses === 1 ? 'response' : 'responses' }}
+
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
+                        <div class="flex gap-2">
+                            <button [routerLink]="['/edit', form.id]"
+                                class="p-2 hover:bg-gray-100 rounded-lg text-indigo-600 tooltip">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                <span class="tooltip-text">Edit</span>
+                            </button>
+
+                            <button (click)="goToAnalytics(form.id)"
+                                class="p-2 hover:bg-gray-100 rounded-lg text-green-600 tooltip">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                <span class="tooltip-text">Analytics</span>
+                            </button>
+
+                            <button (click)="copyLink(form.id)"
+                                class="p-2 hover:bg-gray-100 rounded-lg text-blue-600 tooltip">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                </svg>
+                                <span class="tooltip-text">Share</span>
+                            </button>
+
+                            <button (click)="confirmDeleteForm(form.id)"
+                                class="p-2 hover:bg-gray-100 rounded-lg text-red-600 tooltip">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                <span class="tooltip-text">Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="submitSuccess"
+            class="fixed top-4 right-4 z-50 flex items-center bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-lg animate-slide-in">
+            <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="font-medium">Form saved successfully!</span>
+        </div>
     </div>
 </div>

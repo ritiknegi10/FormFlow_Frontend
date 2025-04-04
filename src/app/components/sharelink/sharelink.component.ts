@@ -10,8 +10,8 @@ import Swal from 'sweetalert2';
   templateUrl: './sharelink.component.html',
   styleUrls: ['./sharelink.component.scss']
 })
-export class SharelinkComponent implements OnInit{
-  formId: number | null = null;
+export class SharelinkComponent implements OnInit {
+  formId!: number;
   formData: any;
   formIndex!: number;
   answers: any[] = [];
@@ -22,13 +22,15 @@ export class SharelinkComponent implements OnInit{
 
   constructor(private route: ActivatedRoute, private formService: FormService, private router: Router, private responseService: ResponseService) { }
 
+  
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      const formIndex = params.get('id');  
-      if (formIndex !== null) {
-        this.formService.getFormById(Number(formIndex)).subscribe(form => {
-          this.formData = form; 
+      const formId = Number(params.get('id'));
+      if (formId !== null) {
+        this.formService.getFormById(Number(formId)).subscribe(form => {
+          this.formData = form;
+          this.formId = formId;
           this.formData.formSchema = JSON.parse(this.formData.formSchema); // Parse formSchema if it's a JSON string
           this.answers = new Array(this.formData.formSchema.fields.length).fill(null);
           console.log("Fetched Form Data:", this.formData);
@@ -39,13 +41,13 @@ export class SharelinkComponent implements OnInit{
 
   updateCheckbox(index: number, option: string, event: any) {
     if (!this.answers[index]) {
-      this.answers[index] = []; 
+      this.answers[index] = [];
     }
     if (event.target.checked) {
-      
+
       this.answers[index].push(option);
     } else {
-      
+
       this.answers[index] = this.answers[index].filter((item: string) => item !== option);
     }
   }
@@ -54,10 +56,10 @@ export class SharelinkComponent implements OnInit{
 
   // Handle ratings
   ratingValue = 0;
-  ratingStars(n: number): Array<number> { 
+  ratingStars(n: number): Array<number> {
     // console.log("in ratingStars function");
     // console.log(n);
-    return Array(n); 
+    return Array(n);
   }
   updateRatingValue(n: number) {
     console.log(n);
@@ -71,10 +73,10 @@ export class SharelinkComponent implements OnInit{
   submitForm() {
     this.submitClicked=true;
     const missingAnswers = this.formData.formSchema.fields.some((question: any, index: number) => {
-      return question.required && (this.answers[index] === null || this.answers[index] === '' || 
+      return question.required && (this.answers[index] === null || this.answers[index] === '' ||
         (Array.isArray(this.answers[index]) && this.answers[index].length === 0));
     });
-  
+
     if (missingAnswers) {
       return;
     }
@@ -95,8 +97,10 @@ export class SharelinkComponent implements OnInit{
       text: 'Your responses have been recorded successfully.',
       confirmButtonColor: '#4CAF50', // Green color
     });    
+    this.responseService.submitResponse(this.formId, mappedResponse);
     this.router.navigate(['/submit', this.formData.title]);
   }
-  
+
+
 
 }

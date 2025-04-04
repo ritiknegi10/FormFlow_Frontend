@@ -30,12 +30,22 @@ export class AuthService {
   }
 
   saveToken(token: string) {
-    localStorage.setItem('jwt', token);
-  }
+  localStorage.setItem('jwt', token);
+  this.loggedIn.next(true); // Update login state
+}
 
+
+  // Update existing getToken() method
   getToken(): string | null {
-    return localStorage.getItem('jwt');
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+      console.error('Token is missing');
+      return null;
+    }
+    return token;
   }
+  
+
 
   isLoggedIn(): boolean {
     return !!this.getToken();
@@ -43,6 +53,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('jwt');
+    this.loggedIn.next(false); 
     this.router.navigate(['/login']);
   }
 }
