@@ -70,8 +70,8 @@ export class FormsListComponent implements OnInit {
     });
   }
   
-  getAllVersions(formId: number, formVersion: number){
-    this.router.navigate([`/forms/${formId}/versions/${formVersion}`])
+  getAllVersions(parentFormId: number, formVersion: number){
+    this.router.navigate([`/forms/${parentFormId}/versions/${formVersion}`])
   }
 
 }
