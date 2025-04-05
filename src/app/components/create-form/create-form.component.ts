@@ -16,6 +16,7 @@ export class CreateFormComponent implements OnInit {
   submitSuccess = false;
   ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
   singleOption = false;
+  isQuestionInvalid: boolean = false;
 
   constructor(private fb: FormBuilder, private formService: FormService, private router: Router) {
     this.formBuilder = this.fb.group({
@@ -121,6 +122,30 @@ export class CreateFormComponent implements OnInit {
 
   onSubmit() {
     this.submitClicked = true;
+    if (!this.getTitleControl()?.value.trim()) return;
+
+    this.isQuestionInvalid = false;
+    this.singleOption = false;
+    let isOptionInvalid = false;
+
+    this.questions.controls.forEach((control) => {
+      if (control instanceof FormGroup) {
+        const ques = control;
+        const optionsArray = this.getOptions(ques);
+
+        if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
+
+        optionsArray.controls.forEach(optionControl => {
+          if (!optionControl.value.trim()) isOptionInvalid = true;
+          else if (((ques.get('type')?.value === "multipleChoice") && (optionsArray.controls.length < 2)) ||
+            (ques.get('type')?.value === "dropdown") && (optionsArray.controls.length < 2))
+            this.singleOption = true;
+        });
+      }
+    });
+
+    if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
+
 
     if (this.formBuilder.valid) {
       if (this.formId) {
