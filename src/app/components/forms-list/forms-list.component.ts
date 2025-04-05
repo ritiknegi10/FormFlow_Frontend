@@ -49,7 +49,13 @@ export class FormsListComponent implements OnInit {
     const baseUrl = window.location.origin; 
     const shareableLink = `${baseUrl}/sharelink/${id}`; 
     navigator.clipboard.writeText(shareableLink).then(() => {
-      alert('Sharable link copied to clipboard!');
+      Swal.fire({
+        icon: 'success',
+        title: 'Link Copied!',
+        text: 'You can now share the form link easily.',
+        confirmButtonColor: '#4CAF50',
+        timer: 2000, 
+      });
     });
   }
 
@@ -70,5 +76,8 @@ export class FormsListComponent implements OnInit {
     });
   }
   
+  getAllVersions(formId: number, formVersion: number){
+    this.router.navigate([`/forms/${formId}/versions/${formVersion}`])
+  }
 
 }

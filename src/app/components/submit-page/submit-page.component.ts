@@ -15,7 +15,7 @@ export class SubmitPageComponent {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const title = params.get('title');
-      this.formTitle = title ? decodeURIComponent(title) : 'Untitled Form';
+      this.formTitle = title ? title : 'Untitled Form';
     });
   }
   

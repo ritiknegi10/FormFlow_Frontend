@@ -22,15 +22,15 @@ export class UserFormsListComponent implements OnInit {
   ngOnInit() {
     this.loadSubmissions();
   }
-
+  
   private loadSubmissions() {
-    const currentUser = this.getCurrentUser();
-    if (!currentUser) {
-      this.router.navigate(['/login']);
-      return;
-    }
-    
-    this.responseService.getUserSubmissions(currentUser.userId).subscribe({
+    // const currentUser = this.getCurrentUser();
+    // if (!currentUser) {
+    //   this.router.navigate(['/login']);
+    //   return;
+    // }
+  
+    this.responseService.getUserSubmissions().subscribe({
       next: (data) => {
         this.submittedForms = data.map((form: any) => ({
           formId: form.id,
@@ -40,20 +40,21 @@ export class UserFormsListComponent implements OnInit {
         this.noSubmissions = this.submittedForms.length === 0;
       },
       error: (error) => {
-        console.error('Error fetching submissions:', error);
+          console.error('Error fetching submissions:', error);
       }
     });
   }
-
-  private getCurrentUser(): { userId: number } | null {
-    const token = this.authService.getToken();
-    if (!token) return null;
-    
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return { userId: payload.userId };
+  
+  
+  viewResponse(formId: number) {
+    this.router.navigate([`/view-responses/my-responses/${formId}`]);
   }
 
-  viewResponse(formId: number) {
-    this.router.navigate([`/form-response/${formId}`]);
+  loadResponses(formId: number) {
+    this.responseService.getResponsesByFormIdandUser(formId).subscribe({
+      next: (responses) => {
+        console.log(responses)
+      }
+    })
   }
 }

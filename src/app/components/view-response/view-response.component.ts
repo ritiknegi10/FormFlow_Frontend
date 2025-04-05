@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormService } from '../../services/form.service';
 import { ResponseService } from 'src/app/services/response.service';
 
@@ -14,12 +14,15 @@ export class ViewResponseComponent implements OnInit {
   responses: any[] = [];  
 
 
-  constructor(private route: ActivatedRoute, private formService: FormService, private responseService: ResponseService) {}
+  constructor(private route: ActivatedRoute, private formService: FormService, private responseService: ResponseService, private router: Router) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.formId = Number(params.get('id')); 
-      if (!isNaN(this.formId)) {
+      const currentUrl = this.router.url;
+      if (currentUrl.includes('my-responses')){
+        this.loadFormDataSubmissions()
+      }else{
         this.loadFormData();
       }
     });
@@ -32,6 +35,19 @@ export class ViewResponseComponent implements OnInit {
       });
   
       this.responseService.getResponsesByFormId(this.formId).subscribe(responses => {
+        this.responses = responses;
+        console.log(responses)
+      });
+    }
+  }
+
+  loadFormDataSubmissions(){
+    if (this.formId !== null) {
+      this.formService.getFormById(this.formId).subscribe(form => {
+        this.selectedForm = form;
+      });
+  
+      this.responseService.getResponsesByFormIdandUser(this.formId).subscribe(responses => {
         this.responses = responses;
         console.log(responses)
       });

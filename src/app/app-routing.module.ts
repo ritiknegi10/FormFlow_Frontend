@@ -29,6 +29,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'otp', component: OtpComponent },
   { path: 'view-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard]  }, 
+  { path: 'view-responses/my-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard]  }, 
   { path: 'user-forms', component: UserFormsListComponent, canActivate: [AuthGuard]  }, 
     { path: 'contact', component: ContactComponent },
     {path:'about',component:AboutUsComponent},
