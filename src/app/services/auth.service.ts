@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient , HttpParams} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
@@ -26,7 +26,14 @@ export class AuthService {
   }
 
   register(userData: { username: string; password: string; email: string }): Observable<boolean> {
-    return this.http.post<boolean>(`${this.apiUrl}/register`, userData);
+    return this.http.post<boolean>(`${this.apiUrl}/user-register`, userData);
+  }
+
+  verifyOtp(email: string, otp: string) {
+    const params = new HttpParams()
+      .set('email', email)
+      .set('otp', otp);
+    return this.http.post(`${this.apiUrl}/user-verify`, null, { params, responseType: 'text' });
   }
 
   saveToken(token: string) {

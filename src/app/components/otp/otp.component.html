@@ -1,1 +1,24 @@
-<p>otp works!</p>
+<div class="otp-container">
+    <h2 style="color: black; text-align: center;">Verification</h2>
+    <p style="color: black; text-align: center;">A 6-digit PIN has been sent to your email address. Enter it below to continue.</p>
+    
+    <form (submit)="onVerifyOtp(); $event.preventDefault()">
+      <div class="otp-inputs">
+        <input type="text" maxlength="1" [(ngModel)]="otpDigits[0]" (input)="moveFocus($event, 0)" name="d0" required>
+        <input type="text" maxlength="1" [(ngModel)]="otpDigits[1]" (input)="moveFocus($event, 1)" name="d1" required>
+        <input type="text" maxlength="1" [(ngModel)]="otpDigits[2]" (input)="moveFocus($event, 2)" name="d2" required>
+        <input type="text" maxlength="1" [(ngModel)]="otpDigits[3]" (input)="moveFocus($event, 3)" name="d3" required>
+        <input type="text" maxlength="1" [(ngModel)]="otpDigits[4]" (input)="moveFocus($event, 4)" name="d4" required>
+        <input type="text" maxlength="1" [(ngModel)]="otpDigits[5]" (input)="moveFocus($event, 5)" name="d5" required>
+      </div>
+  
+      <div class="flex justify-center mt-4">
+        <button type="submit" class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg
+               hover:shadow-lg transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          Verify OTP
+        </button>
+      </div>
+      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    </form>
+  </div>
+  

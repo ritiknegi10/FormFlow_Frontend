@@ -1,0 +1,74 @@
+:host {
+    display: block;
+    height: 100vh;
+  }
+  
+  body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .otp-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .otp-container h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  
+  .otp-container p {
+    font-size: 12px;
+    margin-bottom: 15px;
+    color: #ccc;
+  }
+  
+  .otp-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .otp-inputs input {
+    width: 35px;
+    height: 40px;
+    font-size: 18px;
+    text-align: center;
+    border: none;
+    border-radius: 6px;
+    background: #2a2a3b;
+    color: #fff;
+    outline: none;
+  }
+  
+  .otp-inputs input:focus {
+    border: 2px solid #007bff;
+  }
+  
+  .verify-btn {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(to right, #007bff, #00c6ff);
+    border: none;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+  
+  .verify-btn:hover {
+    background: linear-gradient(to right, #0056b3, #0093e9);
+  }
+  
+  .error {
+    color: black;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+  
