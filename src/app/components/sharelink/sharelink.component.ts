@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormService } from '../../services/form.service';
 import { ResponseService } from 'src/app/services/response.service';
+import Swal from 'sweetalert2';
+
 
 @Component({
   selector: 'app-sharelink',
@@ -14,10 +16,13 @@ export class SharelinkComponent implements OnInit {
   formIndex!: number;
   answers: any[] = [];
   parsedFormSchema: any = { fields: [] };
-
+  submitClicked: boolean=false;
+  touchedFields: boolean[] = [];
 
 
   constructor(private route: ActivatedRoute, private formService: FormService, private router: Router, private responseService: ResponseService) { }
+
+  
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -46,6 +51,7 @@ export class SharelinkComponent implements OnInit {
       this.answers[index] = this.answers[index].filter((item: string) => item !== option);
     }
   }
+  
 
 
   // Handle ratings
@@ -60,16 +66,22 @@ export class SharelinkComponent implements OnInit {
     this.ratingValue = n;
   }
 
+  markAsTouched(index: number) {
+    this.touchedFields[index] = true;
+  }
+
   submitForm() {
+    this.submitClicked=true;
     const missingAnswers = this.formData.formSchema.fields.some((question: any, index: number) => {
       return question.required && (this.answers[index] === null || this.answers[index] === '' ||
         (Array.isArray(this.answers[index]) && this.answers[index].length === 0));
     });
 
     if (missingAnswers) {
-      alert("Please answer all required questions before submitting.");
       return;
     }
+
+  
     console.log(this.answers)
     const mappedResponse = this.formData.formSchema.fields.reduce((acc: Record<string, any>, field: any, index: number) => {
       const answer = this.answers[index];
@@ -78,12 +90,15 @@ export class SharelinkComponent implements OnInit {
       }
       return acc;
     }, {});
-    console.log(mappedResponse);
-    console.log(typeof(mappedResponse));
-    console.log(this.formId);
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Form Submitted!',
+      text: 'Your responses have been recorded successfully.',
+      confirmButtonColor: '#4CAF50', // Green color
+    });    
     this.responseService.submitResponse(this.formId, mappedResponse);
-    alert("The form is submitted successfully!!");
-    this.router.navigate(['/submit', encodeURIComponent(this.formData.title)]);
+    this.router.navigate(['/submit', this.formData.title]);
   }
 
 

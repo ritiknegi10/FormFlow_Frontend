@@ -48,7 +48,9 @@ export class FormService {
       multipleChoice: "multipleChoice",
       checkboxes: "checkboxes",
       dropdown: "dropdown",
-      rating: "rating"
+      rating: "rating",
+      date:"date",
+      time:"time"
     };
     return typeMapping[type] || "shortText"; // Default to "shortText"
   }
@@ -71,6 +73,8 @@ export class FormService {
       })
     };
     console.log(backendFormat);
+    console.log('Final backendFormat before HTTP POST:', backendFormat);  
+  console.log(`Posting to URL: ${this.apiUrl}/edit/${id}`);
 
     return this.http.post(`${this.apiUrl}/edit/${id}`, backendFormat);
   }

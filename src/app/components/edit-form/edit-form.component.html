@@ -45,6 +45,8 @@
                         <option value="checkboxes">Checkboxes</option>
                         <option value="dropdown">Drop-down</option>
                         <option value="rating">Rating</option>
+                        <option value="date">Date</option>
+                        <option value="time">Time</option>
                     </select>
                     </div>
                     <div *ngIf="!getQuestionTextControl(question)?.value.trim() && (submitClicked || getQuestionTextControl(question)?.touched)" class="px-2 mt-1 text-sm text-red-500">*Enter question text</div>
@@ -76,6 +78,19 @@
                         </button>
                     </div>
                     </div>
+
+                    
+                    <div *ngIf="question.get('type')?.value === 'date'" class="mt-4"> 
+                        <input type="date" formControlName="date" 
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"> 
+                    </div>
+                    
+                    
+                    <div *ngIf="question.get('type')?.value === 'time'" class="mt-4"> 
+                        <input type="time" formControlName="time" 
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"> 
+                    </div>
+
 
                     <div *ngIf="question.get('type')?.value === 'rating'"
                         class="mt-2">
@@ -243,6 +258,8 @@
                                         <option value="checkboxes">✅ Checkboxes</option>
                                         <option value="dropdown">▾ Dropdown</option>
                                         <option value="rating">⭐ Rating</option>
+                                        <option value="date">Date</option>
+                              <option value="time">Time</option>
                                     </select>
                                 </div>
 
@@ -318,6 +335,16 @@
                                         Add Option
                                     </button>
                                 </div>
+                                <div *ngIf="question.get('type')?.value === 'date'" class="mt-4"> 
+                                    <input type="date" formControlName="date" 
+                                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"> 
+                                </div>
+                                
+                                <!-- Time Input Field -->
+                                <div *ngIf="question.get('type')?.value === 'time'" class="mt-4"> 
+                                    <input type="time" formControlName="time" 
+                                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"> 
+                                </div>
 
                                 <!-- <div *ngIf="question.get('type')?.value === 'rating'"
                                     class="flex items-center gap-4 ml-4">
@@ -382,7 +409,7 @@
                             Cancel
                         </button>
 
-                        <button *ngIf="questions.length >= 1" type="submit"
+                        <button *ngIf="questions.length >= 1" type="submit" 
                             class="px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold 
                                        rounded-lg hover:shadow-lg transition-all transform hover:-translate-y-0.5 shadow-sm">
                             Save Changes
@@ -399,7 +426,7 @@
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span class="font-medium">Changes Saved Successfully!</span>
-        </div> -->
+        </div>  -->
     </div>
 </div>
 
