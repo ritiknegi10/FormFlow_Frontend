@@ -36,6 +36,7 @@ export class EditFormComponent implements OnInit {
           description: new FormControl(formData.description || ''),
           questions: this.fb.array(questions.map((q: any) => this.createQuestionGroup(q)))
         });
+        //console.log(this.form);
       });
     });
   }

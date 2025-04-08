@@ -18,7 +18,7 @@ export class FormVersionsComponent implements OnInit {
   currentFormVersion!: any;
   ratingOptions: number[] = [3, 4, 5, 6, 7, 8, 9, 10];
 
-  constructor( private route: ActivatedRoute, private fb: FormBuilder, private formService: FormService ) {}
+  constructor( private route: ActivatedRoute, private fb: FormBuilder, private formService: FormService, private router: Router ) {}
   
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -56,11 +56,10 @@ export class FormVersionsComponent implements OnInit {
         console.error("Version not found", versionData);
         return;
       }
-      this.currentFormVersion = versionData;
 
       const formSchema = JSON.parse(versionData.formSchema);
       const questions = formSchema.fields;
-      console.log(questions);
+      //console.log(questions);
       
       this.form = this.fb.group({
         title: new FormControl(versionData.title || ''),
@@ -70,7 +69,8 @@ export class FormVersionsComponent implements OnInit {
         })),
       }); 
       this.form.disable();
-      console.log(this.form);
+      this.currentFormVersion = versionData;
+      console.log(this.currentFormVersion);
     });
   }
 
@@ -94,6 +94,10 @@ export class FormVersionsComponent implements OnInit {
 
   onVersionChange() {
     this.loadFormVersion(this.selectedVersion);
+  }
+
+  cloneVersion() {
+    this.router.navigate([`/edit/${this.currentFormVersion.id}`]);
   }
 
 }
