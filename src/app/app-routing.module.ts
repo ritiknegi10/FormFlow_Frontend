@@ -7,6 +7,7 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { EditFormComponent } from './components/edit-form/edit-form.component';
 import { FormAnalyticsComponent } from './components/form-analytics/form-analytics.component';
+import { FormVersionsComponent } from './components/form-versions/form-versions.component';
 import { ViewResponseComponent } from './components/view-response/view-response.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { AboutUsComponent } from './components/about-us/about-us.component';
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: 'create', component: CreateFormComponent, canActivate: [AuthGuard]  },
   { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard]  },
   { path: 'edit/:id', component: EditFormComponent, canActivate: [AuthGuard]  },
+  { path: 'forms/:formId/versions/:formVersion', component: FormVersionsComponent },
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard]  },  
   { path: 'login', component: LoginComponent },
   { path: 'signout', component: SignOutComponent, canActivate: [AuthGuard]  },
@@ -31,11 +33,11 @@ const routes: Routes = [
   { path: 'view-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard]  }, 
   { path: 'view-responses/my-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard]  }, 
   { path: 'user-forms', component: UserFormsListComponent, canActivate: [AuthGuard]  }, 
-    { path: 'contact', component: ContactComponent },
-    {path:'about',component:AboutUsComponent},
-    {path:"faq", component:FaqComponent},
-    { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard]  },
-    { path: 'submit/:title', component: SubmitPageComponent , canActivate: [AuthGuard] },
+  { path: 'contact', component: ContactComponent },
+  { path:'about',component:AboutUsComponent },
+  { path: 'faq', component:FaqComponent },
+  { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard]  },
+  { path: 'submit/:title', component: SubmitPageComponent , canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

@@ -51,7 +51,7 @@ export class EditFormComponent implements OnInit {
       type: new FormControl(question.type || 'shortText'),
       required: new FormControl(question.required || false),
       options: this.fb.array(question.options ? question.options.map((opt: any) => new FormControl(opt)) : []),
-      rating: new FormControl(question.rating || '5')
+      rating: new FormControl(question.rating || 5)
     });
   }
 

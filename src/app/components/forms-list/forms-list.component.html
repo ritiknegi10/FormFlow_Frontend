@@ -74,7 +74,11 @@
                             transition-all shadow-sm hover:shadow-md p-6">
                     <div class="flex items-start justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-800 truncate">{{ form.title }}<span class="text-xs mx-4">v{{ form.version }}</span></h3>
-                        <button class="bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full text-xs" *ngIf="form.version>1" click="getAllVersions(form.parentFormId, form.version)">Show versions</button>
+                        <button *ngIf="form.version>1" 
+                            class="bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full text-xs"  
+                            (click)="getAllVersions(form.parentForm.id, form.version)">
+                            Show versions
+                        </button>
                         <span class="bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full text-xs">
                             {{ form.responses.length }} {{ form.responses === 1 ? 'response' : 'responses' }}
 
