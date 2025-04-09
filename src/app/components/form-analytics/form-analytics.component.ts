@@ -17,6 +17,7 @@ export class FormAnalyticsComponent implements OnInit {
   constructor(private route: ActivatedRoute, private responseService: ResponseService, private router: Router) {}
 
   ngOnInit() {
+    window.scrollTo(0, 0);
     this.route.paramMap.subscribe(params => {
       this.formId = Number(params.get('id')); 
       console.log(this.formId)

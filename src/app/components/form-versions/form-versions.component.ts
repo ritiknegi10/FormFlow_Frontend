@@ -21,6 +21,7 @@ export class FormVersionsComponent implements OnInit {
   constructor( private route: ActivatedRoute, private fb: FormBuilder, private formService: FormService, private router: Router ) {}
   
   ngOnInit() {
+    window.scrollTo(0, 0);
     this.route.paramMap.subscribe(params => {
 
       this.formIndex = Number(params.get("formId"));

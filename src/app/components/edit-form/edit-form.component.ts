@@ -25,6 +25,7 @@ export class EditFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    window.scrollTo(0, 0);
     this.route.paramMap.subscribe(params => {
       this.formIndex = Number(params.get('id'));
       this.formService.getFormById(this.formIndex).subscribe(formData => {

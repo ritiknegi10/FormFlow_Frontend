@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-faq',
@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./faq.component.scss']
 })
 
-export class FaqComponent {
+export class FaqComponent implements OnInit{
   faqs = [
     {
       question: 'Can I view my submitted responses?',
@@ -39,6 +39,10 @@ export class FaqComponent {
       isOpen: false
     }
   ];
+
+  ngOnInit(): void {
+    window.scrollTo(0, 0);
+  }
 
   toggleFAQ(index: number): void {
     this.faqs[index].isOpen = !this.faqs[index].isOpen;
