@@ -17,6 +17,8 @@ export class RegisterComponent {
   captchaErrorMessage: string = '';
   otp: string = '';
   otpSent: boolean = false;
+  isLoading: boolean = false;
+
 
 
   constructor(
@@ -33,30 +35,34 @@ resolvedCaptcha(response: string) {
 }
 
 sendOtp() {
+  this.isLoading = true;
   if (!this.captchaVerified) {
     this.captchaErrorMessage = "Please verify the captcha before sending OTP.";
+    this.isLoading = false;
     return;
   }
   if (!this.email) {
     this.errorMessage = "Email is required";
+    this.isLoading = false;
     return;
   }
-  
-  this.authService.sendOtp(this.email).subscribe({
-    next: () => {
-      this.otpSent = true;
-      this.errorMessage = '';
-    },
-    error: (err) => {
-      this.errorMessage = err.error || "Failed to send OTP. Please try again.";
-    }
-  });
-}
 
+  this.authService.sendOtp(this.email).subscribe({
+      next: () => {
+        this.otpSent = true;
+        this.errorMessage = '';
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.text || err.error || "Failed to send OTP. Please try again.";
+        this.isLoading = false;
+      }
+    });
+  }
 
 onSubmit() {
   this.submitClicked = true;
-    
+  this.isLoading = true; 
   if (!this.otpSent) {
     this.sendOtp();
     return;
@@ -87,10 +93,21 @@ onSubmit() {
       // }
       next: () => {
         this.showSuccess = true;
-        setTimeout(() => this.router.navigate(['/login']), 2000);
+        this.isLoading = false;
+        setTimeout(() => this.router.navigate(['/login']), 1000);
       },
       error: (err) => {
-        this.errorMessage = err.error || "Registration failed. Please check your OTP";
+        console.error('Full error:', err);
+        
+        if (err.status === 500) {
+          this.errorMessage = "Server error. Please try again later.";
+        } else if (err.error?.includes("already exists")) {
+          this.errorMessage = "User with this email already exists";
+        } else {
+          this.errorMessage = err.error?.text || err.message || "Registration failed";
+        }
+        
+        this.isLoading = false;
       }
     });
   }

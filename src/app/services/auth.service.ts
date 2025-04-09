@@ -1,6 +1,6 @@
 import { HttpClient , HttpParams} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -64,7 +64,7 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
   sendOtp(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register/send-otp`, { email }).pipe(
+    return this.http.post(`${this.apiUrl}/register/send-otp`, { email }, { responseType: 'text' }).pipe(
       catchError((error) => {
         console.error('Network error details:', error);
         if (error.status === 0) {
@@ -81,6 +81,16 @@ export class AuthService {
     username: string, 
     password: string 
   }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register/verify`, data);
-  }
-}
+    return this.http.post(`${this.apiUrl}/register/verify`, data, { 
+      responseType: 'text'
+    }).pipe(
+      catchError(error => {
+        console.error('Verification Error:', error);
+        return throwError(() => ({
+          error: error.error,
+          status: error.status,
+          message: 'OTP verification failed'
+        }));
+      })
+    );
+  }}
