@@ -1,5 +1,7 @@
 import { Component, HostListener, ElementRef } from '@angular/core';
 import { AuthService } from './services/auth.service';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -10,12 +12,21 @@ export class AppComponent {
   title = 'form-flow';
   forms: any[] = [];
   isProfileMenuOpen = false;
+  createForm: boolean = false;
 
   constructor(
     public authService: AuthService,
-    private elementRef: ElementRef  // Add ElementRef injection here
-  ) {
+    private elementRef: ElementRef,  // Add ElementRef injection here
+    private router: Router
+  ) 
+  {
     this.loadForms();
+    this.router.events
+        .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event: any) => {
+            // hide app component on /create
+            this.createForm = event.url === '/create';
+        });
   }
 
   toggleProfileMenu() {

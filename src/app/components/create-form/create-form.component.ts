@@ -17,6 +17,15 @@ export class CreateFormComponent implements OnInit {
   ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
   singleOption = false;
   isQuestionInvalid: boolean = false;
+  isDrawerOpen: boolean = false;
+  firstRender: boolean = true;
+
+
+  // drawer function
+  toggleDrawer(){
+    this.isDrawerOpen = !this.isDrawerOpen;
+    // this.firstRender = !this.firstRender;
+  }
 
   constructor(private fb: FormBuilder, private formService: FormService, private router: Router) {
     this.formBuilder = this.fb.group({
@@ -29,6 +38,9 @@ export class CreateFormComponent implements OnInit {
   ngOnInit() {
     // If you are editing an existing form, fetch the data
     window.scrollTo(0, 0);
+    setTimeout(() => {
+        this.firstRender=false;
+    }, 0);
     const urlParts = this.router.url.split('/');
     if (urlParts[2] === 'edit' && urlParts[3]) {
       this.formId = parseInt(urlParts[3]);

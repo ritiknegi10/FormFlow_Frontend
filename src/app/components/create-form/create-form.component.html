@@ -160,6 +160,60 @@
 
 </div> -->
 
+<!-- DRAWER -->
+<!-- Overlay -->
+<div 
+  class="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+  *ngIf="!firstRender"
+  [ngClass]="{
+    'opacity-100 pointer-events-auto': isDrawerOpen,
+    'opacity-0 pointer-events-none': !isDrawerOpen
+  }"
+  (click)="toggleDrawer()">
+</div>
+
+<!-- Side Drawer -->
+<div
+  *ngIf="!firstRender"
+  class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform duration-300"
+  [ngClass]="{
+    'translate-x-0': isDrawerOpen,
+    '-translate-x-full': !isDrawerOpen
+  }">
+  <div class="p-4 border-b text-lg font-semibold">
+    Side Menu
+    <button (click)="toggleDrawer()" class="float-right text-gray-500 hover:text-black">✕</button>
+  </div>
+
+  <ul class="p-4 space-y-4">
+    <li><a routerLink="/" class="block hover:text-indigo-600">Home</a></li>
+    <li><a routerLink="/create" class="block hover:text-indigo-600">Create</a></li>
+    <li><a routerLink="/forms" class="block hover:text-indigo-600">Forms</a></li>
+    <li><a routerLink="/contact" class="block hover:text-indigo-600">Contact</a></li>
+  </ul>
+</div>
+
+
+
+<!-- ********CREATE FORM NAVBAR******** -->
+<nav class="bg-white/80 backdrop-blur-xl shadow-lg sticky top-0 z-30 border-b border-white/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center space-x-2">
+                <!-- Toggle Button -->
+                <button (click)="toggleDrawer()" class="m-4 p-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                    ☰ Menu
+                </button>
+            </div>
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Build Your Form
+            </h2>
+            <div></div>
+        </div>
+    </div>
+</nav>
+  
+
 
 <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
     <div class="max-w-6xl mx-auto">
@@ -180,20 +234,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-
-        <div class="text-center mb-12">
-            <div class="mb-6 animate-pulse">
-                <svg class="w-16 h-16 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M9 12h3m-3 4h3m6-4h3m-3 4h3m-9-4v4m-6 1V10a2 2 0 012-2h4a2 2 0 012 2v7m-6 0h6" />
-                </svg>
-            </div>
-            <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Build Your Form
-            </h2>
-            <p class="text-lg text-gray-600 mt-3">Create beautiful forms with interactive elements</p>
         </div>
 
         <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-8">

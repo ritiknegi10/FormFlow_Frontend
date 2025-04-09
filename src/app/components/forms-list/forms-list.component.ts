@@ -41,7 +41,6 @@ export class FormsListComponent implements OnInit {
   
   deleteForm(id: number) {
     this.formService.deleteForm(id);
-    window.location.reload();
     if(!this.forms.length) this.noForms = true;
   }
 
