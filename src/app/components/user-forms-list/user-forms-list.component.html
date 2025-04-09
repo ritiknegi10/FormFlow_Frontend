@@ -1,25 +1,65 @@
-<!-- user-forms-list.component.html -->
-<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 p-8">
-    <div class="max-w-4xl mx-auto">
-        <h2 class="text-2xl font-bold mb-6">My Submitted Forms</h2>
-        <h4 *ngIf="noSubmissions" class="text-gray-600">
-            You haven't submitted any forms yet.
-            <a routerLink="/available-forms" class="text-indigo-600 hover:text-indigo-800 hover:underline">
-                Browse available forms
-            </a>
-        </h4>
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+            <div class="mb-6 animate-pulse">
+                <svg class="w-16 h-16 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                </svg>
+            </div>
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                My Submissions
+            </h2>
+            <p class="text-lg text-gray-600 mt-3">Review your submitted forms and responses</p>
+        </div>
 
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <div *ngFor="let submission of submittedForms"
-                class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                <h3 class="text-lg font-semibold mb-2">{{ submission.formTitle }}</h3>
-                <div class="flex space-x-2">
-                    <button (click)="viewResponse(submission.formId)"
-                        class="text-indigo-600 hover:text-indigo-800">
-                        View Response
-                    </button>
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-8">
+            <div *ngIf="noSubmissions" class="text-center py-12">
+                <div class="mb-6 text-indigo-400">
+                    <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                    </svg>
+                </div>
+                <p class="text-gray-600 mb-4">No submissions found</p>
+                <a routerLink="/available-forms" class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg 
+                          transition-transform transform hover:-translate-y-0.5 shadow-sm hover:shadow-md">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                    </svg>
+                    Browse Forms
+                </a>
+            </div>
+
+            <div *ngIf="!noSubmissions" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div *ngFor="let submission of submittedForms" class="group bg-white border-2 border-gray-100 rounded-xl hover:border-indigo-100 
+                            transition-all shadow-sm hover:shadow-md p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 truncate">{{ submission.formTitle }}</h3>
+                        <span class="bg-purple-100 text-purple-600 px-2 py-1 rounded-full text-xs">
+                            {{ submission.submissionDate | date:'shortDate' }}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
+                        <div class="flex gap-2">
+                            <button (click)="viewResponse(submission.formId)"
+                                class="p-2 hover:bg-gray-100 rounded-lg text-indigo-600 tooltip">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <span class="tooltip-text">View Response</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+
     </div>
 </div>

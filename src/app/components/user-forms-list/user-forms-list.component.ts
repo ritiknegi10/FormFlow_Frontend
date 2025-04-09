@@ -29,6 +29,7 @@ export class UserFormsListComponent implements OnInit {
     //   this.router.navigate(['/login']);
     //   return;
     // }
+
   
     this.responseService.getUserSubmissions().subscribe({
       next: (data) => {
@@ -41,7 +42,7 @@ export class UserFormsListComponent implements OnInit {
       },
       error: (error) => {
           console.error('Error fetching submissions:', error);
-      }
+      },
     });
   }
   

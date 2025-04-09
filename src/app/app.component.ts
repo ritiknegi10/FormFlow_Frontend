@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, ElementRef } from '@angular/core';
 import { AuthService } from './services/auth.service';
 
 @Component({
@@ -8,11 +8,28 @@ import { AuthService } from './services/auth.service';
 })
 export class AppComponent {
   title = 'form-flow';
-  forms: any[] = []; 
+  forms: any[] = [];
+  isProfileMenuOpen = false;
 
-  constructor(public authService: AuthService) {
+  constructor(
+    public authService: AuthService,
+    private elementRef: ElementRef  // Add ElementRef injection here
+  ) {
     this.loadForms();
   }
+
+  toggleProfileMenu() {
+    this.isProfileMenuOpen = !this.isProfileMenuOpen;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.isProfileMenuOpen = false;
+    }
+  }
+
+  
 
   addForm(newForm: any) {
     this.forms.push(newForm); 
