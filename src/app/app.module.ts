@@ -25,7 +25,6 @@ import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
 import { OtpComponent } from './components/otp/otp.component';
 import { FormVersionsComponent } from './components/form-versions/form-versions.component';
-import { SideBarComponent } from './components/side-bar/side-bar.component';
 import { RecaptchaModule } from 'ng-recaptcha';
 
 
@@ -52,8 +51,7 @@ import { RecaptchaModule } from 'ng-recaptcha';
     UserFormsListComponent,
     OtpComponent,
     FormVersionsComponent,
-    OtpComponent,
-    SideBarComponent
+    OtpComponent
   ],
   imports: [
     BrowserModule,
