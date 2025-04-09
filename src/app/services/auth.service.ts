@@ -1,6 +1,6 @@
 import { HttpClient , HttpParams} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -62,5 +62,25 @@ export class AuthService {
     localStorage.removeItem('jwt');
     this.loggedIn.next(false); 
     this.router.navigate(['/login']);
+  }
+  sendOtp(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register/send-otp`, { email }).pipe(
+      catchError((error) => {
+        console.error('Network error details:', error);
+        if (error.status === 0) {
+          throw new Error('Cannot connect to server. Check if backend is running.');
+        }
+        throw error;
+      })
+    );
+  }
+  
+  verifyOtpAndRegister(data: { 
+    email: string, 
+    otp: string, 
+    username: string, 
+    password: string 
+  }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register/verify`, data);
   }
 }
