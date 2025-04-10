@@ -4,6 +4,8 @@ import { FormParentComponent } from './form-parent/form-parent.component';
 import { FormNavbarComponent } from './form-navbar/form-navbar.component';
 import { FormHeroComponent } from './form-hero/form-hero.component';
 import { RouterModule } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 
 
@@ -15,7 +17,9 @@ import { RouterModule } from '@angular/router';
   ],
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    ReactiveFormsModule,
+    DragDropModule
   ],
   exports: [
     FormParentComponent

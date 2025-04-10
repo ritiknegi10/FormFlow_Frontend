@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-form-navbar',
@@ -6,6 +8,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./form-navbar.component.scss']
 })
 export class FormNavbarComponent implements OnInit {
+    currentUrl!: string;
     //* ******side drawer******
     isDrawerOpen: boolean = false;
     firstRender: boolean = true;
@@ -14,11 +17,20 @@ export class FormNavbarComponent implements OnInit {
     isProfileMenuOpen = false;
 
     ngOnInit() {
-        // If you are editing an existing form, fetch the data
+        // using firstRender to remove side drawer from DOM until page is ready
         window.scrollTo(0, 0);
         setTimeout(() => {
             this.firstRender=false;
         }, 0);
+    }
+
+    constructor(private router: Router){
+        this.router.events
+            .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event: any) => {
+            // hide app component on /create
+            this.currentUrl = event.url;
+        });
     }
 
     // drawer function

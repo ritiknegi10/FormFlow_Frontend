@@ -25,6 +25,7 @@
 
     <ul class="p-4 space-y-4">
         <li><a routerLink="/" class="block hover:text-indigo-600">Home</a></li>
+        <li><a routerLink="/rushabh" class="block hover:text-indigo-600">Create2</a></li>
         <li><a routerLink="/create" class="block hover:text-indigo-600">Create</a></li>
         <li><a routerLink="/forms" class="block hover:text-indigo-600">Forms</a></li>
         <li><a routerLink="/contact" class="block hover:text-indigo-600">Contact</a></li>
@@ -53,7 +54,7 @@
     </ul>
 </div>
 
-<!-- ********CREATE FORM NAVBAR******** -->
+<!-- ********FORM NAVBAR******** -->
 <nav class="bg-white/80 backdrop-blur-xl shadow-lg sticky top-0 z-30 border-b border-white/20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
@@ -63,8 +64,11 @@
                     ☰ Menu
                 </button>
             </div>
-            <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 *ngIf="currentUrl=='/rushabh'" class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Build Your Form
+            </h2>
+            <h2 *ngIf="currentUrl=='/edit'" class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Edit Form
             </h2>
             <div>
                 Add other links here like preview share publish etc
