@@ -210,7 +210,7 @@
                     </h3>
 
                     <div formArrayName="questions" class="space-y-6" cdkDropList (cdkDropListDropped)="drop($event)">
-                        <div *ngFor="let question of questions.controls; let i = index" cdkDrag [formGroupName]="i" class="p-6 bg-white border-2 border-gray-100 rounded-xl hover:border-indigo-100 transition-all
+                        <div *ngFor="let question of questions.controls; let i = index" cdkDrag [formGroupName]="i" class="p-6 bg-white border-2 border-gray-100 rounded-xl hover:border-indigo-100
                                     shadow-sm hover:shadow-md group relative">
 
                             <div class="flex items-center justify-between mb-4">

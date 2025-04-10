@@ -26,6 +26,7 @@ import { UserFormsListComponent } from './components/user-forms-list/user-forms-
 import { OtpComponent } from './components/otp/otp.component';
 import { FormVersionsComponent } from './components/form-versions/form-versions.component';
 import { RecaptchaModule } from 'ng-recaptcha';
+import { FormModule } from "./components/form/form.module";
 
 
 
@@ -50,8 +51,7 @@ import { RecaptchaModule } from 'ng-recaptcha';
     SignOutComponent,
     UserFormsListComponent,
     OtpComponent,
-    FormVersionsComponent,
-    OtpComponent
+    FormVersionsComponent
   ],
   imports: [
     BrowserModule,
@@ -61,9 +61,8 @@ import { RecaptchaModule } from 'ng-recaptcha';
     HttpClientModule,
     DragDropModule,
     RecaptchaModule,
-
-
-  ],
+    FormModule
+],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],
   bootstrap: [AppComponent]
 })

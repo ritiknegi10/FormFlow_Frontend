@@ -160,7 +160,7 @@
 
 </div> -->
 
-<!-- DRAWER -->
+<!-- ********DRAWER******** -->
 <!-- Overlay -->
 <div 
   class="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
@@ -190,6 +190,28 @@
     <li><a routerLink="/create" class="block hover:text-indigo-600">Create</a></li>
     <li><a routerLink="/forms" class="block hover:text-indigo-600">Forms</a></li>
     <li><a routerLink="/contact" class="block hover:text-indigo-600">Contact</a></li>
+    <li>
+        <div class="relative">
+            <button (click)="toggleProfileMenu()"
+              class="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:shadow-lg transition-all">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div *ngIf="isProfileMenuOpen"
+              class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100 z-50">
+              <a routerLink="/user-forms" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors">
+                Submitted Forms
+              </a>
+              <a routerLink="/signout" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors">
+                Sign Out
+              </a>
+            </div>
+          </div>
+    </li>
   </ul>
 </div>
 
@@ -277,7 +299,7 @@
                     </h3>
 
                     <div cdkDropList formArrayName="questions" class="space-y-6" (cdkDropListDropped)="drop($event)">
-                        <div *ngFor="let question of questions.controls; let i = index" cdkDrag [formGroupName]="i" class="bg-white border-2 border-gray-300 rounded-xl hover:border-indigo-100 transition-all
+                        <div *ngFor="let question of questions.controls; let i = index" cdkDrag [formGroupName]="i" class="bg-white border-2 border-gray-300 rounded-xl hover:border-indigo-100
                             shadow-sm hover:shadow-md group relative">
                     
                             <div cdkDragHandle class="cursor-grab flex justify-center py-1"> 

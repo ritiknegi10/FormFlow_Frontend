@@ -17,14 +17,24 @@ export class CreateFormComponent implements OnInit {
   ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
   singleOption = false;
   isQuestionInvalid: boolean = false;
+
+  //* ******side drawer******
   isDrawerOpen: boolean = false;
   firstRender: boolean = true;
+  
+  //* *****Profile Menu******
+  isProfileMenuOpen = false;
 
 
   // drawer function
   toggleDrawer(){
     this.isDrawerOpen = !this.isDrawerOpen;
     // this.firstRender = !this.firstRender;
+  }
+
+  // profile menu function
+  toggleProfileMenu() {
+    this.isProfileMenuOpen = !this.isProfileMenuOpen;
   }
 
   constructor(private fb: FormBuilder, private formService: FormService, private router: Router) {
