@@ -299,7 +299,9 @@
                     </h3>
 
                     <div cdkDropList formArrayName="questions" class="space-y-6" (cdkDropListDropped)="drop($event)">
-                        <div *ngFor="let question of questions.controls; let i = index" cdkDrag [formGroupName]="i" class="bg-white border-2 border-gray-300 rounded-xl hover:border-indigo-100
+                        <div *ngFor="let question of questions.controls; let i = index" 
+                        cdkDrag 
+                        cdkDragLockAxis="y" [formGroupName]="i" class="bg-white border-2 border-gray-300 rounded-xl hover:border-indigo-100
                             shadow-sm hover:shadow-md group relative">
                     
                             <div cdkDragHandle class="cursor-grab flex justify-center py-1"> 
