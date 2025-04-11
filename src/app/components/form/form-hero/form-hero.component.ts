@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
 import { Router } from '@angular/router';
@@ -19,7 +19,10 @@ export class FormHeroComponent implements OnInit{
     isQuestionInvalid: boolean = false;
     
 
-    constructor(private fb: FormBuilder, private formService: FormService, private router: Router) {
+    constructor(private fb: FormBuilder, 
+                private formService: FormService, 
+                private router: Router, 
+                private cdr: ChangeDetectorRef) {
         this.formBuilder = this.fb.group({
             title: '',
             description: '',
@@ -82,14 +85,17 @@ export class FormHeroComponent implements OnInit{
     }
 
     addSection(){
+
         const sectionGroup = this.fb.group({
-            sectionTitle: ['Untitled Section'],
+            sectionTitle: [''],
+            sectionDescription: [''],
             questions: this.fb.array([]),
         });
 
         this.sections.push(sectionGroup);
         //* Add default 1 question to new section - uncomment below line if required this feature
         this.addQuestionToSection(this.sections.length - 1);
+        this.cdr.detectChanges();
     }
 
     removeSection(index: number){
@@ -97,6 +103,14 @@ export class FormHeroComponent implements OnInit{
     }
 
     getSectionTitleControl(section: any){
+
+        // Making form title as 1st sections title
+        this.sections.at(0).get('sectionTitle')?.setValue(this.getTitleControl()?.value || '');
+        // handling form title change and updating first secitons title
+        this.getTitleControl()?.valueChanges.subscribe(title => {
+            this.sections.at(0).get('sectionTitle')?.setValue(title);
+        });
+
         return section.get('sectionTitle')
     }
 
@@ -119,6 +133,7 @@ export class FormHeroComponent implements OnInit{
 
     //* Add Question to a section
     addQuestionToSection(sectionIndex: number){
+        this.submitClicked = false;
         const section = this.getSectionQuestions(sectionIndex);
 
         const questionGroup = this.fb.group({
@@ -130,17 +145,20 @@ export class FormHeroComponent implements OnInit{
         });
 
         questionGroup.get('type')?.valueChanges
-            .subscribe(type =>{
-                if(type === 'mulitpleChoice' || type === 'checkboxes' || type === 'dropdown'){
+            .subscribe(type => {
+                this.submitClicked = false;
+                if(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown'){
                     const options = questionGroup.get('options') as FormArray;
                     if(options.length === 0)
                         options.push(new FormControl(''));
                 }
             });
         section.push(questionGroup);
+        this.cdr.detectChanges();
     }
 
     duplicateQuestion(sectionIndex: number, questionIndex: number){
+        this.submitClicked = false;
         const section = this.getSectionQuestions(sectionIndex);
         const originalQuestion = section.at(questionIndex).value;
         const duplicated = this.fb.group({
@@ -163,8 +181,10 @@ export class FormHeroComponent implements OnInit{
     }
 
     addOption(sectionIndex: number, questionIndex: number){
+        this.submitClicked = false;
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
         options.push(new FormControl(''));
+        this.singleOption = false;
     }
 
     removeOption(sectionIndex: number, questionIndex: number, optionIndex: number){
