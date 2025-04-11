@@ -17,28 +17,61 @@ export class FormService {
   forms$ = this.forms.asObservable();
   private formsSubject = new BehaviorSubject<any[]>([]);
 
-  addForm(newForm: any) {
-    const backendFormat = {
-      title: newForm.title,
-      description: newForm.description,
-      formSchema: JSON.stringify({
-        fields: newForm.questions.map((q: any) => ({
-          label: q.questionText,
-          type: q.type,
-          required: q.required,
-          options: q.options.length ? q.options : undefined,
-          rating: q.rating ? q.rating : 5
-        }))
-      })
-    }
-    console.log(backendFormat)
+    addForm(newForm: any){
+        let allQuestions: any[]=[];
+        if(newForm.formSchema && newForm.formSchema.sections){
+            newForm.formSchema.sections.forEach((section: any) => {
+                if(section.questions){
+                    allQuestions = allQuestions.concat(section.questions.map((q: any) => ({
+                        label: q.questionText,
+                        type: q.type,
+                        required: q.required,
+                        options: q.options.length ? q.options : undefined,
+                        rating: q.rating ? q.rating : 5
+                    })));
+                }
+            });
+        }
 
-    this.http.post(`${this.apiUrl}/create`, backendFormat).subscribe(response => {
-      console.log("Form saved successfully", response);
-    }, error => {
-      console.error("Error saving form", error);
-    });
-  }
+        const backendFormat = {
+            title: newForm.title,
+            description: newForm.description,
+            formSchema: JSON.stringify({
+                fields: allQuestions
+            })
+        };
+        console.log(backendFormat);
+
+        this.http.post(`${this.apiUrl}/create`, backendFormat)
+            .subscribe(response => {
+                console.log("Form saved successfully", response);
+            }, error => {
+                console.error("Error saving form", error);
+            });
+    }
+
+//   addForm(newForm: any) {
+//     const backendFormat = {
+//       title: newForm.title,
+//       description: newForm.description,
+//       formSchema: JSON.stringify({
+//         fields: newForm.questions.map((q: any) => ({
+//           label: q.questionText,
+//           type: q.type,
+//           required: q.required,
+//           options: q.options.length ? q.options : undefined,
+//           rating: q.rating ? q.rating : 5
+//         }))
+//       })
+//     }
+//     console.log(backendFormat)
+
+//     this.http.post(`${this.apiUrl}/create`, backendFormat).subscribe(response => {
+//       console.log("Form saved successfully", response);
+//     }, error => {
+//       console.error("Error saving form", error);
+//     });
+//   }
   
 
   private mapQuestionType(type: string): string {
@@ -130,9 +163,9 @@ getFormByVersion(formId: number, version: number) {
   return this.http.get<any>(`${this.apiUrl}/${formId}/versions/${version}`);
 }
 
-  getResponses(): string[] {
-    return ["Default Response 1", "Default Response 2"];
-  }
+getResponses(): string[] {
+  return ["Default Response 1", "Default Response 2"];
+}
 
   deleteForm(id: number) {
     this.http.delete(`${this.apiUrl}/${id}`).subscribe(() => {

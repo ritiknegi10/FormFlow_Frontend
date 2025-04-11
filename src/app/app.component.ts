@@ -25,7 +25,7 @@ export class AppComponent {
         .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe((event: any) => {
             // hide app component on /create
-            this.createForm = (event.url === '/rushabh');
+            this.createForm = (event.url === '/create');
         });
   }
 
