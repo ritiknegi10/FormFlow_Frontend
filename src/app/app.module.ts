@@ -25,10 +25,9 @@ import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
 import { OtpComponent } from './components/otp/otp.component';
 import { FormVersionsComponent } from './components/form-versions/form-versions.component';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RecaptchaModule } from 'ng-recaptcha';
-
-
-
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 
 @NgModule({
@@ -61,9 +60,10 @@ import { RecaptchaModule } from 'ng-recaptcha';
     HttpClientModule,
     DragDropModule,
     RecaptchaModule,
-
+    NgxChartsModule
 
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],
   bootstrap: [AppComponent]
 })
