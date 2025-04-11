@@ -12,7 +12,8 @@ export class ViewResponseComponent implements OnInit {
   formId: number | null = null;
   selectedForm: any = null;  
   responses: any[] = [];  
-
+  submissionTrend: any[] = [];
+  questionResponseData: any = {};
 
   constructor(private route: ActivatedRoute, private formService: FormService, private responseService: ResponseService, private router: Router) {}
 
@@ -36,7 +37,8 @@ export class ViewResponseComponent implements OnInit {
   
       this.responseService.getResponsesByFormId(this.formId).subscribe(responses => {
         this.responses = responses;
-        console.log(responses)
+        this.processSubmissionTrend();
+        this.processQuestionResponses();
       });
     }
   }
@@ -54,6 +56,66 @@ export class ViewResponseComponent implements OnInit {
     }
   }
 
+  // processSubmissionTrend() {
+  //   const trendMap: { [date: string]: number } = {};
+  //   this.responses.forEach(response => {
+  //     const date = new Date(response.submittedAt).toLocaleDateString();
+  //     trendMap[date] = (trendMap[date] || 0) + 1;
+  //   });
+    
+  //   this.submissionTrend = Object.keys(trendMap).map(date => ({
+  //     name: date,
+  //     value: trendMap[date]
+  //   }));
+  // }
+  processSubmissionTrend() {
+    const trendMap: { [date: string]: number } = {};
+    
+    this.responses.forEach(response => {
+      const date = new Date(response.submittedAt).toLocaleDateString();
+      trendMap[date] = (trendMap[date] || 0) + 1;
+    });
+  
+    const trendArray = Object.keys(trendMap).map(date => ({
+      name: date,
+      value: trendMap[date]
+    }));
+  
+    this.submissionTrend = [
+      {
+        name: 'Submissions',
+        series: trendArray
+      }
+    ];
+  }
+  
+
+  processQuestionResponses() {
+    const responseCounts: { [key: string]: { [option: string]: number } } = {};
+    
+    this.responses.forEach(response => {
+      try {
+        const responseData = JSON.parse(response.responseData);
+        Object.keys(responseData).forEach(key => {
+          if (!responseCounts[key]) {
+            responseCounts[key] = {};
+          }
+          const answer = responseData[key];
+          responseCounts[key][answer] = (responseCounts[key][answer] || 0) + 1;
+        });
+      } catch (error) {
+        console.error("Error parsing responseData:", error);
+      }
+    });
+
+    this.questionResponseData = Object.keys(responseCounts).map(question => ({
+      question,
+      data: Object.keys(responseCounts[question]).map(option => ({
+        name: option,
+        value: responseCounts[question][option]
+      }))
+    }));
+  }
   getKeys(response: any): string[] {
     try {
       return Object.keys(JSON.parse(response.responseData));
@@ -71,5 +133,4 @@ export class ViewResponseComponent implements OnInit {
       return "N/A";
     }
   }
-  
 }
