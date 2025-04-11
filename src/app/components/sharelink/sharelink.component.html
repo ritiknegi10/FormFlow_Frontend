@@ -55,6 +55,91 @@
                   </label>
                </div>
   
+              <!-- Linear Scale -->
+              <div *ngSwitchCase="'linearscale'" class="mt-4 flex justify-start space-x-6">
+                <div *ngFor="let val of [].constructor(question.endValue - question.startValue + 1); let j = index"
+                     class="flex flex-col items-center space-y-2">
+                  
+                  <!-- Number on top -->
+                  <span class="text-sm font-medium text-gray-700">
+                    {{ question.startValue + j }}
+                  </span>
+                  
+                  <!-- Radio Button -->
+                  <input 
+                    type="radio"
+                    [value]="question.startValue + j"
+                    [(ngModel)]="answers[i]"
+                    [name]="'question-' + i"
+                    (change)="markAsTouched(i)"
+                    class="form-radio text-indigo-600 w-5 h-5 focus:ring-indigo-500 transition duration-200"
+                  />
+                </div>
+              </div>
+
+              <!-- Multiple Choice Grid -->
+              <div *ngSwitchCase="'multipleChoiceGrid'" class="mt-4">
+              
+                <div class="grid gap-4" [ngStyle]="{'grid-template-columns': '150px repeat(' + question.columns.length + ', 1fr)'}">
+                  <!-- Header row: empty + column names -->
+                  <div></div> 
+                  <div *ngFor="let column of question.columns" class="text-center font-semibold">
+                    {{ column }}
+                  </div>
+              
+                  <!-- Rows with row label and radio buttons -->
+                  <ng-container *ngFor="let row of question.rows; let rowIndex = index">
+                    <!-- Row label -->
+                    <div class="text-sm text-gray-700 flex items-center">
+                      {{ row }}
+                    </div>
+              
+                    <!-- Radio buttons for each column -->
+                    <div *ngFor="let column of question.columns; let colIndex = index" class="flex justify-center items-center">
+                      <input
+                        type="radio"
+                        [name]="'question-' + i + '-row-' + rowIndex"
+                        [value]="column"
+                        [(ngModel)]="answers[i][rowIndex]"
+                        class="form-radio text-indigo-600 focus:ring-indigo-500" />
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+              
+              <!-- Checkbox Grid -->
+              <div *ngSwitchCase="'checkboxGrid'" class="mt-4">
+              
+                <div class="grid gap-4" [ngStyle]="{'grid-template-columns': '150px repeat(' + question.columns.length + ', 1fr)'}">
+                  <!-- Header row: empty + column names -->
+                  <div></div> 
+                  <div *ngFor="let column of question.columns" class="text-center font-semibold">
+                    {{ column }}
+                  </div>
+              
+                  <!-- Rows with row label and radio buttons -->
+                  <ng-container *ngFor="let row of question.rows; let rowIndex = index">
+                    <!-- Row label -->
+                    <div class="text-sm text-gray-700 flex items-center">
+                      {{ row }}
+                    </div>
+              
+                    <!-- Radio buttons for each column -->
+                    <div *ngFor="let column of question.columns; let colIndex = index" class="flex justify-center items-center">
+                      <input
+                        type="checkbox"
+                        [name]="'question-' + i + '-row-' + rowIndex + '-col-' + colIndex"
+                        [value]="column"
+                        [checked]="answers[i][rowIndex]?.includes(column)"
+                        (change)="toggleCheckbox(i, rowIndex, column)"
+                        class="form-radio text-indigo-600 focus:ring-indigo-500" />
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+  
+  
+  
 
                 <!-- Checkboxes -->
                 <div *ngSwitchCase="'checkboxes'" class="mt-2 space-y-2">
@@ -82,11 +167,19 @@
                 <div *ngIf="(submitClicked || touchedFields[i])  && question.required && !answers[i]" class="text-red-500 text-sm mt-2">
                     ⚠️ This field is required
                 </div>
+                
 
                 <div *ngIf="(submitClicked || touchedFields[i]) && question.required && question.type === 'checkboxes' && (!answers[i] || answers[i].length === 0)"
                     class="text-red-500 text-sm mt-2">
                          ⚠️ Please select at least one option
                 </div>
+
+                <div *ngIf="(question.type === 'multipleChoiceGrid' || question.type === 'checkboxGrid') && (isGridQuestionInvalid(i, question) || isCheckboxGridInvalid(i, question))" class="text-red-500 text-sm mt-2">
+                    ⚠️ All rows must be answered
+                  </div>
+                  
+                
+  
 
             </ng-container>
         </div>
