@@ -31,8 +31,25 @@ export class SharelinkComponent implements OnInit {
         this.formService.getFormById(Number(formId)).subscribe(form => {
           this.formData = form;
           this.formId = formId;
-          this.formData.formSchema = JSON.parse(this.formData.formSchema); // Parse formSchema if it's a JSON string
-          this.answers = new Array(this.formData.formSchema.fields.length).fill(null);
+          this.formData.formSchema = JSON.parse(this.formData.formSchema); 
+          this.formData.formSchema.fields.forEach((field: any, index: number) => {
+            if (field.type === 'linearscale') {
+              // Set fallback values if not defined
+              field.startValue = field.startValue ?? 0;
+              field.endValue = field.endValue ?? 5;
+            }
+          });
+          
+          this.answers = this.formData.formSchema.fields.map((field: any) => {
+            if (field.type === 'multipleChoiceGrid') {
+              return new Array(field.rows.length).fill(null);  
+            }else if (field.type === 'checkboxGrid') {
+                return new Array(field.rows.length).fill(null).map(() => []);
+            } else {
+              return null;
+            }
+          });
+          
           console.log("Fetched Form Data:", this.formData);
         });
       }
@@ -51,6 +68,18 @@ export class SharelinkComponent implements OnInit {
       this.answers[index] = this.answers[index].filter((item: string) => item !== option);
     }
   }
+  isGridQuestionInvalid(i: number, question: any): boolean {
+    if (!question || !question.required || !Array.isArray(this.answers[i])) return false;
+    return (this.submitClicked || this.touchedFields[i]) && this.answers[i].some((val: any) => val === null);
+  }
+   
+  
+  isCheckboxGridInvalid(i: number, question: any): boolean {
+    if (!question || !question.required || !Array.isArray(this.answers[i])) return false;
+    return (this.submitClicked || this.touchedFields[i]) &&
+           this.answers[i].some((row: any) => !Array.isArray(row) || row.length === 0);
+  }
+  
   
 
 
@@ -70,6 +99,16 @@ export class SharelinkComponent implements OnInit {
     this.touchedFields[index] = true;
   }
 
+  toggleCheckbox(questionIndex: number, rowIndex: number, column: string): void {
+  const current: string[] = this.answers[questionIndex][rowIndex] || [];
+
+  if (current.includes(column)) {
+    this.answers[questionIndex][rowIndex] = current.filter((item: string) => item !== column);
+  } else {
+    this.answers[questionIndex][rowIndex] = [...current, column];
+  }
+} 
+  
   submitForm() {
     this.submitClicked=true;
     const missingAnswers = this.formData.formSchema.fields.some((question: any, index: number) => {
@@ -77,7 +116,20 @@ export class SharelinkComponent implements OnInit {
         (Array.isArray(this.answers[index]) && this.answers[index].length === 0));
     });
 
-    if (missingAnswers) {
+    const hasUnansweredGrid = this.formData.formSchema.fields.some((question: any, index: number) => {
+      if (!question.required) return false;
+
+      if (question.type === 'multipleChoiceGrid') {
+        return Array.isArray(this.answers[index]) && this.answers[index].some((val: any) => val === null);
+      }
+      if (question.type === 'checkboxGrid') {
+        return Array.isArray(this.answers[index]) && this.answers[index].some((row: any) => !Array.isArray(row) || row.length === 0);
+      }
+      return false;
+    });
+    
+    
+    if (missingAnswers || hasUnansweredGrid ) {
       return;
     }
 
