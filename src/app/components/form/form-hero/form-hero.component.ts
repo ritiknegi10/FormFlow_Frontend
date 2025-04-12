@@ -17,6 +17,9 @@ export class FormHeroComponent implements OnInit{
     submitSuccess = false;
     singleOption = false;
     isQuestionInvalid: boolean = false;
+    // sectionBasedonAnswer: boolean = false;
+    otherAdded: boolean = false;
+    otherIndex:number | undefined;
     
 
     constructor(private fb: FormBuilder, 
@@ -24,7 +27,7 @@ export class FormHeroComponent implements OnInit{
                 private router: Router, 
                 private cdr: ChangeDetectorRef) {
         this.formBuilder = this.fb.group({
-            title: '',
+            title: 'Untitled Form',
             description: '',
             // questions: this.fb.array([]) 
             //! Replace questions with section as each section has its own fields
@@ -80,6 +83,31 @@ export class FormHeroComponent implements OnInit{
     }
 
     //!------------------pre-final changes------------------------
+    toggleSectionBasedAnswer(sIdx:number){
+        const sectionFormArray = this.sections.at(sIdx);
+        if(sectionFormArray){
+            const currentVal = sectionFormArray.get('sectionBasedonAnswer')?.value || false;
+            sectionFormArray.get('sectionBasedonAnswer')?.setValue(!currentVal);
+        }
+    }
+
+    selectAllText(eventTarget: EventTarget | null){
+        if(eventTarget instanceof HTMLInputElement)
+            eventTarget.select();
+    }
+
+    setDefaultValueIfEmpty(inputElement: EventTarget | null, question: any, opIdx: number){
+        if(inputElement instanceof HTMLInputElement){
+            if(inputElement && inputElement.value.trim()===''){
+                const optionsFormArray = this.getOptions(question);
+                const control = optionsFormArray.at(opIdx) as FormControl;
+                if(control){
+                    control.setValue(`Option ${opIdx+1}`);
+                }
+            }
+        }
+    }
+
     get sections(): FormArray{
         return this.formBuilder.get('sections') as FormArray;
     }
@@ -87,9 +115,10 @@ export class FormHeroComponent implements OnInit{
     addSection(){
 
         const sectionGroup = this.fb.group({
-            sectionTitle: [''],
+            sectionTitle: ['Untitled Section'],
             sectionDescription: [''],
             questions: this.fb.array([]),
+            sectionBasedonAnswer: false,
         });
 
         this.sections.push(sectionGroup);
@@ -105,7 +134,7 @@ export class FormHeroComponent implements OnInit{
     getSectionTitleControl(section: any){
 
         // Making form title as 1st sections title
-        this.sections.at(0).get('sectionTitle')?.setValue(this.getTitleControl()?.value || '');
+        this.sections.at(0).get('sectionTitle')?.setValue(this.getTitleControl()?.value || 'Untitled Section');
         // handling form title change and updating first secitons title
         this.getTitleControl()?.valueChanges.subscribe(title => {
             this.sections.at(0).get('sectionTitle')?.setValue(title);
@@ -138,11 +167,18 @@ export class FormHeroComponent implements OnInit{
 
         const questionGroup = this.fb.group({
             questionText: [''],
-            type: ['shortText'],
+            type: ['multipleChoice'],
             options: this.fb.array([]),
             rating: [5],
             required: false,
         });
+
+        const type = questionGroup.get('type')?.value;
+        if(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown'){
+            const options = questionGroup.get('options') as FormArray;
+            if(options.length === 0)
+                options.push(new FormControl('Option 1'));
+        }
 
         questionGroup.get('type')?.valueChanges
             .subscribe(type => {
@@ -150,7 +186,7 @@ export class FormHeroComponent implements OnInit{
                 if(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown'){
                     const options = questionGroup.get('options') as FormArray;
                     if(options.length === 0)
-                        options.push(new FormControl(''));
+                        options.push(new FormControl('Option 1'));
                 }
             });
         section.push(questionGroup);
@@ -180,14 +216,26 @@ export class FormHeroComponent implements OnInit{
         return question.get('options') as FormArray;
     }
 
-    addOption(sectionIndex: number, questionIndex: number){
+    addOption(sectionIndex: number, questionIndex: number, value: string = ''){
         this.submitClicked = false;
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
-        options.push(new FormControl(''));
+        const index = options.length;
+        if(value!=''){
+            options.push(new FormControl(value));
+            this.otherAdded = true;
+            this.otherIndex = index;
+        }
+        else{
+            options.push(new FormControl(`Option ${index + (this.otherAdded?0:1)}`));
+        }
         this.singleOption = false;
     }
 
     removeOption(sectionIndex: number, questionIndex: number, optionIndex: number){
+        if(optionIndex===this.otherIndex){
+            this.otherAdded = false;
+            this.otherIndex = undefined;
+        }
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
         options.removeAt(optionIndex);
     }

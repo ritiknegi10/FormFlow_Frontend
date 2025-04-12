@@ -179,8 +179,13 @@
                                             <div *ngFor="let option of getOptions(question).controls; let opIdx = index"
                                                 class="flex items-center gap-2">
                         
-                                                <input type="text" [formControlName]="opIdx" placeholder="Option text" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2
-                                                    focus:ring-indigo-100 focus:border-indigo-500 transition-all">
+                                                <input type="text" 
+                                                    [formControlName]="opIdx" placeholder="Option text" 
+                                                    class="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2
+                                                    focus:ring-indigo-100 focus:border-indigo-500 transition-all"
+                                                    (focus)="selectAllText($event.target)"
+                                                    (blur)="setDefaultValueIfEmpty($event.target, question, opIdx)"
+                                                />
                         
                                                 <button *ngIf="getOptions(question).length > 1"
                                                     (click)="removeOption(sIdx, qIdx, opIdx)"
@@ -192,7 +197,7 @@
                                                     </svg>
                                                 </button>
                         
-                                                <div *ngIf="(!option.value.trim()) && (submitClicked || option.touched)"
+                                                <!-- <div *ngIf="(!option.value.trim()) && (submitClicked || option.touched)"
                                                     class="text-red-500 flex items-center gap-2 text-sm">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
@@ -201,7 +206,16 @@
                                                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                                     </svg>
                                                     Option text is required
+                                                </div> -->
+                                                <div *ngIf="section.get('sectionBasedonAnswer')?.value">
+                                                    <select>
+                                                        <option>Continue to next section</option>
+                                                        <option *ngFor="let section of sections.controls; let idx = index" [value]="idx">
+                                                            Go to {{ 'Section' + (idx+1) }} ({{ section.get('sectionTitle')?.value }})
+                                                        </option>
+                                                    </select>
                                                 </div>
+
                                                 <div *ngIf="singleOption && submitClicked"
                                                     class="text-red-500 flex items-center gap-2 text-sm">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -216,14 +230,18 @@
                                             </div> <!--OPTIONS FOR LOOP-->
                                         </div> <!--QUESTION OPTIONS-->
 
-                                        <button (click)="addOption(sIdx, qIdx)" type="button" class="ml-4 px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg
-                                            flex items-center gap-2 transition-colors">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                            </svg>
-                                            Add Option
-                                        </button>
+                                        <div class="flex">
+                                            <button (click)="addOption(sIdx, qIdx)" type="button" class=" ml-4 px-3 py-1.5 text-base text-indigo-600 hover:bg-indigo-50 rounded-lg
+                                                flex items-center gap-2 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Add Option
+                                            </button>
+                                            <span *ngIf="!otherAdded" class="py-1.5 text-base"> or </span>
+                                            <a *ngIf="!otherAdded" (click)="addOption(sIdx, qIdx, 'Other')" class="px-3 py-1.5 cursor-pointer text-base text-blue-600">Add "Other"</a>
+                                        </div>
                                     </div> <!--QUESTION TYPES-->
                                 </div> <!--DROPDOWN-->
                                 <!-- QUESTION REQUIRED TOGGLE -->
@@ -242,8 +260,8 @@
                                     question.get('type')?.value==='multipleChoice' || 
                                     question.get('type')?.value==='checkboxes'||
                                     question.get('type')?.value==='dropdown'">
-                                        Add 3 dots here and ask for go to section based on answer
-                                        <button type="button">click</button>
+                                        <!-- Add 3 dots here and ask for go to section based on answer -->
+                                        <button class="border-2" type="button" (click)="toggleSectionBasedAnswer(sIdx)">click</button>
                                     </div>
                                 </div> <!--QUESTION REQUIRED TOGGLE-->
                             </div> <!--QUESTIONS FOR LOOP-->
@@ -266,6 +284,16 @@
                             </button>
                         </div>
                     </div>
+                    <!-- *ngIf="sections.length>1" -->
+                    <div>
+                        After Section {{ sIdx + 1}}
+                        <select>
+                            <option>Continue to next section</option>
+                            <option *ngFor="let section of sections.controls; let idx = index" [value]="idx">
+                                Go to {{ 'Section' + (idx+1) }} ({{ section.get('sectionTitle')?.value }})
+                            </option>
+                        </select>
+                    </div> <!--EVERY SECTION DROPDOWN-->
                 </div> <!--SECTIONS FOR LOOP-->
                 <div class="text-center">
                     <button type="button" (click)="addSection()"
