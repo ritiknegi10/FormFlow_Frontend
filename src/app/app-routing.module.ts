@@ -18,6 +18,8 @@ import { AuthGuard } from './guards/auth.guard';
 import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
 import { OtpComponent } from './components/otp/otp.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import {ResetPasswordComponent} from './components/reset-password/reset-password.component'
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -38,7 +40,10 @@ const routes: Routes = [
   { path: 'faq', component:FaqComponent },
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard]  },
   { path: 'submit/:title', component: SubmitPageComponent , canActivate: [AuthGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent},
   { path: '**', redirectTo: '' }
+  
 ];
 
 

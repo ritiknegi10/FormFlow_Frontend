@@ -28,6 +28,8 @@ import { FormVersionsComponent } from './components/form-versions/form-versions.
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RecaptchaModule } from 'ng-recaptcha';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 
 @NgModule({
@@ -50,7 +52,9 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
     UserFormsListComponent,
     OtpComponent,
     FormVersionsComponent,
-    OtpComponent
+    OtpComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent
   ],
   imports: [
     BrowserModule,
