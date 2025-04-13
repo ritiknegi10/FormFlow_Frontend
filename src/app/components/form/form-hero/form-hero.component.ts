@@ -17,9 +17,11 @@ export class FormHeroComponent implements OnInit{
     submitSuccess = false;
     singleOption = false;
     isQuestionInvalid: boolean = false;
+    showOptionsMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
+    showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     // sectionBasedonAnswer: boolean = false;
     otherAdded: boolean = false;
-    otherIndex:number | undefined;
+    otherIndex: number | undefined;
     
 
     constructor(private fb: FormBuilder, 
@@ -83,12 +85,30 @@ export class FormHeroComponent implements OnInit{
     }
 
     //!------------------pre-final changes------------------------
-    toggleSectionBasedAnswer(sIdx:number){
-        const sectionFormArray = this.sections.at(sIdx);
+    toggleSectionBasedAnswer(sectionIndex: number, questionIndex: number){
+        const sectionFormArray = this.sections.at(sectionIndex);
         if(sectionFormArray){
             const currentVal = sectionFormArray.get('sectionBasedonAnswer')?.value || false;
             sectionFormArray.get('sectionBasedonAnswer')?.setValue(!currentVal);
         }
+    }
+
+    toggleOtherOptionsMenu(sectionIndex: number, questionIndex: number) {
+        if (!this.showMenuMap[sectionIndex]) {
+            this.showMenuMap[sectionIndex] = {};
+        }
+        const isOpen = this.showMenuMap[sectionIndex][questionIndex];
+        this.showMenuMap[sectionIndex][questionIndex] = !isOpen;
+    }
+
+    // collapse or explan options
+    toggleOptions(sectionIndex: number, questionIndex: number) {
+        // if (!this.showOptionsMap[sectionIndex]) {
+        //     this.showOptionsMap[sectionIndex] = {};
+        // }
+        const isVisible = this.showOptionsMap[sectionIndex][questionIndex];
+        this.showOptionsMap[sectionIndex][questionIndex] = !isVisible;
+        console.log(sectionIndex, questionIndex);
     }
 
     selectAllText(eventTarget: EventTarget | null){
@@ -175,6 +195,12 @@ export class FormHeroComponent implements OnInit{
 
         const type = questionGroup.get('type')?.value;
         if(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown'){
+            console.log("options present");
+            if (!this.showOptionsMap[sectionIndex]) {
+                this.showOptionsMap[sectionIndex] = {};
+            }
+            this.showOptionsMap[sectionIndex][section.length] = true;
+            console.log(sectionIndex, section.length - 1)
             const options = questionGroup.get('options') as FormArray;
             if(options.length === 0)
                 options.push(new FormControl('Option 1'));
