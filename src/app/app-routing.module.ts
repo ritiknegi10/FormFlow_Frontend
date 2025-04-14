@@ -19,6 +19,8 @@ import { AuthGuard } from './guards/auth.guard';
 import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
 import { OtpComponent } from './components/otp/otp.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import {ResetPasswordComponent} from './components/reset-password/reset-password.component'
 import { AssignFormComponent } from './components/assign-form/assign-form.component';
 import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
 
@@ -38,11 +40,18 @@ const routes: Routes = [
   { path: 'view-responses/my-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard] },
   { path: 'user-forms', component: UserFormsListComponent, canActivate: [AuthGuard] },
   { path: 'contact', component: ContactComponent },
+  { path:'about',component:AboutUsComponent },
+  { path: 'faq', component:FaqComponent },
+  { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard]  },
+  { path: 'submit/:title', component: SubmitPageComponent , canActivate: [AuthGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent},
   { path: 'about', component: AboutUsComponent },
   { path: 'faq', component: FaqComponent },
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard] },
   { path: 'submit/:title', component: SubmitPageComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
+  
 ];
 
 @NgModule({
