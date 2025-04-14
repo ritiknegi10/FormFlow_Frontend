@@ -19,6 +19,7 @@ export class FormHeroComponent implements OnInit{
     isQuestionInvalid: boolean = false;
     showOptionsMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
+    showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     // sectionBasedonAnswer: boolean = false;
     otherAdded: boolean = false;
     otherIndex: number | undefined;
@@ -31,8 +32,6 @@ export class FormHeroComponent implements OnInit{
         this.formBuilder = this.fb.group({
             title: 'Untitled Form',
             description: '',
-            // questions: this.fb.array([]) 
-            //! Replace questions with section as each section has its own fields
             sections: this.fb.array([])
         });
     }
@@ -40,13 +39,14 @@ export class FormHeroComponent implements OnInit{
     ngOnInit() {
         // if you're editing an existing form, fetch data
         const urlParts = this.router.url.split('/');
+        console.log(urlParts);
         if (urlParts[2] === 'edit' && urlParts[3]) {
             this.formId = parseInt(urlParts[3]);
             this.formService.getFormById(this.formId).subscribe(form => {
-                    this.formBuilder.patchValue({
-                        title: form.title,
-                        description: form.description,
-                    });
+                this.formBuilder.patchValue({
+                    title: form.title,
+                    description: form.description,
+                });
                 // const questionsArray = form.formSchema.fields.map((field: any) => {
                 //     return this.fb.group({
                 //         questionText: field.label,
@@ -62,6 +62,7 @@ export class FormHeroComponent implements OnInit{
                     const questions = section.questions.map((field:any) =>{
                         return this.fb.group({
                             questionText: field.label,
+                            questionDescription: '',
                             type: field.type,
                             required: field.required,
                             options: this.fb.array(field.options || []),
@@ -76,39 +77,38 @@ export class FormHeroComponent implements OnInit{
                 this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
             });
         } 
-        // else {
-        //     this.addQuestion();
-        // }
-        else{
+        else {
             this.addSection(); // Start with one section by default
         }
     }
 
     //!------------------pre-final changes------------------------
-    toggleSectionBasedAnswer(sectionIndex: number, questionIndex: number){
+    toggleSectionBasedAnswer(sectionIndex: number, questionIndex: number) {
         const sectionFormArray = this.sections.at(sectionIndex);
-        if(sectionFormArray){
+        if(sectionFormArray) {
             const currentVal = sectionFormArray.get('sectionBasedonAnswer')?.value || false;
             sectionFormArray.get('sectionBasedonAnswer')?.setValue(!currentVal);
         }
     }
 
+    // other options menu toggle
     toggleOtherOptionsMenu(sectionIndex: number, questionIndex: number) {
         if (!this.showMenuMap[sectionIndex]) {
             this.showMenuMap[sectionIndex] = {};
         }
-        const isOpen = this.showMenuMap[sectionIndex][questionIndex];
-        this.showMenuMap[sectionIndex][questionIndex] = !isOpen;
+        const isMenuOpen = this.showMenuMap[sectionIndex][questionIndex];
+        this.showMenuMap[sectionIndex][questionIndex] = !isMenuOpen;
     }
 
     // collapse or explan options
     toggleOptions(sectionIndex: number, questionIndex: number) {
-        // if (!this.showOptionsMap[sectionIndex]) {
-        //     this.showOptionsMap[sectionIndex] = {};
-        // }
         const isVisible = this.showOptionsMap[sectionIndex][questionIndex];
         this.showOptionsMap[sectionIndex][questionIndex] = !isVisible;
-        console.log(sectionIndex, questionIndex);
+    }
+
+    toggleQuestionDescription(sectionIndex: number, questionIndex: number) {
+        const isVisible = this.showQuestionDescription[sectionIndex][questionIndex];
+        this.showQuestionDescription[sectionIndex][questionIndex] = !isVisible;
     }
 
     selectAllText(eventTarget: EventTarget | null){
@@ -160,7 +160,7 @@ export class FormHeroComponent implements OnInit{
             this.sections.at(0).get('sectionTitle')?.setValue(title);
         });
 
-        return section.get('sectionTitle')
+        return section.get('sectionTitle');
     }
 
     //* Questions getter by Section
@@ -184,37 +184,34 @@ export class FormHeroComponent implements OnInit{
     addQuestionToSection(sectionIndex: number){
         this.submitClicked = false;
         const section = this.getSectionQuestions(sectionIndex);
-
         const questionGroup = this.fb.group({
             questionText: [''],
+            questionDescription: [''],
             type: ['multipleChoice'],
             options: this.fb.array([]),
             rating: [5],
             required: false,
         });
 
+        if (!this.showQuestionDescription[sectionIndex]) {
+            this.showQuestionDescription[sectionIndex] = {};
+        }
         const type = questionGroup.get('type')?.value;
-        if(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown'){
-            console.log("options present");
+        if(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown') {
+
             if (!this.showOptionsMap[sectionIndex]) {
                 this.showOptionsMap[sectionIndex] = {};
             }
             this.showOptionsMap[sectionIndex][section.length] = true;
-            console.log(sectionIndex, section.length - 1)
+
             const options = questionGroup.get('options') as FormArray;
             if(options.length === 0)
                 options.push(new FormControl('Option 1'));
-        }
+        }    
 
-        questionGroup.get('type')?.valueChanges
-            .subscribe(type => {
-                this.submitClicked = false;
-                if(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown'){
-                    const options = questionGroup.get('options') as FormArray;
-                    if(options.length === 0)
-                        options.push(new FormControl('Option 1'));
-                }
-            });
+        questionGroup.get('type')?.valueChanges.subscribe(type => {
+            this.submitClicked = false;
+        });
         section.push(questionGroup);
         this.cdr.detectChanges();
     }
