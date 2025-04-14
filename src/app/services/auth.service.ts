@@ -1,6 +1,6 @@
 import { HttpClient , HttpParams} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -22,7 +22,17 @@ export class AuthService {
   }
 
   login(credentials: { username: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials,{ responseType: 'text' });
+    return this.http.post(`${this.apiUrl}/login`, credentials, { responseType: 'text' }).pipe(
+      tap((token) => {
+        this.saveToken(token);
+        localStorage.setItem('userEmail', credentials.username);
+        this.loggedIn.next(true);
+      }),
+      catchError((error) => {
+        console.error('Login error:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   register(userData: { username: string; password: string; email: string }): Observable<boolean> {
@@ -63,6 +73,15 @@ export class AuthService {
     this.loggedIn.next(false); 
     this.router.navigate(['/login']);
   }
+
+  getCurrentUserEmail(): string | null {
+    const token = this.getToken();
+    if (token) {
+      return localStorage.getItem('userEmail') || null;
+    }
+    return null;
+  }
+
   sendOtp(email: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/register/send-otp`, { email }, { responseType: 'text' }).pipe(
       catchError((error) => {
