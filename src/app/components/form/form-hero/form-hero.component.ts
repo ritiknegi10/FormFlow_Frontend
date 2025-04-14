@@ -20,6 +20,8 @@ export class FormHeroComponent implements OnInit{
     showOptionsMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
+
+    otherAddedMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     // sectionBasedonAnswer: boolean = false;
     // otherAdded: boolean = false;
     // otherIndex: number | undefined;
@@ -39,7 +41,7 @@ export class FormHeroComponent implements OnInit{
     ngOnInit() {
         // if you're editing an existing form, fetch data
         const urlParts = this.router.url.split('/');
-        console.log(urlParts);
+        // console.log(urlParts);
         if (urlParts[2] === 'edit' && urlParts[3]) {
             this.formId = parseInt(urlParts[3]);
             this.formService.getFormById(this.formId).subscribe(form => {
@@ -192,8 +194,7 @@ export class FormHeroComponent implements OnInit{
             rating: [5],
             required: false,
             otherAdded: false, //*map
-            otherIndex: [undefined as number | undefined], //*map
-            sectionBasedonAnswer: false //!imp
+            sectionBasedonAnswer: false, //!imp
         });
 
         if (!this.showQuestionDescription[sectionIndex]) {
@@ -232,7 +233,6 @@ export class FormHeroComponent implements OnInit{
             rating: [originalQuestion.rating],
             required: [originalQuestion.required],
             otherAdded: false, //*map
-            otherIndex: [undefined as number | undefined], //*map
             sectionBasedonAnswer: [originalQuestion.sectionBasedonAnswer] //!imp
         });
         section.insert(questionIndex + 1, duplicated);
@@ -258,28 +258,31 @@ export class FormHeroComponent implements OnInit{
 
         //* Checking for option - 'Other' added
         if(value!=''){
+            if(!this.otherAddedMap[sectionIndex])
+                this.otherAddedMap[sectionIndex]={};
+            this.otherAddedMap[sectionIndex][questionIndex]=true;
             options.push(new FormControl(value));
             thatQuestion.get('otherAdded')?.setValue(true);
-            thatQuestion.get('otherIndex')?.setValue(index);
             options.at(index).disable() // Can't edit option - 'Other'
         }
         else{
-            const otherAdded = thatQuestion.get('otherAdded')?.value;
+            // const otherAdded = thatQuestion.get('otherAdded')?.value;
+            const otherAdded = this.otherAddedMap[sectionIndex][questionIndex];
             options.push(new FormControl(`Option ${index + (otherAdded? 0:1)}`));
         }
         this.singleOption = false;
     }
 
     removeOption(sectionIndex: number, questionIndex: number, optionIndex: number){
-        const questions = this.getSectionQuestions(sectionIndex);
-        const oIndex = questions.get('otherIndex')?.value;
-        if(optionIndex===oIndex){
+        const questions = this.getSectionQuestions(sectionIndex).at(questionIndex);
+        const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
+        if(options.at(optionIndex)?.value==='Other'){
+            this.otherAddedMap[sectionIndex][questionIndex]=false;
             questions.get('otherAdded')?.setValue(false);
-            questions.get('otherIndex')?.setValue(undefined);
+            // questions.get('otherIndex')?.setValue(undefined);
             // this.otherAdded = false;
             // this.otherIndex = undefined;
         }
-        const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
         options.removeAt(optionIndex);
     }
 
