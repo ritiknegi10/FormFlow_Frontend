@@ -241,7 +241,7 @@
                                                     </svg>
                                                     Option text is required
                                                 </div> -->
-                                                <div *ngIf="section.get('sectionBasedonAnswer')?.value">
+                                                <div *ngIf="question.get('sectionBasedonAnswer')?.value">
                                                     <select class="px-3 py-2 cursor-pointer outline-none focus:bg-gray-200">
                                                         <option>Continue to next section</option>
                                                         <option *ngFor="let section of sections.controls; let idx = index" [value]="idx">
@@ -267,8 +267,8 @@
                                                     class=" px-3 py-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
                                                     + Add Option
                                                 </button>
-                                                <div *ngIf="!otherAdded && question.get('type')?.value==='multipleChoice'" class="text-sm">
-                                                    <span  class="mx-1"> or </span>
+                                                <div *ngIf="!(question.get('otherAdded')?.value)" class="text-sm">
+                                                    <span class="mx-1"> or </span>
                                                     <button (click)="addOption(sIdx, qIdx, 'Other')" 
                                                         class="px-3 py-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg">
                                                         Add "Other"
@@ -314,7 +314,7 @@
                                                         class="text-gray-500">✔</span>
                                                     Question description
                                                 </li>
-                                                <li (click)="toggleSectionBasedAnswer(sIdx, qIdx)"
+                                                <li (click)="togglesectionBasedonAnswer(sIdx, qIdx)"
                                                     *ngIf="question.get('type')?.value==='multipleChoice' || question.get('type')?.value==='dropdown'"
                                                     class="px-4 py-2 cursor-pointer hover:bg-gray-100">
                                                     Go to section based on answer

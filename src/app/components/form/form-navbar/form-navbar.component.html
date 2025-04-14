@@ -81,10 +81,10 @@
                       </svg>                 
                 </button>
             </div>
-            <h2 *ngIf="currentUrl=='/rushabh'" class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 *ngIf="currentUrl=='/create'" class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Build Your Form
             </h2>
-            <h2 *ngIf="currentUrl=='/edit'" class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 *ngIf="currentUrl?.startsWith('/edit')" class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Edit Form
             </h2>
             <div class="flex items-center px-4">

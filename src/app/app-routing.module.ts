@@ -24,7 +24,7 @@ const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'deprecated', component: CreateFormComponent, canActivate: [AuthGuard]  },
   { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard]  },
-  { path: 'edit/:id', component: EditFormComponent, canActivate: [AuthGuard]  },
+  { path: 'edit/:id', component: FormParentComponent, canActivate: [AuthGuard]  },
   { path: 'forms/:formId/versions/:formVersion', component: FormVersionsComponent },
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard]  },  
   { path: 'login', component: LoginComponent },

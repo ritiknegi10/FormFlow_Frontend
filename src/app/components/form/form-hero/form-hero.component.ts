@@ -21,8 +21,8 @@ export class FormHeroComponent implements OnInit{
     showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     // sectionBasedonAnswer: boolean = false;
-    otherAdded: boolean = false;
-    otherIndex: number | undefined;
+    // otherAdded: boolean = false;
+    // otherIndex: number | undefined;
     
 
     constructor(private fb: FormBuilder, 
@@ -83,13 +83,14 @@ export class FormHeroComponent implements OnInit{
     }
 
     //!------------------pre-final changes------------------------
-    toggleSectionBasedAnswer(sectionIndex: number, questionIndex: number) {
-        const sectionFormArray = this.sections.at(sectionIndex);
-        if(sectionFormArray) {
-            const currentVal = sectionFormArray.get('sectionBasedonAnswer')?.value || false;
-            sectionFormArray.get('sectionBasedonAnswer')?.setValue(!currentVal);
-        }
+    togglesectionBasedonAnswer(sectionIndex: number, questionIndex: number){
+        const questionGroup = this.sections.at(sectionIndex).get('questions') as FormArray;
+        const thatQuestion = questionGroup.at(questionIndex) as FormGroup;
+        const currentVal = thatQuestion.get('sectionBasedonAnswer')?.value || false;
+
+        thatQuestion.get('sectionBasedonAnswer')?.setValue(!currentVal);
     }
+    
 
     // other options menu toggle
     toggleOtherOptionsMenu(sectionIndex: number, questionIndex: number) {
@@ -133,12 +134,10 @@ export class FormHeroComponent implements OnInit{
     }
 
     addSection(){
-
         const sectionGroup = this.fb.group({
             sectionTitle: ['Untitled Section'],
             sectionDescription: [''],
             questions: this.fb.array([]),
-            sectionBasedonAnswer: false,
         });
 
         this.sections.push(sectionGroup);
@@ -152,9 +151,9 @@ export class FormHeroComponent implements OnInit{
     }
 
     getSectionTitleControl(section: any){
-
         // Making form title as 1st sections title
         this.sections.at(0).get('sectionTitle')?.setValue(this.getTitleControl()?.value || 'Untitled Section');
+
         // handling form title change and updating first secitons title
         this.getTitleControl()?.valueChanges.subscribe(title => {
             this.sections.at(0).get('sectionTitle')?.setValue(title);
@@ -184,6 +183,7 @@ export class FormHeroComponent implements OnInit{
     addQuestionToSection(sectionIndex: number){
         this.submitClicked = false;
         const section = this.getSectionQuestions(sectionIndex);
+
         const questionGroup = this.fb.group({
             questionText: [''],
             questionDescription: [''],
@@ -191,11 +191,15 @@ export class FormHeroComponent implements OnInit{
             options: this.fb.array([]),
             rating: [5],
             required: false,
+            otherAdded: false, //*map
+            otherIndex: [undefined as number | undefined], //*map
+            sectionBasedonAnswer: false //!imp
         });
 
         if (!this.showQuestionDescription[sectionIndex]) {
             this.showQuestionDescription[sectionIndex] = {};
         }
+        
         const type = questionGroup.get('type')?.value;
         if(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown') {
 
@@ -222,10 +226,14 @@ export class FormHeroComponent implements OnInit{
         const originalQuestion = section.at(questionIndex).value;
         const duplicated = this.fb.group({
             questionText: [originalQuestion.questionText],
+            questionDescription: [''],
             type: [originalQuestion.type],
-            required: [originalQuestion.required],
             options: this.fb.array(originalQuestion.options.map((opt: any) => this.fb.control(opt))),
             rating: [originalQuestion.rating],
+            required: [originalQuestion.required],
+            otherAdded: false, //*map
+            otherIndex: [undefined as number | undefined], //*map
+            sectionBasedonAnswer: [originalQuestion.sectionBasedonAnswer] //!imp
         });
         section.insert(questionIndex + 1, duplicated);
     }
@@ -241,23 +249,35 @@ export class FormHeroComponent implements OnInit{
 
     addOption(sectionIndex: number, questionIndex: number, value: string = ''){
         this.submitClicked = false;
+
+        const questionGroup = this.sections.at(sectionIndex).get('questions') as FormArray;
+        const thatQuestion = questionGroup.at(questionIndex) as FormGroup;
+
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
         const index = options.length;
+
+        //* Checking for option - 'Other' added
         if(value!=''){
             options.push(new FormControl(value));
-            this.otherAdded = true;
-            this.otherIndex = index;
+            thatQuestion.get('otherAdded')?.setValue(true);
+            thatQuestion.get('otherIndex')?.setValue(index);
+            options.at(index).disable() // Can't edit option - 'Other'
         }
         else{
-            options.push(new FormControl(`Option ${index + (this.otherAdded?0:1)}`));
+            const otherAdded = thatQuestion.get('otherAdded')?.value;
+            options.push(new FormControl(`Option ${index + (otherAdded? 0:1)}`));
         }
         this.singleOption = false;
     }
 
     removeOption(sectionIndex: number, questionIndex: number, optionIndex: number){
-        if(optionIndex===this.otherIndex){
-            this.otherAdded = false;
-            this.otherIndex = undefined;
+        const questions = this.getSectionQuestions(sectionIndex);
+        const oIndex = questions.get('otherIndex')?.value;
+        if(optionIndex===oIndex){
+            questions.get('otherAdded')?.setValue(false);
+            questions.get('otherIndex')?.setValue(undefined);
+            // this.otherAdded = false;
+            // this.otherIndex = undefined;
         }
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
         options.removeAt(optionIndex);
