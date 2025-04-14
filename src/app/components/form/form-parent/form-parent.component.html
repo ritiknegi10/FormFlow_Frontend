@@ -1,4 +1,4 @@
 <div class="body">
-    <app-form-navbar></app-form-navbar>
-    <app-form-hero></app-form-hero>
+    <app-form-navbar [formTitle]="formTitle" (formTitleChange)="updateFormTitle($event)"></app-form-navbar>
+    <app-form-hero [formTitle]="formTitle" (formTitleChange)="updateFormTitle($event)">></app-form-hero>
 </div>

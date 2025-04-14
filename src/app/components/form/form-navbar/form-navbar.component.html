@@ -70,21 +70,25 @@
 <nav class="bg-white/80 backdrop-blur-xl shadow-lg sticky top-0 z-30 border-b border-white/20">
     <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-            <div class="flex items-center space-x-2">
-                <!-- Toggle Button -->
-                <button (click)="toggleDrawer()" class="p-4 text-gray-600 rounded-full hover:bg-gray-100">
-                    <!-- Menu -->
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect y="4" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
-                        <rect y="11" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
-                        <rect y="18" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
-                      </svg>                 
-                </button>
+            <!-- MENU BUTTON   -->
+            <button (click)="toggleDrawer()" class="p-4 text-gray-600 rounded-full hover:bg-gray-100">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="4" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
+                    <rect y="11" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
+                    <rect y="18" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
+                </svg>                 
+            </button>
+            
+            <!-- FORM TITLE -->
+            <div class="text-lg text-gray-700">
+                <input type="text" [value]="formTitle" (input)="onTitleChange($event)"
+                #myInput (focus)="myInput.select()"
+                class="w-60 p-1 bg-transparent outline-none focus:border-b-2 focus:border-indigo-500"/>
             </div>
-            <h2 *ngIf="currentUrl=='/create'" class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 *ngIf="currentUrl=='/create'" class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Build Your Form
             </h2>
-            <h2 *ngIf="currentUrl?.startsWith('/edit')" class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 *ngIf="currentUrl?.startsWith('/edit')" class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Edit Form
             </h2>
             <div class="flex items-center px-4">

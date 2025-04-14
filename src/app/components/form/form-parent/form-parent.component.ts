@@ -8,7 +8,14 @@ import { OnInit } from '@angular/core';
   styleUrls: ['./form-parent.component.scss']
 })
 export class FormParentComponent implements OnInit{
-    ngOnInit() {
-        window.scrollTo(0, 0);
-    }
+  
+  formTitle = 'Untitled Form';
+
+  ngOnInit() {
+      window.scrollTo(0, 0);
+  }
+
+  updateFormTitle(newTitle: string) {
+    this.formTitle = newTitle;
+  }
 }

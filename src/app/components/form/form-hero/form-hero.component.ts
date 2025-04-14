@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
 import { Router } from '@angular/router';
@@ -82,6 +82,14 @@ export class FormHeroComponent implements OnInit{
         else {
             this.addSection(); // Start with one section by default
         }
+    }
+
+    @Input() formTitle: string = '';
+    @Output() formTitleChange = new EventEmitter<string>();
+
+    onTitleChange(event: Event) {
+        const input = event.target as HTMLInputElement;
+        this.formTitleChange.emit(input.value);
     }
 
     //!------------------pre-final changes------------------------

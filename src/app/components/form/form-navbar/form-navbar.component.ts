@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 
@@ -31,6 +31,15 @@ export class FormNavbarComponent implements OnInit {
             // hide app component on /create
             this.currentUrl = event.url;
         });
+    }
+
+    @Input() formTitle: string = '';
+    @Output() formTitleChange = new EventEmitter<string>();
+
+    onTitleChange(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if(input) this.formTitleChange.emit(input.value);
+        else this.formTitleChange.emit('Untitled Form');
     }
 
     // drawer function
