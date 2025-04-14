@@ -62,7 +62,7 @@
                                 class="text-lg font-semibold border-none outline-none text-indigo-700">
                                 Section {{ sIdx + 1 }} of {{ sections.length }}
                             </div>
-                            <button type="button" *ngIf="sIdx > 0" 
+                            <button type="button" *ngIf="sections.length!=1"
                                 (click)="removeSection(sIdx)"
                                 class="px-4 py-2 rounded-lg text-sm text-red-500 hover:bg-gray-100">
                                 Remove Section
