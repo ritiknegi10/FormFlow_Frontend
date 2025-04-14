@@ -20,12 +20,8 @@ export class FormHeroComponent implements OnInit{
     showOptionsMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
-
     otherAddedMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
-    // sectionBasedonAnswer: boolean = false;
-    // otherAdded: boolean = false;
-    // otherIndex: number | undefined;
-    
+
 
     constructor(private fb: FormBuilder, 
                 private formService: FormService, 
@@ -49,16 +45,6 @@ export class FormHeroComponent implements OnInit{
                     title: form.title,
                     description: form.description,
                 });
-                // const questionsArray = form.formSchema.fields.map((field: any) => {
-                //     return this.fb.group({
-                //         questionText: field.label,
-                //         type: field.type,
-                //         required: field.required,
-                //         options: this.fb.array(field.options || []),
-                //         rating: field.rating || 5,
-                //     });
-                // });
-                // this.formBuilder.setControl('questions', this.fb.array(questionsArray));
 
                 const sectionsArray = form.formSchema.sections?.map((section:any) =>{
                     const questions = section.questions.map((field:any) =>{
@@ -84,6 +70,7 @@ export class FormHeroComponent implements OnInit{
         }
     }
 
+    //* Getting Form title in navbar
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
 
@@ -92,13 +79,11 @@ export class FormHeroComponent implements OnInit{
         this.formTitleChange.emit(input.value);
     }
 
-    //!------------------pre-final changes------------------------
     togglesectionBasedonAnswer(sectionIndex: number, questionIndex: number){
-        const questionGroup = this.sections.at(sectionIndex).get('questions') as FormArray;
-        const thatQuestion = questionGroup.at(questionIndex) as FormGroup;
-        const currentVal = thatQuestion.get('sectionBasedonAnswer')?.value || false;
-
-        thatQuestion.get('sectionBasedonAnswer')?.setValue(!currentVal);
+        const question = (this.sections.at(sectionIndex).get('questions') as FormArray).at(questionIndex) as FormGroup;
+        
+        const currentVal = question.get('sectionBasedonAnswer')?.value || false;
+        question.get('sectionBasedonAnswer')?.setValue(!currentVal);
     }
     
 
@@ -122,6 +107,7 @@ export class FormHeroComponent implements OnInit{
         this.showQuestionDescription[sectionIndex][questionIndex] = !isVisible;
     }
 
+    //selects all text when focused on option input field
     selectAllText(eventTarget: EventTarget | null){
         if(eventTarget instanceof HTMLInputElement)
             eventTarget.select();
@@ -201,8 +187,7 @@ export class FormHeroComponent implements OnInit{
             options: this.fb.array([]),
             rating: [5],
             required: false,
-            otherAdded: false, //*map
-            sectionBasedonAnswer: false, //!imp
+            sectionBasedonAnswer: false, 
         });
 
         if (!this.showQuestionDescription[sectionIndex]) {
@@ -240,8 +225,7 @@ export class FormHeroComponent implements OnInit{
             options: this.fb.array(originalQuestion.options.map((opt: any) => this.fb.control(opt))),
             rating: [originalQuestion.rating],
             required: [originalQuestion.required],
-            otherAdded: false, //*map
-            sectionBasedonAnswer: [originalQuestion.sectionBasedonAnswer] //!imp
+            sectionBasedonAnswer: [originalQuestion.sectionBasedonAnswer] 
         });
         section.insert(questionIndex + 1, duplicated);
     }
@@ -270,11 +254,9 @@ export class FormHeroComponent implements OnInit{
                 this.otherAddedMap[sectionIndex]={};
             this.otherAddedMap[sectionIndex][questionIndex]=true;
             options.push(new FormControl(value));
-            thatQuestion.get('otherAdded')?.setValue(true);
             options.at(index).disable() // Can't edit option - 'Other'
         }
         else{
-            // const otherAdded = thatQuestion.get('otherAdded')?.value;
             const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
             options.push(new FormControl(`Option ${index + (otherAdded? 0:1)}`));
         }
@@ -286,10 +268,6 @@ export class FormHeroComponent implements OnInit{
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
         if(options.at(optionIndex)?.value==='Other'){
             this.otherAddedMap[sectionIndex][questionIndex]=false;
-            questions.get('otherAdded')?.setValue(false);
-            // questions.get('otherIndex')?.setValue(undefined);
-            // this.otherAdded = false;
-            // this.otherIndex = undefined;
         }
         options.removeAt(optionIndex);
     }
@@ -364,132 +342,3 @@ export class FormHeroComponent implements OnInit{
         }
     }
 }
-    
-    //!------------------pre-final changes------------------------
-
-    // get questions(): FormArray {
-    //     return this.formBuilder.get('questions') as FormArray;
-    // }
-    
-    // getTitleControl() {
-    //    return this.formBuilder.get('title');
-    // }
-    
-    // getQuestionTextControl(question: any) {
-    //     return question.get('questionText');
-    // }
-    
-    // addQuestion() {
-    //     this.submitClicked = false;
-    //     const questionGroup = this.fb.group({
-    //         questionText: [''],
-    //         type: ['shortText'],
-    //         options: this.fb.array([]),
-    //         rating: [5],
-    //         required: false,
-    //     });
-    
-    //     questionGroup.get('type')?.valueChanges.subscribe(type => {
-    //         this.submitClicked = false;
-    //         if (type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown') {
-    //             const options = questionGroup.get('options') as FormArray;
-    //             if (options.length === 0)
-    //                 options.push(new FormControl(''));
-    //         }
-    //     });
-    
-    //     this.questions.push(questionGroup);
-    // }
-    
-    // duplicateQuestion(index: number) {
-    //     this.submitClicked = false;
-    //     const originalQuestion = this.questions.at(index).value;
-    //     const duplicatedQuestion = this.fb.group({
-    //             questionText: [originalQuestion.questionText],
-    //             type: [originalQuestion.type],
-    //             required: [originalQuestion.required],
-    //             options: this.fb.array(originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []),
-    //             rating: [originalQuestion.rating]
-    //     });
-    //     this.questions.insert(index + 1, duplicatedQuestion);
-    // }
-    
-    // removeQuestion(index: number) {
-    //     this.questions.removeAt(index);
-    // }
-    
-    // addOption(questionIndex: number) {
-    //     this.submitClicked = false;
-    //     const options = this.getOptions(this.questions.at(questionIndex));
-    //     options.push(new FormControl(''));
-    //     this.singleOption = false;
-    // }
-    
-    // removeOption(questionIndex: number, optionIndex: number) {
-    //     const options = this.getOptions(this.questions.at(questionIndex));
-    //     options.removeAt(optionIndex);
-    // }
-    
-    // getOptions(question: any): FormArray {
-    //     return question.get('options') as FormArray;
-    // }
-    
-    // onSubmit() {
-    //     this.submitClicked = true;
-    //     if (!this.getTitleControl()?.value.trim()) return;
-    
-    //     this.isQuestionInvalid = false;
-    //     this.singleOption = false;
-    //     let isOptionInvalid = false;
-    
-    //     this.questions.controls.forEach((control) => {
-    //         if (control instanceof FormGroup) {
-    //             const ques = control;
-    //             const optionsArray = this.getOptions(ques);
-        
-    //             if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
-        
-    //             optionsArray.controls.forEach(optionControl => {
-    //                 if (!optionControl.value.trim()) isOptionInvalid = true;
-    //                 else if (((ques.get('type')?.value === "multipleChoice") && (optionsArray.controls.length < 2)) ||
-    //                     (ques.get('type')?.value === "dropdown") && (optionsArray.controls.length < 2))
-    //                     this.singleOption = true;
-    //             });
-    //         }
-    //     });
-    
-    //     if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
-    
-    
-    //     if (this.formBuilder.valid) {
-    //         if (this.formId) {
-    //             this.formService.updateForm(this.formId, this.formBuilder.value).subscribe({
-    //             next: () => {
-    //                 this.submitSuccess = true;
-    //                 setTimeout(() => {
-    //                 this.submitSuccess = false;
-    //                 this.router.navigate(['/forms']);
-    //                 }, 3000);
-    //             },
-    //             error: (error) => {
-    //                 console.error("Error updating form", error);
-    //             }
-    //             });
-    //         } else {
-    //             this.formService.addForm(this.formBuilder.value);
-    //             this.submitSuccess = true;
-    //             setTimeout(() => {
-    //             this.submitSuccess = false;
-    //             this.router.navigate(['/forms']);
-    //             }, 3000);
-    //         }
-    //     } else {
-    //     console.log("Form is invalid");
-    //     }
-    // }
-    
-    // drop(event: CdkDragDrop<string[]>) {
-    //     moveItemInArray(this.questions.controls, event.previousIndex, event.currentIndex);
-    //     this.questions.updateValueAndValidity();
-    // }
-// }
