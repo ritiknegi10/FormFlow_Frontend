@@ -275,7 +275,7 @@ export class FormHeroComponent implements OnInit{
         }
         else{
             // const otherAdded = thatQuestion.get('otherAdded')?.value;
-            const otherAdded = this.otherAddedMap[sectionIndex][questionIndex];
+            const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
             options.push(new FormControl(`Option ${index + (otherAdded? 0:1)}`));
         }
         this.singleOption = false;

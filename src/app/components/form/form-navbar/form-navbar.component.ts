@@ -28,7 +28,6 @@ export class FormNavbarComponent implements OnInit {
         this.router.events
             .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe((event: any) => {
-            // hide app component on /create
             this.currentUrl = event.url;
         });
     }
@@ -40,6 +39,11 @@ export class FormNavbarComponent implements OnInit {
         const input = event.target as HTMLInputElement;
         if(input) this.formTitleChange.emit(input.value);
         else this.formTitleChange.emit('Untitled Form');
+    }
+
+    @Output() publishClicked = new EventEmitter<void>();
+    onPublishClicked(){
+        this.publishClicked.emit();
     }
 
     // drawer function

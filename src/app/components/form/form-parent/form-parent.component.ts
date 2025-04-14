@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
-import { NgModule } from '@angular/core';
-import { OnInit } from '@angular/core';
+import { Component, NgModule, OnInit, ViewChild } from '@angular/core';
+import { FormHeroComponent } from '../form-hero/form-hero.component';
 
 @Component({
   selector: 'app-form-parent',
@@ -8,14 +7,20 @@ import { OnInit } from '@angular/core';
   styleUrls: ['./form-parent.component.scss']
 })
 export class FormParentComponent implements OnInit{
+    
   
-  formTitle = 'Untitled Form';
+    formTitle = 'Untitled Form';
 
-  ngOnInit() {
-      window.scrollTo(0, 0);
-  }
+    ngOnInit() {
+        window.scrollTo(0, 0);
+    }
 
-  updateFormTitle(newTitle: string) {
-    this.formTitle = newTitle;
-  }
+    @ViewChild(FormHeroComponent) formHero!: FormHeroComponent;
+    callOnSubmitMethod(){
+        this.formHero.onSubmit();
+    }
+
+    updateFormTitle(newTitle: string) {
+        this.formTitle = newTitle;
+    }
 }
