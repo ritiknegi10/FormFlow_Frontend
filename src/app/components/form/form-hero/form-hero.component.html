@@ -2,12 +2,12 @@
     <div class="max-w-4xl mx-auto">
 
         <!-- Floating Navigation  -->
-        <div class="fixed left-16 top-1/2 -translate-y-1/2 hidden lg:block">
+        <div class="fixed left-28 top-1/2 -translate-y-1/2 hidden lg:block">
             <div class="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-gray-200">
             <h4 class="text-sm font-semibold text-gray-700 mb-3">Form Navigation</h4>
             <div class="space-y-2">
                 <div *ngFor="let section of sections.controls; let sIdx = index" class="space-y-2">
-                <div class="text-sm font-medium text-indigo-600">{{ getSectionTitleControl(section)?.value || '' }} {{ sIdx + 1 }} </div>
+                <div class="text-sm font-medium text-indigo-600">{{ sIdx===0 ? formTitle : (getSectionTitleControl(section)?.value || '') + (sIdx + 1) }}</div>
                 <div *ngFor="let question of getQuestionsControl(section).controls; let i = index"
                     class="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
                     <span class="w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs">
@@ -35,6 +35,7 @@
                         <span>Form Details</span>
                     </label>
                     <input type="text" formControlName="title" placeholder="Form Title"
+                        [value]="formTitle" (input)="onTitleChange($event)"
                         class="w-full px-5 py-3 text-lg border-2 outline-none border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 transition-all">
                     
                         <div *ngIf="!getTitleControl()?.value.trim() && (submitClicked || getTitleControl()?.touched)"
@@ -210,11 +211,11 @@
                                         </div>
                                         
                                         <div formArrayName="options" *ngIf="showOptionsMap[sIdx][qIdx]" class="space-y-2 ml-4">
-                                            <div *ngFor="let option of getOptions(question).controls; let opIdx = index"
+                                            <div *ngFor="let option of getOptions(question).controls; let opIdx = index" [formGroupName]="opIdx"
                                                 class="flex items-center gap-2">
                         
                                                 <input type="text" 
-                                                    [formControlName]="opIdx" placeholder="Option text" 
+                                                    formControlName="label" placeholder="Option text" 
                                                     class="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2
                                                     focus:ring-indigo-100 focus:border-indigo-500 transition-all"
                                                     (focus)="selectAllText($event.target)"
@@ -242,11 +243,13 @@
                                                     Option text is required
                                                 </div> -->
                                                 <div *ngIf="question.get('sectionBasedonAnswer')?.value">
-                                                    <select class="px-3 py-2 cursor-pointer outline-none focus:bg-gray-200">
-                                                        <option>Continue to next section</option>
+                                                    <select formControlName="goToSection"
+                                                        class="px-3 py-2 cursor-pointer outline-none focus:bg-gray-200">
+                                                        <option [value]="sIdx + 1">Continue to next section</option>
                                                         <option *ngFor="let section of sections.controls; let idx = index" [value]="idx">
                                                             Go to {{ 'Section' + (idx+1) }} ({{ section.get('sectionTitle')?.value }})
                                                         </option>
+                                                        <option [value]="-1">Submit Form</option>
                                                     </select>
                                                 </div>
 
@@ -355,11 +358,13 @@
                     <div *ngIf="sections.length > 1"
                         class="px-2 py-4">
                         After Section {{ sIdx + 1}}:
-                        <select class="p-2 ml-2 outline-none bg-transparent cursor-pointer focus:bg-gray-200">
-                            <option>Continue to next section</option>
+                        <select formControlName="nextSection"
+                            class="p-2 ml-2 outline-none bg-transparent cursor-pointer focus:bg-gray-200">
+                            <option [value]="sIdx + 1">Continue to next section</option>
                             <option *ngFor="let section of sections.controls; let idx = index" [value]="idx">
                                 Go to {{ 'Section' + (idx+1) }} ({{ section.get('sectionTitle')?.value }})
                             </option>
+                            <option [value]="-1">Submit Form</option>
                         </select>
                     </div>  
                 </div> <!--SECTIONS FOR LOOP END-->

@@ -129,15 +129,16 @@ export class FormHeroComponent implements OnInit{
         return this.formBuilder.get('sections') as FormArray;
     }
 
-    addSection(){
+    addSection() {
         const sectionGroup = this.fb.group({
             sectionTitle: ['Untitled Section'],
             sectionDescription: [''],
+            nextSection: [null],
             questions: this.fb.array([]),
         });
-
         this.sections.push(sectionGroup);
-        //* Add default 1 question to new section - uncomment below line if required this feature
+        
+        // Add 1 question by default to new section 
         this.addQuestionToSection(this.sections.length - 1);
         this.cdr.detectChanges();
     }
@@ -203,8 +204,14 @@ export class FormHeroComponent implements OnInit{
             this.showOptionsMap[sectionIndex][section.length] = true;
 
             const options = questionGroup.get('options') as FormArray;
-            if(options.length === 0)
-                options.push(new FormControl('Option 1'));
+            if(options.length === 0) {
+                const newOption = this.fb.group({
+                    label: [`Option 1`],
+                    goToSection: [null]
+                });
+                options.push(newOption);
+            }
+                
         }    
 
         questionGroup.get('type')?.valueChanges.subscribe(type => {
@@ -220,7 +227,7 @@ export class FormHeroComponent implements OnInit{
         const originalQuestion = section.at(questionIndex).value;
         const duplicated = this.fb.group({
             questionText: [originalQuestion.questionText],
-            questionDescription: [''],
+            questionDescription: [originalQuestion.questionDescription || null],
             type: [originalQuestion.type],
             options: this.fb.array(originalQuestion.options.map((opt: any) => this.fb.control(opt))),
             rating: [originalQuestion.rating],
@@ -248,18 +255,32 @@ export class FormHeroComponent implements OnInit{
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
         const index = options.length;
 
+        const newOption = this.fb.group({
+            label: [`Option ${index + 1}`],
+            goToSection: [null]
+        });
+
         //* Checking for option - 'Other' added
-        if(value!=''){
-            if(!this.otherAddedMap[sectionIndex])
-                this.otherAddedMap[sectionIndex]={};
-            this.otherAddedMap[sectionIndex][questionIndex]=true;
-            options.push(new FormControl(value));
-            options.at(index).disable() // Can't edit option - 'Other'
+        if (value === 'Other') {
+            if (!this.otherAddedMap[sectionIndex])
+                this.otherAddedMap[sectionIndex] = {};
+            this.otherAddedMap[sectionIndex][questionIndex] = true;
+    
+            newOption.get('label')?.disable(); // Disable editing "Other"
         }
-        else{
-            const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
-            options.push(new FormControl(`Option ${index + (otherAdded? 0:1)}`));
-        }
+
+        options.push(newOption);
+        // if(value!=''){
+        //     if(!this.otherAddedMap[sectionIndex])
+        //         this.otherAddedMap[sectionIndex]={};
+        //     this.otherAddedMap[sectionIndex][questionIndex]=true;
+        //     options.push(new FormControl(value));
+        //     options.at(index).disable() // Can't edit option - 'Other'
+        // }
+        // else{
+        //     const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
+        //     options.push(new FormControl(`Option ${index + (otherAdded? 0:1)}`));
+        // }
         this.singleOption = false;
     }
 
@@ -295,12 +316,12 @@ export class FormHeroComponent implements OnInit{
 
                     if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
 
-                    optionsArray.controls.forEach(optionControl => {
-                        if (!optionControl.value.trim()) isOptionInvalid = true;
-                        else if (((ques.get('type')?.value === "multipleChoice") && (optionsArray.length < 2)) ||
-                            (ques.get('type')?.value === "dropdown") && (optionsArray.length < 2))
-                            this.singleOption = true;
-                    });
+                    // optionsArray.controls.forEach(optionControl => {
+                    //     if (!optionControl.value.trim()) isOptionInvalid = true;
+                    //     else if (((ques.get('type')?.value === "multipleChoice") && (optionsArray.length < 2)) ||
+                    //         (ques.get('type')?.value === "dropdown") && (optionsArray.length < 2))
+                    //         this.singleOption = true;
+                    // });
                 }
             });
         });
@@ -315,6 +336,8 @@ export class FormHeroComponent implements OnInit{
                     sections: this.formBuilder.value.sections
                 }
             };
+            console.log("logging form");
+            console.log(payload);
 
             if (this.formId) {
                 this.formService.updateForm(this.formId, payload).subscribe({
