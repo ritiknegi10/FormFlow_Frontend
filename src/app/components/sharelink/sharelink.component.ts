@@ -28,7 +28,6 @@ export class SharelinkComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // Initialize rating array in ngOnInit
     this.route.paramMap.subscribe(params => {
       const formId = Number(params.get('id'));
       if (formId) {
@@ -65,10 +64,9 @@ export class SharelinkComponent implements OnInit {
     }
   }
 
-  // Updated rating methods
   updateRatingValue(questionIndex: number, value: number) {
     this.ratingValues[questionIndex] = value;
-    this.answers[questionIndex] = value; // Update answers array
+    this.answers[questionIndex] = value; 
   }
 
 

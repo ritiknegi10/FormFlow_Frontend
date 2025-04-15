@@ -1,6 +1,6 @@
-import { HttpClient , HttpParams} from '@angular/common/http';
+import { HttpClient , HttpHeaders, HttpParams} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -90,6 +90,23 @@ export class AuthService {
           throw new Error('Cannot connect to server. Check if backend is running.');
         }
         throw error;
+      })
+    );
+  }
+  
+
+  checkUserByEmail(email: string): Observable<boolean> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getToken()}`
+    });
+  
+    return this.http.get<boolean>(`http://localhost:8080/users/search`, {
+      params: new HttpParams().set('email', email),
+      headers: headers
+    }).pipe(
+      catchError(error => {
+        if (error.status === 401) this.logout();
+        return throwError(() => error);
       })
     );
   }
