@@ -94,17 +94,17 @@
                                     </label>
                                 </div>
 
-                                <!-- Rating Feature -->
                                 <div *ngSwitchCase="'rating'" class="flex gap-2 mt-3">
                                     <span *ngFor="let star of ratingStars(question.rating); let j = index"
                                         class="cursor-pointer text-3xl text-gray-400 transition hover:scale-110"
-                                        (click)="updateRatingValue(j + 1)"
-                                        [ngClass]="{ 'text-yellow-500': j < ratingValue }">
+                                        (click)="updateRatingValue(i, j + 1)"
+                                        [ngClass]="{ 'text-yellow-500': j < ratingValues[i] }">
                                         <i class="fa-star"
-                                            [ngClass]="{ 'fa-solid': j < ratingValue, 'fa-regular': j >= ratingValue }">
+                                            [ngClass]="{ 'fa-solid': j < ratingValues[i], 'fa-regular': j >= ratingValues[i] }">
                                         </i>
                                     </span>
                                 </div>
+
                                 <!-- <div *ngIf="(submitClicked || touchedFields[i])  && question.required && !answers[i]"
                                     class="text-red-500 text-sm mt-2">
                                     ⚠️ This field is required

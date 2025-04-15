@@ -42,7 +42,6 @@ const routes: Routes = [
   { path: 'contact', component: ContactComponent },
   { path:'about',component:AboutUsComponent },
   { path: 'faq', component:FaqComponent },
-  { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard]  },
   { path: 'submit/:title', component: SubmitPageComponent , canActivate: [AuthGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent},

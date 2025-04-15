@@ -1,4 +1,3 @@
-// src/app/components/assign-form/assign-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormService } from '../../services/form.service';
@@ -16,6 +15,7 @@ export class AssignFormComponent implements OnInit {
   submitSuccess: boolean = false;
   errorMessage: string = '';
   assignedUsers: { email: string; hasSubmitted: boolean }[] = [];
+  loading: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -35,6 +35,7 @@ export class AssignFormComponent implements OnInit {
   }
 
   loadAssignedUsers(): void {
+    this.loading = true;
     this.formService.getAssignedUsers(this.formId).subscribe({
       next: (users) => {
         const userEmails = users.map((user: any) => user.email);
@@ -44,23 +45,28 @@ export class AssignFormComponent implements OnInit {
               email,
               hasSubmitted: responses.some((response: any) => response.respondent?.email === email)
             }));
+            this.loading = false;
           },
           error: (err) => {
             console.error('Error fetching responses:', err);
             this.assignedUsers = userEmails.map((email: string) => ({ email, hasSubmitted: false }));
+            this.loading = false;
           }
         });
       },
       error: (err) => {
         console.error('Error fetching assigned users:', err);
         this.assignedUsers = [];
+        this.loading = false;
       }
     });
   }
 
   onSubmit(): void {
     if (this.assignForm.valid) {
+      this.loading = true;
       const emails = this.assignForm.value.emails.split(',').map((email: string) => email.trim());
+      
       this.formService.assignUsersToForm(this.formId, emails).subscribe({
         next: () => {
           this.submitSuccess = true;
@@ -69,11 +75,12 @@ export class AssignFormComponent implements OnInit {
           this.loadAssignedUsers();
           setTimeout(() => {
             this.submitSuccess = false;
-            this.router.navigate(['/forms']);
+            this.loading = false;
           }, 2000);
         },
         error: (err) => {
           this.errorMessage = 'Failed to assign users. Please check the email addresses.';
+          this.loading = false;
           console.error('Assignment error:', err);
         }
       });
