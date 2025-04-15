@@ -1,9 +1,7 @@
-// src/app/components/assigned-forms/assigned-forms.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-
 @Component({
   selector: 'app-assigned-forms',
   templateUrl: './assigned-forms.component.html',
@@ -11,46 +9,48 @@ import { AuthService } from '../../services/auth.service';
 })
 export class AssignedFormsComponent implements OnInit {
   forms: any[] = [];
-  noForms: boolean = false;
+  loading = true;
+  error: string | null = null;
   userEmail: string | null = null;
-  errorMessage: string | null = null;
-  isLoading: boolean = false;
 
   constructor(
     private formService: FormService,
-    private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.userEmail = this.authService.getCurrentUserEmail();
-    if (this.userEmail) {
-      this.loadAssignedForms();
-    } else {
-      this.errorMessage = 'Please log in to view assigned forms.';
-      this.noForms = true;
-    }
+    this.loadForms();
   }
 
-  loadAssignedForms(): void {
-    this.isLoading = true;
-    this.errorMessage = null;
-    this.formService.getAssignedForms(this.userEmail!).subscribe({
+  loadForms() {
+    this.loading = true;
+    this.error = null;
+    
+    this.formService.getAssignedForms().subscribe({
       next: (forms) => {
-        this.forms = forms;
-        this.noForms = forms.length === 0;
-        this.isLoading = false;
+        this.forms = forms.map(form => ({
+          ...form,
+          deadline: form.deadline ? new Date(form.deadline) : null,
+          createdAt: new Date(form.createdAt),
+          responseCount: form.responseCount || 0
+        }));
+        this.loading = false;
       },
       error: (err) => {
-        console.error('Error fetching assigned forms:', err);
-        this.noForms = true;
-        this.errorMessage = 'Failed to load assigned forms. Please try again later.';
-        this.isLoading = false;
+        this.error = 'Failed to load forms. Please try again later.';
+        this.loading = false;
+        console.error('Error loading forms:', err);
       }
     });
   }
 
-  submitForm(formId: number): void {
+  submitForm(formId: number) {
     this.router.navigate(['/submit', formId]);
+  }
+
+  formatDate(date: any): string {
+    return date ? new Date(date).toLocaleDateString() : 'No deadline';
   }
 }

@@ -166,45 +166,33 @@ getFormByVersion(formId: number, version: number) {
     return this.http.get<any[]>(`${this.apiUrl}/${formId}`);
   }
 
-  getAssignedForms(userEmail: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/myCreated`).pipe(
-      switchMap((forms) => {
-        const requests = forms.map((form) =>
-          this.http.get<any[]>(`${this.apiUrl}/${form.id}/assigned-users`).pipe(
-            map((users) => ({
-              ...form,
-              isAssigned: users.some((user: any) => user.email === userEmail)
-            })),
-            catchError(() => of({ ...form, isAssigned: false }))
-          )
-        );
-        return forkJoin(requests).pipe(
-          map((results) => results.filter((form) => form.isAssigned))
-        );
-      }),
-      catchError((error) => {
-        console.error('Error fetching forms:', error);
-        return of([]);
-      })
-    );
-  }
 
-  assignUsersToForm(formId: number, userEmails: string[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${formId}/assign`, userEmails).pipe(
-      catchError((error) => {
-        console.error('Error assigning users:', error);
-        return throwError(() => error);
+
+
+  getAssignedForms(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/assigned`).pipe(
+      catchError(error => {
+        console.error('Error fetching assigned forms:', error);
+        return of([]);
       })
     );
   }
 
   getAssignedUsers(formId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/${formId}/assigned-users`).pipe(
-      catchError((error) => {
+      catchError(error => {
         console.error('Error fetching assigned users:', error);
         return of([]);
       })
     );
   }
-  
+
+  checkUserSubmission(formId: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/${formId}/submitted`);
+  }
+
+  assignUsersToForm(formId: number, userEmails: string[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${formId}/assign`, userEmails);
+  }
 }
+  
