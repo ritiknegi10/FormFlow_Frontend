@@ -18,6 +18,9 @@ export class SharelinkComponent implements OnInit {
   parsedFormSchema: any = { fields: [] };
   submitClicked: boolean=false;
   touchedFields: boolean[] = [];
+  uploadedFiles: boolean[] = [];
+  uploadedFileNames: string[] = [];
+
 
 
   constructor(private route: ActivatedRoute, private formService: FormService, private router: Router, private responseService: ResponseService) { }
@@ -79,6 +82,48 @@ export class SharelinkComponent implements OnInit {
     return (this.submitClicked || this.touchedFields[i]) &&
            this.answers[i].some((row: any) => !Array.isArray(row) || row.length === 0);
   }
+  
+  onFileSelected(event: Event, index: number): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+  
+    const file = input.files[0];
+    const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+    const maxSize = 5 * 1024 * 1024;
+  
+    if (!allowedTypes.includes(file.type)) {
+      alert('Only PNG, JPG, and PDF files are allowed.');
+      input.value = '';
+      return;
+    }
+  
+    if (file.size > maxSize) {
+      alert('File must be less than 5MB.');
+      input.value = '';
+      return;
+    }
+
+    this.uploadedFileNames[index] = file.name;
+    this.uploadedFiles[index] = true;
+    
+    this.formService.uploadFile(file).subscribe((fileUrl) => { 
+      this.answers[index] = fileUrl;  
+    });
+  }
+  
+  onDeleteFile(index: number): void {
+    this.answers[index] = ''; 
+    this.uploadedFiles[index] = false;
+    this.uploadedFileNames[index] = '';
+    const fileUrl = this.answers[index];
+    if (!fileUrl) return;
+  
+    this.formService.deleteFile(fileUrl).subscribe(() => {
+      this.answers[index] = null;
+      this.uploadedFiles[index] = false;
+    });
+  }
+  
   
   
 

@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, tap } from 'rxjs';
-import { Observable } from 'rxjs';
+import { Observable , map} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +44,22 @@ export class FormService {
       console.error("Error saving form", error);
     });
   }
+
+  uploadFile(file: File): Observable<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+
+  return this.http.post<{ Document: string }>(`${this.apiUrl}/upload`, formData).pipe(
+    map(response => response.Document)
+  );
+}
+
+  deleteFile(fileUrl: string): Observable<any> {
+    const params = new HttpParams().set('url', fileUrl);
+    return this.http.delete(`${this.apiUrl}/upload/delete`, { params });
+  }
+  
   
 
   private mapQuestionType(type: string): string {
@@ -58,7 +74,8 @@ export class FormService {
       time:"time",
       linearscale:"linearscale",
       multipleChoiceGrid:"multipleChoiceGrid",
-      checkboxGrid:"checkboxGrid"
+      checkboxGrid:"checkboxGrid",
+      file:"file"
     };
     return typeMapping[type] || "shortText"; // Default to "shortText"
   }

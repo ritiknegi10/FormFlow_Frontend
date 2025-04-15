@@ -311,6 +311,7 @@
                                         <option value="linearscale">Linear Scale</option>
                                         <option value="multipleChoiceGrid">Multiple Choice Grid</option>
                                         <option value="checkboxGrid">Checkbox Grid</option>
+                                        <option value="file">File Upload</option>
 
 
 
@@ -330,6 +331,16 @@
                                     <input type="date" formControlName="date" 
                                         class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"> 
                                 </div>
+
+                                <div *ngIf="question.get('type')?.value === 'file'" class="mt-4 flex justify-center text-gray-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16V4a2 2 0 012-2h6l5 5v9a2 2 0 01-2 2H7zm0 0v4m0-4h10" />
+                                    </svg>
+                                </div>
+                                  
+                                  
+                                
 
                                 <div *ngIf="question.get('type')?.value === 'time'" class="mt-4"> 
                                     <input type="time" formControlName="time" 
