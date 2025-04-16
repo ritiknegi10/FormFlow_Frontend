@@ -102,11 +102,12 @@ export class SharelinkComponent implements OnInit {
       input.value = '';
       return;
     }
-
+    const fileUrl = URL.createObjectURL(file);
+    console.log(fileUrl);
     this.uploadedFileNames[index] = file.name;
     this.uploadedFiles[index] = true;
-    
-    this.formService.uploadFile(file).subscribe((fileUrl) => { 
+    this.answers[index] = fileUrl;
+    this.formService.uploadFile(fileUrl).subscribe(() => { 
       this.answers[index] = fileUrl;  
     });
   }
@@ -116,8 +117,7 @@ export class SharelinkComponent implements OnInit {
     this.uploadedFiles[index] = false;
     this.uploadedFileNames[index] = '';
     const fileUrl = this.answers[index];
-    if (!fileUrl) return;
-  
+    
     this.formService.deleteFile(fileUrl).subscribe(() => {
       this.answers[index] = null;
       this.uploadedFiles[index] = false;

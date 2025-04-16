@@ -45,15 +45,20 @@ export class FormService {
     });
   }
 
-  uploadFile(file: File): Observable<string> {
-  const formData = new FormData();
-  formData.append('file', file);
+//   uploadFile(file: File): Observable<string> {
+//   const formData = new FormData();
+//   formData.append('file', file);
   
 
-  return this.http.post<{ Document: string }>(`${this.apiUrl}/upload`, formData).pipe(
-    map(response => response.Document)
-  );
+//   return this.http.post<{ Document: string }>(`${this.apiUrl}/upload`, formData).pipe(
+//     map(response => response.Document)
+//   );
+// }
+
+uploadFile(fileUrl: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/upload/${encodeURIComponent(fileUrl)}`, {});
 }
+
 
   deleteFile(fileUrl: string): Observable<any> {
     const params = new HttpParams().set('url', fileUrl);
