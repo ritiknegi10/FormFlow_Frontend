@@ -41,7 +41,6 @@ export class FormsListComponent implements OnInit {
   
   deleteForm(id: number) {
     this.formService.deleteForm(id);
-    window.location.reload();
     if(!this.forms.length) this.noForms = true;
   }
 
@@ -71,7 +70,12 @@ export class FormsListComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.deleteForm(index);
-        Swal.fire('Deleted!', 'The form has been deleted.', 'success');
+        Swal.fire('Deleted!', 'The form has been deleted.', 'success')
+        //*RELOAD PAGE AFTER CLICKING OK - TO UPDATE FORM-LIST */
+          .then((deletionResult) => {
+              if(deletionResult.isConfirmed)
+                window.location.reload();
+        });
       }
     });
   }

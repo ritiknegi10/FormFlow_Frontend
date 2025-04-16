@@ -18,12 +18,13 @@ import { AuthGuard } from './guards/auth.guard';
 import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
 import { OtpComponent } from './components/otp/otp.component';
+import { FormParentComponent } from './components/form/form-parent/form-parent.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
-  { path: 'create', component: CreateFormComponent, canActivate: [AuthGuard]  },
+  { path: 'deprecated', component: CreateFormComponent, canActivate: [AuthGuard]  },
   { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard]  },
-  { path: 'edit/:id', component: EditFormComponent, canActivate: [AuthGuard]  },
+  { path: 'edit/:id', component: FormParentComponent, canActivate: [AuthGuard]  },
   { path: 'forms/:formId/versions/:formVersion', component: FormVersionsComponent },
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard]  },  
   { path: 'login', component: LoginComponent },
@@ -38,7 +39,8 @@ const routes: Routes = [
   { path: 'faq', component:FaqComponent },
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard]  },
   { path: 'submit/:title', component: SubmitPageComponent , canActivate: [AuthGuard] },
-  { path: '**', redirectTo: '' }
+  { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
+  { path: '**', redirectTo: '' } // make sure this line is always at last else it wont allow routing to new paths
 ];
 
 
