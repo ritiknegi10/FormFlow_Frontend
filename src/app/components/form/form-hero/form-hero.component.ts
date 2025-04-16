@@ -273,11 +273,22 @@ export class FormHeroComponent implements OnInit{
             if (!this.otherAddedMap[sectionIndex])
                 this.otherAddedMap[sectionIndex] = {};
             this.otherAddedMap[sectionIndex][questionIndex] = true;
+            const newOption = this.fb.group({
+                label: ["Other"],
+                goToSection: [sectionIndex + 1]
+            });
+            options.push(newOption);
     
             newOption.get('label')?.disable(); // Disable editing "Other"
         }
-
-        options.push(newOption);
+        else{
+            const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
+            const newOption = this.fb.group({
+                label: [`Option ${index + (otherAdded? 0:1)}`],
+                goToSection: [sectionIndex + 1]
+            });
+            options.push(newOption);
+        }
         // if(value!=''){
         //     if(!this.otherAddedMap[sectionIndex])
         //         this.otherAddedMap[sectionIndex]={};
@@ -295,7 +306,8 @@ export class FormHeroComponent implements OnInit{
     removeOption(sectionIndex: number, questionIndex: number, optionIndex: number){
         const questions = this.getSectionQuestions(sectionIndex).at(questionIndex);
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
-        if(options.at(optionIndex)?.value==='Other'){
+
+        if(options.at(optionIndex).get('label')?.value==='Other'){
             this.otherAddedMap[sectionIndex][questionIndex]=false;
         }
         options.removeAt(optionIndex);
