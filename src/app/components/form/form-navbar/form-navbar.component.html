@@ -69,26 +69,44 @@
 <!-- ********FORM NAVBAR******** -->
 <nav class="bg-white/80 backdrop-blur-xl shadow-lg sticky top-0 z-30 border-b border-white/20">
     <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-            <!-- MENU BUTTON   -->
-            <button (click)="toggleDrawer()" class="p-4 text-gray-600 rounded-full hover:bg-gray-100">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect y="4" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
-                    <rect y="11" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
-                    <rect y="18" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
-                </svg>                 
-            </button>
-            
-            <!-- FORM TITLE -->
-            <div class="text-lg text-gray-700">
-                <input type="text" [value]="formTitle" (input)="onTitleChange($event)"
-                #myInput (focus)="myInput.select()"
-                class="w-60 p-1 bg-transparent outline-none focus:border-b-2 focus:border-indigo-500"/>
+        <div class="relative flex justify-between items-center h-16">
+           
+            <div class="flex gap-2 items-center">
+                <!-- MENU BUTTON   -->
+                <button (click)="toggleDrawer()" class="p-4 text-gray-600 rounded-full hover:bg-gray-100">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect y="4" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
+                        <rect y="11" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
+                        <rect y="18" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
+                    </svg>                 
+                </button>
+                <!-- FORM TITLE -->
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="url(#gradient)" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" 
+                        class="w-16 h-16 text-white">
+                        <defs>
+                            <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#3b82f6" />  <!-- Tailwind blue-500 -->
+                            <stop offset="100%" stop-color="#8b5cf6" /> <!-- Tailwind purple-500 -->
+                            </linearGradient>
+                        </defs>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75h-9a2.25 2.25 0 00-2.25 2.25v12a2.25 2.25 0 002.25 2.25h9A2.25 2.25 0 0018.75 18V6a2.25 2.25 0 00-2.25-2.25zM9 7.5h6M9 10.5h6m-6 3h3" />
+                    </svg>
+                    <input type="text" [value]="formTitle" (input)="onTitleChange($event)" (blur)="onTitleBlur($event)" #myInput (focus)="myInput.select()"
+                        class="flex-1 mt-1 text-lg font-medium text-gray-700 bg-transparent outline-none focus:border-b-2 focus:border-indigo-500"/>
+
+                </div>
             </div>
-            <h2 *ngIf="currentUrl=='/create'" class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            
+            
+           
+    
+            <h2 *ngIf="currentUrl=='/create'" 
+                class="hidden md:block absolute left-1/2 -translate-x-1/2 text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Build Your Form
             </h2>
-            <h2 *ngIf="currentUrl?.startsWith('/edit')" class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 *ngIf="currentUrl?.startsWith('/edit')" 
+                class="hidden md:block absolute left-1/2 -translate-x-1/2 text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Edit Form
             </h2>
             <div class="flex items-center px-4">

@@ -35,7 +35,7 @@
                         <span>Form Details</span>
                     </label>
                     <input type="text" formControlName="title" placeholder="Form Title"
-                        [value]="formTitle" (input)="onTitleChange($event)"
+                        [value]="formTitle" (input)="onTitleChange($event)" (blur)="onTitleBlur($event)" #myInput (focus)="myInput.select()"
                         class="w-full px-5 py-3 text-lg border-2 outline-none border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 transition-all">
                     
                         <div *ngIf="!getTitleControl()?.value.trim() && (submitClicked || getTitleControl()?.touched)"
@@ -316,17 +316,21 @@
                                             </svg>
                                         </button>
                                         <div *ngIf="showMenuMap[sIdx]?.[qIdx]"
-                                            class="min-w-60 absolute top-10 bg-white rounded-lg shadow-xl py-2 border-2 border-gray-200 z-50">
+                                            class="min-w-64 absolute top-10 bg-white rounded-md shadow-xl py-2 border-2 border-gray-200 z-50">
                                             <ul>
                                                 <li (click)="toggleQuestionDescription(sIdx, qIdx)"
-                                                    class="px-4 py-2 cursor-pointer hover:bg-gray-100">
+                                                    class="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                                                    [ngClass]="{'bg-slate-200': showQuestionDescription[sIdx][qIdx]}">
                                                     <span *ngIf="showQuestionDescription[sIdx][qIdx]"
-                                                        class="text-gray-500">✔</span>
+                                                        class="text-gray-500 font-semibold">✔</span>
                                                     Question description
                                                 </li>
                                                 <li (click)="togglesectionBasedonAnswer(sIdx, qIdx)"
                                                     *ngIf="question.get('type')?.value==='multipleChoice' || question.get('type')?.value==='dropdown'"
-                                                    class="px-4 py-2 cursor-pointer hover:bg-gray-100">
+                                                    class="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                                                    [ngClass]="{'bg-slate-200': question.get('sectionBasedonAnswer')?.value}">
+                                                    <span *ngIf="question.get('sectionBasedonAnswer')?.value"
+                                                        class="text-gray-500 font-semibold">✔</span>
                                                     Go to section based on answer
                                                 </li>
                                             </ul>

@@ -38,9 +38,16 @@ export class FormNavbarComponent implements OnInit {
     onTitleChange(event: Event) {
         const input = event.target as HTMLInputElement;
         this.formTitleChange.emit(input.value);
-        //else this.formTitleChange.emit('Untitled Form');
     }
 
+    onTitleBlur(event: FocusEvent) {
+        const input = event.target as HTMLInputElement;
+        if (!input.value.trim()) {
+            input.value = 'Untitled Form';
+            this.formTitleChange.emit('Untitled Form');
+        }
+    }
+    
     @Output() publishClicked = new EventEmitter<void>();
     onPublishClicked(){
         this.publishClicked.emit();

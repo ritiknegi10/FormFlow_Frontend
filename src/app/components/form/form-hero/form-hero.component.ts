@@ -79,6 +79,14 @@ export class FormHeroComponent implements OnInit{
         this.formTitleChange.emit(input.value);
     }
 
+    onTitleBlur(event: FocusEvent) {
+        const input = event.target as HTMLInputElement;
+        if (!input.value.trim()) {
+            input.value = 'Untitled Form';
+            this.formTitleChange.emit('Untitled Form');
+        }
+    }
+
     togglesectionBasedonAnswer(sectionIndex: number, questionIndex: number){
         const question = (this.sections.at(sectionIndex).get('questions') as FormArray).at(questionIndex) as FormGroup;
         
@@ -133,7 +141,7 @@ export class FormHeroComponent implements OnInit{
         const sectionGroup = this.fb.group({
             sectionTitle: ['Untitled Section'],
             sectionDescription: [''],
-            nextSection: [null],
+            nextSection: [this.sections.length + 1],
             questions: this.fb.array([]),
         });
         this.sections.push(sectionGroup);
@@ -207,7 +215,7 @@ export class FormHeroComponent implements OnInit{
             if(options.length === 0) {
                 const newOption = this.fb.group({
                     label: [`Option 1`],
-                    goToSection: [null]
+                    goToSection: [sectionIndex + 1]
                 });
                 options.push(newOption);
             }
@@ -257,7 +265,7 @@ export class FormHeroComponent implements OnInit{
 
         const newOption = this.fb.group({
             label: [`Option ${index + 1}`],
-            goToSection: [null]
+            goToSection: [sectionIndex + 1]
         });
 
         //* Checking for option - 'Other' added
