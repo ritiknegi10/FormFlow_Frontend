@@ -114,22 +114,25 @@ export class SharelinkComponent implements OnInit {
     this.uploadedFileNames[index] = file.name;
     this.uploadedFiles[index] = true;
     this.answers[index] = fileUrl;
-    this.formService.uploadFile(fileUrl).subscribe({
-      next: () => {
-        console.log('File URL uploaded successfully');
+    this.formService.uploadFile(file).subscribe({
+      next: (fileUrl: string) => {
+        console.log('File uploaded, URL:', fileUrl);
+        this.answers[index] = fileUrl; 
       },
       error: (err) => {
-        console.error('Error uploading file URL', err);
+        console.error('File upload failed:', err);
+        this.uploadedFiles[index] = false;
+        alert('Failed to upload file.');
       }
     });
+    
   }
   
-  onDeleteFile(index: number): void {
-    this.answers[index] = ''; 
+  onDeleteFile(index: number): void { 
     this.uploadedFiles[index] = false;
     this.uploadedFileNames[index] = '';
     const fileUrl = this.answers[index];
-    
+    this.answers[index]='';
     this.formService.deleteFile(fileUrl).subscribe({
       next: () => {
         console.log('File deleted from backend');

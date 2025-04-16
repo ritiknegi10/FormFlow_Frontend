@@ -46,12 +46,14 @@ export class FormService {
     });
   }
 
-  uploadFile(fileUrl: string): Observable<any> {
-    const body = { file: fileUrl };
-    return this.http.post(`${this.apiUrl}/upload`, body);
-  }
-  
-
+  uploadFile(file: File): Observable<string> {
+    return this.http.post<{ Document: string }>(
+      `${this.apiUrl}/upload`,
+      file
+    ).pipe(
+      map(response => response.Document)
+    );
+  } 
 
   deleteFile(fileUrl: string): Observable<any> {
     const params = new HttpParams().set('url', fileUrl);
