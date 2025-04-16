@@ -32,6 +32,7 @@ export class FormService {
           endValue: q.endValue !== undefined ? q.endValue : 5,
           rows: q.rows?.length ? q.rows : undefined,
           columns: q.columns?.length ? q.columns : undefined,
+          fileUrl: q.fileUrl,
 
         }))
       })
@@ -45,19 +46,11 @@ export class FormService {
     });
   }
 
-//   uploadFile(file: File): Observable<string> {
-//   const formData = new FormData();
-//   formData.append('file', file);
+  uploadFile(fileUrl: string): Observable<any> {
+    const body = { file: fileUrl };
+    return this.http.post(`${this.apiUrl}/upload`, body);
+  }
   
-
-//   return this.http.post<{ Document: string }>(`${this.apiUrl}/upload`, formData).pipe(
-//     map(response => response.Document)
-//   );
-// }
-
-uploadFile(fileUrl: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/upload/${encodeURIComponent(fileUrl)}`, {});
-}
 
 
   deleteFile(fileUrl: string): Observable<any> {
@@ -103,6 +96,7 @@ uploadFile(fileUrl: string): Observable<any> {
           endValue: q.endValue !== undefined ? q.endValue : 5,
           rows: q.rows?.length ? q.rows : undefined,
           columns: q.columns?.length ? q.columns : undefined,
+          fileUrl: q.fileUrl,
 
         }))
       })
