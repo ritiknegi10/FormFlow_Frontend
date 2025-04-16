@@ -32,6 +32,7 @@ export class FormNavbarComponent implements OnInit {
         });
     }
 
+    //* Handling Form Title change
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
 
@@ -48,9 +49,19 @@ export class FormNavbarComponent implements OnInit {
         }
     }
     
+    //* Handling publish button click
     @Output() publishClicked = new EventEmitter<void>();
-    onPublishClicked(){
+    onPublishClick(){
         this.publishClicked.emit();
+    }
+
+    //* Handling preview button click
+    @Output() onPreviewClicked = new EventEmitter<void>();
+    onPreviewClick(){
+        this.onPreviewClicked.emit();
+
+        //Open New tab
+        window.open('/form-preview', '_blank')
     }
 
     // drawer function

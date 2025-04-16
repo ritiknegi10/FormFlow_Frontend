@@ -74,6 +74,12 @@ export class FormHeroComponent implements OnInit{
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
 
+    //* Getting Form data to preview
+    getFormData(){
+        console.log(this.formBuilder.value);
+        return this.formBuilder.value;
+    }
+
     onTitleChange(event: Event) {
         const input = event.target as HTMLInputElement;
         this.formTitleChange.emit(input.value);
@@ -139,10 +145,14 @@ export class FormHeroComponent implements OnInit{
 
     addSection() {
         const sectionGroup = this.fb.group({
-            sectionTitle: ['Untitled Section'],
+            sectionTitle: [this.sections.length==0? this.getTitleControl()?.value : 'Untitled Section'],
             sectionDescription: [''],
             nextSection: [this.sections.length + 1],
             questions: this.fb.array([]),
+        });
+        // handling form title change and updating first secitons title
+        this.getTitleControl()?.valueChanges.subscribe(title => {
+            this.sections.at(0).get('sectionTitle')?.setValue(title);
         });
         this.sections.push(sectionGroup);
         
@@ -220,9 +230,14 @@ export class FormHeroComponent implements OnInit{
                 options.push(newOption);
             }
                 
-        }    
+        }
 
+        //Removing default option added when the type is not from the 3
         questionGroup.get('type')?.valueChanges.subscribe(type => {
+            if(!(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown')){
+                const options = questionGroup.get('options') as FormArray;
+                options.clear();
+            }
             this.submitClicked = false;
         });
         section.push(questionGroup);
@@ -270,16 +285,18 @@ export class FormHeroComponent implements OnInit{
 
         //* Checking for option - 'Other' added
         if (value === 'Other') {
+            console.log("YAYY it came here");
+            
             if (!this.otherAddedMap[sectionIndex])
                 this.otherAddedMap[sectionIndex] = {};
             this.otherAddedMap[sectionIndex][questionIndex] = true;
             const newOption = this.fb.group({
-                label: ["Other"],
+                label: ['Other'],
                 goToSection: [sectionIndex + 1]
             });
             options.push(newOption);
     
-            newOption.get('label')?.disable(); // Disable editing "Other"
+            // newOption.get('label')?.disable(); // Disable editing "Other"
         }
         else{
             const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];

@@ -19,6 +19,7 @@ import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
 import { OtpComponent } from './components/otp/otp.component';
 import { FormParentComponent } from './components/form/form-parent/form-parent.component';
+import { FormPreviewComponent } from './components/form-preview/form-preview.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -40,6 +41,7 @@ const routes: Routes = [
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard]  },
   { path: 'submit/:title', component: SubmitPageComponent , canActivate: [AuthGuard] },
   { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
+  { path: 'form-preview', component: FormPreviewComponent },
   { path: '**', redirectTo: '' } // make sure this line is always at last else it wont allow routing to new paths
 ];
 

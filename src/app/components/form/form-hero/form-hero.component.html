@@ -7,7 +7,7 @@
             <h4 class="text-sm font-semibold text-gray-700 mb-3">Form Navigation</h4>
             <div class="space-y-2">
                 <div *ngFor="let section of sections.controls; let sIdx = index" class="space-y-2">
-                <div class="text-sm font-medium text-indigo-600">{{ sIdx===0 ? formTitle : (getSectionTitleControl(section)?.value || '') + (sIdx + 1) }}</div>
+                <div class="text-sm font-medium text-indigo-600">{{ sIdx===0 ? formTitle : (getSectionTitleControl(section)?.value || '') + ' ' + (sIdx + 1) }}</div>
                 <div *ngFor="let question of getQuestionsControl(section).controls; let i = index"
                     class="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
                     <span class="w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs">

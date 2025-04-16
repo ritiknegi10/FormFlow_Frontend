@@ -1,1 +1,68 @@
-<p>form-preview works!</p>
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-6 px-6 sm:px-12 lg:px-20">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 p-8 mb-3">
+            <div class="space-y-2">
+                <!-- TITLE -->
+                form title : {{ formPreviewData.title }}
+                <br>
+                <!-- DESCRIPTION -->
+                form description : {{ formPreviewData.description }}
+            </div>
+        </div>
+
+        <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 p-8 mb-3">
+            <!-- <div>
+                Section title : {{ sections[0].sectionTitle }}
+                <br>
+                Section Description : {{ formPreviewData.sections[0].sectionDescription }}
+            </div> -->
+            <div *ngFor="let question of sections[0].questions">
+                <div>
+                    questionText : {{ question.questionText }}
+                </div>
+                <div [ngSwitch]="question.type">
+                    <div *ngSwitchCase="'multipleChoice'">
+                        <div *ngFor="let option of question.options">
+                            <input type="radio" [value]="option.label">
+                            <span>{{ option.label }}</span>
+                        </div>
+                    </div>
+                    <div *ngSwitchCase="'shortText'">
+                        <input class="border-2" type="text">
+                    </div>
+                    <div *ngSwitchCase="'paragraph'">
+                        <textarea class="border-2"></textarea>
+                    </div>
+                    <div *ngSwitchCase="'checkboxes'">
+                        <div *ngFor="let option of question.options">
+                            <input type="checkbox" [value]="option.label">
+                            <span>{{ option.label }}</span>
+                        </div>
+                    </div>
+                    <div *ngSwitchCase="'dropdown'">
+                        <select name="" id="">
+                            <div *ngFor="let option of question.options">
+                                <option [value]="option.label">{{ option.label }}</option>
+                            </div>
+                        </select>
+                    </div>
+                    <div *ngSwitchCase="'date'">
+                        <input type="date">
+                    </div>
+                    <div *ngSwitchCase="'time'">
+                        <input type="time">
+                    </div>
+                    <div *ngSwitchDefault>output2</div>
+                </div>
+            </div>
+        </div>
+        <div class="justify-between">
+            <button *ngIf="sections.length>1;else singleSection">
+                Next
+            </button>
+            <ng-template #singleSection>
+                <button>Submit</button>
+            </ng-template>
+        </div>
+    </div>
+</div>
