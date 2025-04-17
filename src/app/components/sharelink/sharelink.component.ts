@@ -118,12 +118,12 @@ export class SharelinkComponent implements OnInit {
       next: (fileUrl: string) => {
         console.log('File uploaded, URL:', fileUrl);
         this.answers[index] = fileUrl; 
-      },
-      error: (err) => {
-        console.error('File upload failed:', err);
-        this.uploadedFiles[index] = false;
-        alert('Failed to upload file.');
       }
+      // error: (err) => {
+      //   console.error('File upload failed:', err);
+      //   this.uploadedFiles[index] = false;
+      //   alert('Failed to upload file.');
+      // }
     });
     
   }
