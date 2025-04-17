@@ -15,7 +15,7 @@ export class FormHeroComponent implements OnInit{
     ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
     submitClicked = false;
     submitSuccess = false;
-    singleOption = true;
+    singleOption = false;
     formFetched = false;
     isQuestionInvalid: boolean = false;
     showOptionsMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
@@ -49,7 +49,7 @@ export class FormHeroComponent implements OnInit{
                 });
 
                 const parsedSchema = JSON.parse(form.formSchema);
-                console.log(JSON.stringify(parsedSchema));
+                // console.log(JSON.stringify(parsedSchema));
 
                 const sectionsArray = (parsedSchema.sections || []).map((section:any) =>{
                     const questions = section.questions.map((field:any) =>{
@@ -348,7 +348,7 @@ export class FormHeroComponent implements OnInit{
         if(!this.getTitleControl()?.value.trim()) return;
 
         this.isQuestionInvalid = false;
-        // this.singleOption = false;
+        this.singleOption = false;
         let isOptionInvalid = false;
 
         this.sections.controls.forEach(section => {
@@ -360,12 +360,11 @@ export class FormHeroComponent implements OnInit{
 
                     if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
 
-                    // optionsArray.controls.forEach(optionControl => {
-                    //     if (!optionControl.value.trim()) isOptionInvalid = true;
-                    //     else if (((ques.get('type')?.value === "multipleChoice") && (optionsArray.length < 2)) ||
-                    //         (ques.get('type')?.value === "dropdown") && (optionsArray.length < 2))
-                    //         this.singleOption = true;
-                    // });
+                    optionsArray.controls.forEach(optionControl => {
+                        if (((ques.get('type')?.value === "multipleChoice") && (optionsArray.length < 2)) ||
+                            (ques.get('type')?.value === "dropdown") && (optionsArray.length < 2))
+                            this.singleOption = true;
+                    });
                 }
             });
         });
@@ -380,8 +379,8 @@ export class FormHeroComponent implements OnInit{
                     sections: this.formBuilder.value.sections
                 }
             };
-            console.log("logging form");
-            console.log(payload);
+            // console.log("logging form");
+            // console.log(payload);
 
             if (this.formId) {
                 this.formService.updateForm(this.formId, payload).subscribe({

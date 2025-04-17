@@ -41,12 +41,12 @@ export class FormService {
                 sections: newForm.formSchema.sections
             })
         };
-        console.log("BACKEND FORMAT");
-        console.log(backendFormat);
+        // console.log("BACKEND FORMAT");
+        // console.log(backendFormat);
 
         this.http.post(`${this.apiUrl}/create`, backendFormat)
             .subscribe(response => {
-                console.log("Form saved successfully", response);
+                // console.log("Form saved successfully", response);
             }, error => {
                 console.error("Error saving form", error);
             });
@@ -99,17 +99,13 @@ export class FormService {
       title: updatedForm.title,
       description: updatedForm.description,
       formSchema: JSON.stringify({
-        fields: updatedForm.questions.map((q: any) => ({
-          label: q.questionText,
-          type: q.type,
-          required: q.required,
-          options: q.options.length ? q.options : undefined,
-        }))
+        sections: updatedForm
+        .formSchema.sections
       })
     };
-    console.log(backendFormat);
-    console.log('Final backendFormat before HTTP POST:', backendFormat);  
-  console.log(`Posting to URL: ${this.apiUrl}/edit/${id}`);
+    // console.log(backendFormat);
+    // console.log('Final backendFormat before HTTP POST:', backendFormat);  
+    // console.log(`Posting to URL: ${this.apiUrl}/edit/${id}`);
 
     return this.http.post(`${this.apiUrl}/edit/${id}`, backendFormat);
   }
@@ -125,7 +121,7 @@ export class FormService {
 
   getResponsesByFormIndex(index: number): any {
     const allResponses = JSON.parse(localStorage.getItem('responses') || '{}');
-    console.log("Fetching responses for Form", index, ":", allResponses[index]); 
+    // console.log("Fetching responses for Form", index, ":", allResponses[index]); 
     return allResponses[index] || [];
   }
 
@@ -139,7 +135,7 @@ export class FormService {
     allResponses[formIndex].push(responseData); 
     localStorage.setItem('responses', JSON.stringify(allResponses));
 
-    console.log("Updated Responses:", JSON.parse(localStorage.getItem('responses') || '{}')); 
+    // console.log("Updated Responses:", JSON.parse(localStorage.getItem('responses') || '{}')); 
 }
 
 getForms() {
