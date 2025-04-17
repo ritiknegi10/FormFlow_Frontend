@@ -15,7 +15,8 @@ export class FormHeroComponent implements OnInit{
     ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
     submitClicked = false;
     submitSuccess = false;
-    singleOption = false;
+    singleOption = true;
+    formFetched = false;
     isQuestionInvalid: boolean = false;
     showOptionsMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
@@ -38,31 +39,46 @@ export class FormHeroComponent implements OnInit{
         // if you're editing an existing form, fetch data
         const urlParts = this.router.url.split('/');
         // console.log(urlParts);
-        if (urlParts[2] === 'edit' && urlParts[3]) {
-            this.formId = parseInt(urlParts[3]);
+        if (urlParts[1] === 'edit' && urlParts[2]) {
+            this.formId = parseInt(urlParts[2]);
             this.formService.getFormById(this.formId).subscribe(form => {
+
                 this.formBuilder.patchValue({
                     title: form.title,
                     description: form.description,
                 });
 
-                const sectionsArray = form.formSchema.sections?.map((section:any) =>{
+                const parsedSchema = JSON.parse(form.formSchema);
+                console.log(JSON.stringify(parsedSchema));
+
+                const sectionsArray = (parsedSchema.sections || []).map((section:any) =>{
                     const questions = section.questions.map((field:any) =>{
                         return this.fb.group({
-                            questionText: field.label,
+                            questionText: field.questionText,
                             questionDescription: '',
                             type: field.type,
                             required: field.required,
-                            options: this.fb.array(field.options || []),
+                            options: this.fb.array(
+                                (field.options || []).map((option: any) => 
+                                    this.fb.group({
+                                        label: option.label,
+                                        goToSection: option.goToSection || null
+                                    })
+                                )
+                            ),
                             rating: field.rating || 5,
+                            sectionBasedonAnswer: field.sectionBasedonAnswer || false
                         });
                     });
                     return this.fb.group({
                         sectionTitle: section.sectionTitle,
+                        sectionDescription: section.sectionDescription,
+                        nextSection: section.nextSection,
                         questions: this.fb.array(questions)
                     });
                 });
                 this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
+                this.formFetched=true;
             });
         } 
         else {
@@ -76,7 +92,6 @@ export class FormHeroComponent implements OnInit{
 
     //* Getting Form data to preview
     getFormData(){
-        console.log(this.formBuilder.value);
         return this.formBuilder.value;
     }
 
@@ -131,9 +146,9 @@ export class FormHeroComponent implements OnInit{
         if(inputElement instanceof HTMLInputElement){
             if(inputElement && inputElement.value.trim()===''){
                 const optionsFormArray = this.getOptions(question);
-                const control = optionsFormArray.at(opIdx) as FormControl;
+                const control = optionsFormArray.at(opIdx) as FormGroup;
                 if(control){
-                    control.setValue(`Option ${opIdx+1}`);
+                    control.get('label')?.setValue(`Option ${opIdx+1}`)
                 }
             }
         }
@@ -272,16 +287,8 @@ export class FormHeroComponent implements OnInit{
     addOption(sectionIndex: number, questionIndex: number, value: string = ''){
         this.submitClicked = false;
 
-        const questionGroup = this.sections.at(sectionIndex).get('questions') as FormArray;
-        const thatQuestion = questionGroup.at(questionIndex) as FormGroup;
-
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
         const index = options.length;
-
-        const newOption = this.fb.group({
-            label: [`Option ${index + 1}`],
-            goToSection: [sectionIndex + 1]
-        });
 
         //* Checking for option - 'Other' added
         if (value === 'Other') {
@@ -326,6 +333,8 @@ export class FormHeroComponent implements OnInit{
             this.otherAddedMap[sectionIndex][questionIndex]=false;
         }
         options.removeAt(optionIndex);
+        if(options.length==1)
+            this.singleOption=true
     }
 
     drop(event: CdkDragDrop<string[]>, sectionIndex: number){
@@ -339,7 +348,7 @@ export class FormHeroComponent implements OnInit{
         if(!this.getTitleControl()?.value.trim()) return;
 
         this.isQuestionInvalid = false;
-        this.singleOption = false;
+        // this.singleOption = false;
         let isOptionInvalid = false;
 
         this.sections.controls.forEach(section => {

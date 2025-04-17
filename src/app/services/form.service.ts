@@ -37,9 +37,11 @@ export class FormService {
             title: newForm.title,
             description: newForm.description,
             formSchema: JSON.stringify({
-                fields: allQuestions
+                // fields: allQuestions
+                sections: newForm.formSchema.sections
             })
         };
+        console.log("BACKEND FORMAT");
         console.log(backendFormat);
 
         this.http.post(`${this.apiUrl}/create`, backendFormat)
@@ -151,7 +153,6 @@ getForms() {
 
 
 getFormById(id: number) {
-  console.log(`${this.apiUrl}/${id}`);
   return this.http.get<any>(`${this.apiUrl}/${id}`);
 }
 
