@@ -285,8 +285,6 @@ export class FormHeroComponent implements OnInit{
 
         //* Checking for option - 'Other' added
         if (value === 'Other') {
-            console.log("YAYY it came here");
-            
             if (!this.otherAddedMap[sectionIndex])
                 this.otherAddedMap[sectionIndex] = {};
             this.otherAddedMap[sectionIndex][questionIndex] = true;
