@@ -24,6 +24,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
 import { OtpComponent } from './components/otp/otp.component';
+import { FormVersionsComponent } from './components/form-versions/form-versions.component';
+import { RecaptchaModule } from 'ng-recaptcha';
+
 
 
 
@@ -46,6 +49,8 @@ import { OtpComponent } from './components/otp/otp.component';
     SubmitPageComponent,
     SignOutComponent,
     UserFormsListComponent,
+    OtpComponent,
+    FormVersionsComponent,
     OtpComponent
   ],
   imports: [
@@ -54,7 +59,9 @@ import { OtpComponent } from './components/otp/otp.component';
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
-    DragDropModule
+    DragDropModule,
+    RecaptchaModule,
+
 
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],

@@ -11,15 +11,27 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
   errorMessage: string = '';
-  submitClicked = false;
+  submitClicked: boolean = false;
+  captchaVerified: boolean = false;
+  captchaErrorMessage: string = '';
 
   constructor(
     public authService: AuthService,
     private router: Router
   ) {}
+  
+  resolvedCaptcha(response: string) {
+    this.captchaVerified = !!response;
+    this.captchaErrorMessage = '';
+    
+  }
 
   onSubmit() {
     this.submitClicked = true;
+    if (!this.captchaVerified) {
+      this.captchaErrorMessage = "Please verify the captcha before proceeding.";
+      return;
+    }
 
     this.authService.login({ username: this.username, password: this.password })
       .subscribe({

@@ -29,6 +29,7 @@ export class CreateFormComponent implements OnInit {
 
   ngOnInit() {
     // If you are editing an existing form, fetch the data
+    window.scrollTo(0, 0);
     const urlParts = this.router.url.split('/');
     if (urlParts[2] === 'edit' && urlParts[3]) {
       this.formId = parseInt(urlParts[3]);

@@ -149,7 +149,16 @@ getForms() {
 
 
 getFormById(id: number) {
+  console.log(`${this.apiUrl}/${id}`);
   return this.http.get<any>(`${this.apiUrl}/${id}`);
+}
+
+getFormVersions(formId: number) {
+  return this.http.get<any>(`${this.apiUrl}/${formId}/versions`);
+}
+
+getFormByVersion(formId: number, version: number) {
+  return this.http.get<any>(`${this.apiUrl}/${formId}/versions/${version}`);
 }
 
   getResponses(): string[] {

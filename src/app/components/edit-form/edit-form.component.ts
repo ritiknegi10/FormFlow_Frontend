@@ -27,6 +27,7 @@ export class EditFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    window.scrollTo(0, 0);
     this.route.paramMap.subscribe(params => {
       this.formIndex = Number(params.get('id'));
       this.formService.getFormById(this.formIndex).subscribe(formData => {
@@ -38,6 +39,7 @@ export class EditFormComponent implements OnInit {
           description: new FormControl(formData.description || ''),
           questions: this.fb.array(questions.map((q: any, index:number) => this.createQuestionGroup(q, index)))
         });
+        //console.log(this.form);
       });
     });
   }
