@@ -47,17 +47,20 @@ export class FormService {
   }
 
   uploadFile(file: File): Observable<string> {
-    return this.http.post<{ Document: string }>(
-      `${this.apiUrl}/upload`,
-      file
-    ).pipe(
-      map(response => response.Document)
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    return this.http.post(
+      `http://localhost:8080/upload`,
+      formData,
+      { responseType: 'text' }
     );
-  } 
+  }
+  
 
   deleteFile(fileUrl: string): Observable<any> {
     const params = new HttpParams().set('url', fileUrl);
-    return this.http.delete(`${this.apiUrl}/upload/delete`, { params });
+    return this.http.delete(`http://localhost:8080/upload/delete`, { params, responseType: 'text' });
   }
   
   

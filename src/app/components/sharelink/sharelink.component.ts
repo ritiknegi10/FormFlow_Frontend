@@ -109,11 +109,11 @@ export class SharelinkComponent implements OnInit {
     this.invalidtype[index]= false;
 
 
-    const fileUrl = URL.createObjectURL(file);
-    console.log(fileUrl);
+    //const fileUrl = URL.createObjectURL(file);
+    //console.log(fileUrl);
     this.uploadedFileNames[index] = file.name;
     this.uploadedFiles[index] = true;
-    this.answers[index] = fileUrl;
+    //this.answers[index] = fileUrl;
     this.formService.uploadFile(file).subscribe({
       next: (fileUrl: string) => {
         console.log('File uploaded, URL:', fileUrl);
