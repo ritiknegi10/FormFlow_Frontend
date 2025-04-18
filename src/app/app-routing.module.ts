@@ -19,6 +19,8 @@ import { AuthGuard } from './guards/auth.guard';
 import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
 import { OtpComponent } from './components/otp/otp.component';
+import { FormParentComponent } from './components/form/form-parent/form-parent.component';
+import { FormPreviewComponent } from './components/form-preview/form-preview.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import {ResetPasswordComponent} from './components/reset-password/reset-password.component'
 import { AssignFormComponent } from './components/assign-form/assign-form.component';
@@ -29,6 +31,9 @@ const routes: Routes = [
   { path: 'create', component: CreateFormComponent, canActivate: [AuthGuard] },
   { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard] },
   { path: 'edit/:id', component: EditFormComponent, canActivate: [AuthGuard] },
+  { path: 'deprecated', component: CreateFormComponent, canActivate: [AuthGuard]  },
+  { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard]  },
+  { path: 'edit/:id', component: FormParentComponent, canActivate: [AuthGuard]  },
   { path: 'forms/:formId/versions/:formVersion', component: FormVersionsComponent },
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard] },
   { path: 'forms/:id/assign', component: AssignFormComponent, canActivate: [AuthGuard] }, 
@@ -49,8 +54,11 @@ const routes: Routes = [
   { path: 'faq', component: FaqComponent },
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard] },
   { path: 'submit/:title', component: SubmitPageComponent, canActivate: [AuthGuard] },
-  { path: '**', redirectTo: '' }
+
   
+  { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
+  { path: 'form-preview', component: FormPreviewComponent },
+  { path: '**', redirectTo: '' } // make sure this line is always at last else it wont allow routing to new paths
 ];
 
 @NgModule({

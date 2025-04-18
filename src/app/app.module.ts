@@ -27,6 +27,10 @@ import { OtpComponent } from './components/otp/otp.component';
 import { FormVersionsComponent } from './components/form-versions/form-versions.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RecaptchaModule } from 'ng-recaptcha';
+import { FormModule } from "./components/form/form.module";
+import { FormPreviewComponent } from './components/form-preview/form-preview.component';
+
+
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
@@ -54,6 +58,7 @@ import { AssignedFormsComponent } from './components/assigned-forms/assigned-for
     UserFormsListComponent,
     OtpComponent,
     FormVersionsComponent,
+    FormPreviewComponent,
     OtpComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
@@ -69,9 +74,11 @@ import { AssignedFormsComponent } from './components/assigned-forms/assigned-for
     HttpClientModule,
     DragDropModule,
     RecaptchaModule,
+    FormModule,
     NgxChartsModule
+],
+    
 
-  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],
   bootstrap: [AppComponent]

@@ -32,14 +32,18 @@ export class EditFormComponent implements OnInit {
       this.formIndex = Number(params.get('id'));
       this.formService.getFormById(this.formIndex).subscribe(formData => {
         const formSchema = JSON.parse(formData.formSchema);
+        const sections = formSchema.sections;
+
         const questions = formSchema.fields;
         console.log("this is form schema",formSchema);
         this.form = this.fb.group({
           title: new FormControl(formData.title || ''),
           description: new FormControl(formData.description || ''),
-          questions: this.fb.array(questions.map((q: any, index:number) => this.createQuestionGroup(q, index)))
+          questions: this.fb.array(questions.map((q: any, index:number) => this.createQuestionGroup(q, index))),
+          sections: sections,
+          // questions: this.fb.array(questions.map((q: any) => this.createQuestionGroup(q)))
         });
-        //console.log(this.form);
+        console.log(this.form);
       });
     });
   }
