@@ -263,6 +263,8 @@
                                         <option value="linearscale">Linear Scale</option>
                                         <option value="multipleChoiceGrid">Multiple Choice Grid</option>
                                         <option value="checkboxGrid">Checkbox Grid</option>
+                                        <option value="file">File Upload</option>
+
                                     </select>
                                 </div>
 
@@ -273,6 +275,12 @@
                                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
                                     Question text is required
+                                </div>
+                                <div *ngIf="question.get('type')?.value === 'file'" class="mt-4 flex justify-center text-gray-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16V4a2 2 0 012-2h6l5 5v9a2 2 0 01-2 2H7zm0 0v4m0-4h10" />
+                                    </svg>
                                 </div>
 
                                 <div *ngIf="question.get('type')?.value === 'multipleChoice' || 

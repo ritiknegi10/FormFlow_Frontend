@@ -1,8 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, forkJoin, map, of, switchMap, tap, throwError } from 'rxjs';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, catchError, forkJoin, map, of, switchMap, tap, throwError,Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +31,7 @@ export class FormService {
           endValue: q.endValue !== undefined ? q.endValue : 5,
           rows: q.rows?.length ? q.rows : undefined,
           columns: q.columns?.length ? q.columns : undefined,
+          fileUrl: q.fileUrl,
 
         }))
       })
@@ -44,6 +44,24 @@ export class FormService {
       console.error("Error saving form", error);
     });
   }
+
+  uploadFile(file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    return this.http.post(
+      `http://localhost:8080/upload`,
+      formData,
+      { responseType: 'text' }
+    );
+  }
+  
+
+  deleteFile(fileUrl: string): Observable<any> {
+    const params = new HttpParams().set('url', fileUrl);
+    return this.http.delete(`http://localhost:8080/upload/delete`, { params, responseType: 'text' });
+  }
+  
   
 
   private mapQuestionType(type: string): string {
@@ -58,7 +76,8 @@ export class FormService {
       time:"time",
       linearscale:"linearscale",
       multipleChoiceGrid:"multipleChoiceGrid",
-      checkboxGrid:"checkboxGrid"
+      checkboxGrid:"checkboxGrid",
+      file:"file"
     };
     return typeMapping[type] || "shortText"; // Default to "shortText"
   }
@@ -81,6 +100,7 @@ export class FormService {
           endValue: q.endValue !== undefined ? q.endValue : 5,
           rows: q.rows?.length ? q.rows : undefined,
           columns: q.columns?.length ? q.columns : undefined,
+          fileUrl: q.fileUrl,
 
         }))
       })

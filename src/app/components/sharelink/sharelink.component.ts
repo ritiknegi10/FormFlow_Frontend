@@ -17,6 +17,10 @@ export class SharelinkComponent implements OnInit {
   answers: any[] = [];
   submitClicked = false;
   touchedFields: boolean[] = [];
+  uploadedFiles: boolean[] = [];
+  uploadedFileNames: string[] = [];
+  invalidtype: boolean[] = [];
+  invalidsize: boolean[] = [];
   ratingValues: number[] = [];
   isSubmitting = false;
 
@@ -35,6 +39,7 @@ export class SharelinkComponent implements OnInit {
       }
     });
   }
+
   private loadForm(formId: number): void {
     this.formService.getFormById(formId).subscribe({
       next: (form) => {
@@ -49,12 +54,10 @@ export class SharelinkComponent implements OnInit {
     });
   }
 
-
   private initializeFormData(): void {
     try {
       this.formData.formSchema = JSON.parse(this.formData.formSchema);
       this.initializeAnswers();
-      // Initialize rating values array
       this.ratingValues = this.formData.formSchema.fields
         .filter((f: any) => f.type === 'rating')
         .map(() => 0);
@@ -63,12 +66,6 @@ export class SharelinkComponent implements OnInit {
       this.router.navigate(['/']);
     }
   }
-
-  updateRatingValue(questionIndex: number, value: number) {
-    this.ratingValues[questionIndex] = value;
-    this.answers[questionIndex] = value; 
-  }
-
 
   private initializeAnswers(): void {
     this.answers = this.formData.formSchema.fields.map((field: any) => {
@@ -82,12 +79,90 @@ export class SharelinkComponent implements OnInit {
     });
   }
 
+  updateCheckbox(index: number, option: string, event: any) {
+    if (!this.answers[index]) {
+      this.answers[index] = [];
+    }
+    if (event.target.checked) {
+      this.answers[index].push(option);
+    } else {
+      this.answers[index] = this.answers[index].filter((item: string) => item !== option);
+    }
+  }
+
+  isGridQuestionInvalid(i: number, question: any): boolean {
+    if (!question || !question.required || !Array.isArray(this.answers[i])) return false;
+    return (this.submitClicked || this.touchedFields[i]) && this.answers[i].some((val: any) => val === null);
+  }
+
+  isCheckboxGridInvalid(i: number, question: any): boolean {
+    if (!question || !question.required || !Array.isArray(this.answers[i])) return false;
+    return (this.submitClicked || this.touchedFields[i]) &&
+           this.answers[i].some((row: any) => !Array.isArray(row) || row.length === 0);
+  }
+
+  onFileSelected(event: Event, index: number): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+    const maxSize = 5 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+      this.invalidtype[index] = true;
+      input.value = '';
+      return;
+    }
+
+    if (file.size > maxSize) {
+      this.invalidsize[index] = true;
+      input.value = '';
+      return;
+    }
+
+    this.invalidsize[index] = false;
+    this.invalidtype[index] = false;
+
+    this.uploadedFileNames[index] = file.name;
+    this.uploadedFiles[index] = true;
+
+    this.formService.uploadFile(file).subscribe({
+      next: (fileUrl: string) => {
+        this.answers[index] = fileUrl;
+      }
+    });
+  }
+
+  onDeleteFile(index: number): void {
+    this.uploadedFiles[index] = false;
+    this.uploadedFileNames[index] = '';
+    const fileUrl = this.answers[index];
+    this.answers[index] = '';
+    this.formService.deleteFile(fileUrl).subscribe({
+      next: () => {
+        console.log('File deleted from backend');
+      },
+      error: (err) => {
+        console.error('Error deleting file:', err);
+      }
+    });
+  }
+
+  updateRatingValue(questionIndex: number, value: number) {
+    this.ratingValues[questionIndex] = value;
+    this.answers[questionIndex] = value;
+  }
+
+  ratingStars(n: number): number[] {
+    return Array(n).fill(0);
+  }
+
   async submitForm() {
     this.submitClicked = true;
     if (this.isFormInvalid()) return;
 
     this.isSubmitting = true;
-    
     try {
       const response = await this.prepareAndSubmitResponse();
       this.handleSuccess(response);
@@ -99,14 +174,13 @@ export class SharelinkComponent implements OnInit {
   }
 
   private isFormInvalid(): boolean {
-    return this.formData.formSchema.fields.some((question: any, index: number) => 
+    return this.formData.formSchema.fields.some((question: any, index: number) =>
       this.isQuestionInvalid(question, index)
     );
   }
 
   private isQuestionInvalid(question: any, index: number): boolean {
     if (!question.required) return false;
-    
     const answer = this.answers[index];
     if (question.type === 'multipleChoiceGrid') {
       return answer.some((val: any) => val === null);
@@ -136,7 +210,7 @@ export class SharelinkComponent implements OnInit {
       text: 'Your responses have been recorded successfully.',
       confirmButtonColor: '#4CAF50',
     });
-    this.router.navigate(['/assigned-forms'], { 
+    this.router.navigate(['/assigned-forms'], {
       state: { formTitle: this.formData.title }
     });
   }
@@ -151,27 +225,13 @@ export class SharelinkComponent implements OnInit {
     });
   }
 
-  // Helper methods
-  updateCheckbox(index: number, option: string, event: any) {
-    if (!this.answers[index]) this.answers[index] = [];
-    if (event.target.checked) {
-      this.answers[index].push(option);
-    } else {
-      this.answers[index] = this.answers[index].filter((item: string) => item !== option);
-    }
-  }
-
-  ratingStars(n: number): number[] {
-    return Array(n).fill(0);
-  }
-
   markAsTouched(index: number) {
     this.touchedFields[index] = true;
   }
 
   toggleCheckbox(questionIndex: number, rowIndex: number, column: string) {
     const current: string[] = this.answers[questionIndex][rowIndex] || [];
-    this.answers[questionIndex][rowIndex] = current.includes(column) 
+    this.answers[questionIndex][rowIndex] = current.includes(column)
       ? current.filter(item => item !== column)
       : [...current, column];
   }
