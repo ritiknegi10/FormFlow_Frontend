@@ -360,11 +360,12 @@ export class FormHeroComponent implements OnInit{
 
                     if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
 
-                    optionsArray.controls.forEach(optionControl => {
-                        if (((ques.get('type')?.value === "multipleChoice") && (optionsArray.length < 2)) ||
-                            (ques.get('type')?.value === "dropdown") && (optionsArray.length < 2))
-                            this.singleOption = true;
-                    });
+                    // optionsArray.controls.forEach(optionControl => {
+                    //     if (((ques.get('type')?.value === "multipleChoice") || (ques.get('type')?.value === "dropdown"))
+                    //         &&
+                    //         (optionsArray.length < 2))
+                    //         this.singleOption = true;
+                    // });
                 }
             });
         });

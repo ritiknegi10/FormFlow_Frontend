@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray } from '@angular/forms';
 
 @Component({
   selector: 'app-form-preview',
@@ -19,7 +18,7 @@ export class FormPreviewComponent implements OnInit {
         if(data){
             this.formPreviewData = JSON.parse(data);
             this.sections = this.formPreviewData.sections;
-            console.log(this.sections);
+            // console.log(this.sections);
         }
         else{
             console.warn("No session data found");
@@ -28,7 +27,7 @@ export class FormPreviewComponent implements OnInit {
         this.sections.forEach((section, index) => {
             this.nextSectionData[index] = section.nextSection;
         });
-        console.log(this.nextSectionData);
+        // console.log(this.nextSectionData);
         
     }
 
@@ -43,12 +42,12 @@ export class FormPreviewComponent implements OnInit {
         if(!question.sectionBasedonAnswer) return;
 
         const options = question.options;
-        console.log(typeof(options));
-        console.log("Options  : ", options);
+        // console.log(typeof(options));
+        // console.log("Options  : ", options);
 
         for(let i=0; i<options.length; i++){
             const option = options.at(i);
-            console.log("options label : ", option.label);
+            // console.log("options label : ", option.label);
             const label = option.label
 
             if(label === selectedOption){
