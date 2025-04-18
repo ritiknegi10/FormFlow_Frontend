@@ -145,12 +145,20 @@
                 
                 <!-- Publish -->
                 <div class="ml-4">
-                    <button type="submit"
-                    (click)="onPublishClick()"
-                    class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold 
-                               rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
-                    Publish
-                </button>
+                    <!-- *****CREATE FORM***** -->
+                    <button *ngIf="currentUrl==='/create'" type="submit"
+                        (click)="onPublishClick()"
+                        class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold 
+                                rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
+                        Publish
+                    </button>
+                    <!-- *****EDIT FORM***** -->
+                    <button *ngIf="currentUrl.startsWith('/edit')" type="submit"
+                        (click)="onPublishClick()"
+                        class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold 
+                                rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
+                        Save
+                    </button>
                 </div>
                 
             </div>

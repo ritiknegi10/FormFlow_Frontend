@@ -28,12 +28,11 @@ import { AssignedFormsComponent } from './components/assigned-forms/assigned-for
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
-  { path: 'create', component: CreateFormComponent, canActivate: [AuthGuard] },
+  { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
+  { path: 'edit/:id', component: FormParentComponent, canActivate: [AuthGuard] },
   { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard] },
-  { path: 'edit/:id', component: EditFormComponent, canActivate: [AuthGuard] },
   { path: 'deprecated', component: CreateFormComponent, canActivate: [AuthGuard]  },
   { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard]  },
-  { path: 'edit/:id', component: FormParentComponent, canActivate: [AuthGuard]  },
   { path: 'forms/:formId/versions/:formVersion', component: FormVersionsComponent },
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard] },
   { path: 'forms/:id/assign', component: AssignFormComponent, canActivate: [AuthGuard] }, 
