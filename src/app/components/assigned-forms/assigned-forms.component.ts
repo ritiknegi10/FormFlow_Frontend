@@ -29,11 +29,9 @@ export class AssignedFormsComponent implements OnInit {
     this.loading = true;
     this.formService.getAssignedForms().subscribe({
       next: (forms) => {
-        // Add submission check for each form
         this.forms = forms.map(form => ({
           ...form,
-          hasSubmitted: form.hasSubmitted || false,
-          responseCount: form.responseCount || 0
+          hasSubmitted: form.hasSubmitted || false
         }));
         this.loading = false;
       },
@@ -43,7 +41,12 @@ export class AssignedFormsComponent implements OnInit {
       }
     });
   }
+
   openForm(formId: number): void {
     this.router.navigate([`/sharelink/${formId}`]);
+  }
+
+  viewResponse(formId: number): void {
+    this.router.navigate([`/view-responses/my-responses/${formId}`]);
   }
 }

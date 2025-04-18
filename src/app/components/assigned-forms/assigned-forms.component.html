@@ -30,9 +30,6 @@
                     <div class="flex items-start justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-800 truncate">{{ form.title }}</h3>
                         <div class="flex items-center gap-2">
-                            <span class="bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full text-xs">
-                                {{ form.responseCount || 0 }} responses
-                            </span>
                             <span *ngIf="form.hasSubmitted"
                                 class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
                                 Submitted
@@ -44,11 +41,23 @@
                         {{ form.description || 'No description provided' }}
                     </p>
 
-                    <button (click)="openForm(form.id)"
-                        class="w-full mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                        [disabled]="form.hasSubmitted">
-                        {{ form.hasSubmitted ? 'Already Submitted' : 'Open Form' }}
-                    </button>
+                    <div class="flex justify-between items-center mt-4">
+                        <button (click)="openForm(form.id)"
+                            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex-1 mr-2"
+                            [disabled]="form.hasSubmitted">
+                            {{ form.hasSubmitted ? 'Submitted' : 'Open Form' }}
+                        </button>
+
+                        <button *ngIf="form.hasSubmitted" (click)="viewResponse(form.id)"
+                            class="p-2 hover:bg-gray-100 rounded-lg text-indigo-600 tooltip" title="View Response">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -57,7 +66,7 @@
                 <div class="text-indigo-400 mb-6">
                     <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M9 12h6m-6 4h6m2-5v9m-9 0H7a2 2 0 01-2-2V9a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
                     </svg>
                 </div>
                 <p class="text-gray-600">No forms assigned to you yet</p>
