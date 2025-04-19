@@ -82,16 +82,18 @@
                 </button>
                 <!-- FORM TITLE -->
                 <div class="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="url(#gradient)" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" 
-                        class="w-16 h-16 text-white">
-                        <defs>
-                            <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stop-color="#3b82f6" />  <!-- Tailwind blue-500 -->
-                            <stop offset="100%" stop-color="#8b5cf6" /> <!-- Tailwind purple-500 -->
-                            </linearGradient>
-                        </defs>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75h-9a2.25 2.25 0 00-2.25 2.25v12a2.25 2.25 0 002.25 2.25h9A2.25 2.25 0 0018.75 18V6a2.25 2.25 0 00-2.25-2.25zM9 7.5h6M9 10.5h6m-6 3h3" />
-                    </svg>
+                    <button routerLink="/">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="url(#gradient)" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" 
+                            class="w-16 h-16 text-white">
+                            <defs>
+                                <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#3b82f6" />  <!-- Tailwind blue-500 -->
+                                <stop offset="100%" stop-color="#8b5cf6" /> <!-- Tailwind purple-500 -->
+                                </linearGradient>
+                            </defs>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75h-9a2.25 2.25 0 00-2.25 2.25v12a2.25 2.25 0 002.25 2.25h9A2.25 2.25 0 0018.75 18V6a2.25 2.25 0 00-2.25-2.25zM9 7.5h6M9 10.5h6m-6 3h3" />
+                        </svg>
+                    </button>
                     <input type="text" [value]="formTitle" (input)="onTitleChange($event)" (blur)="onTitleBlur($event)" #myInput (focus)="myInput.select()"
                         class="flex-1 mt-1 text-lg font-medium text-gray-700 bg-transparent outline-none focus:border-b-2 focus:border-indigo-500"/>
 
@@ -100,11 +102,12 @@
             
             
            
-    
+            <!-- *****CREATE FORM***** -->
             <h2 *ngIf="currentUrl=='/create'" 
                 class="hidden md:block absolute left-1/2 -translate-x-1/2 text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Build Your Form
             </h2>
+            <!-- *****EDIT FORM***** -->
             <h2 *ngIf="currentUrl?.startsWith('/edit')" 
                 class="hidden md:block absolute left-1/2 -translate-x-1/2 text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Edit Form
@@ -145,12 +148,20 @@
                 
                 <!-- Publish -->
                 <div class="ml-4">
-                    <button type="submit"
-                    (click)="onPublishClick()"
-                    class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold 
-                               rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
-                    Publish
-                </button>
+                    <!-- *****CREATE FORM***** -->
+                    <button *ngIf="currentUrl==='/create'" type="submit"
+                        (click)="onPublishClick()"
+                        class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold 
+                                rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
+                        Publish
+                    </button>
+                    <!-- *****EDIT FORM***** -->
+                    <button *ngIf="currentUrl.startsWith('/edit')" type="submit"
+                        (click)="onPublishClick()"
+                        class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold 
+                                rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
+                        Save
+                    </button>
                 </div>
                 
             </div>

@@ -428,6 +428,7 @@
                                                     formControlName="label" placeholder="Option text" 
                                                     class="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2
                                                     focus:ring-indigo-100 focus:border-indigo-500 transition-all"
+                                                    [readOnly]="option.get('label')?.value === 'Other'"
                                                     (focus)="selectAllText($event.target)"
                                                     (blur)="setDefaultValueIfEmpty($event.target, question, opIdx)"
                                                 />
@@ -593,13 +594,23 @@
     </div> <!--CONTAINER-->
     
     <!-- Success/Error Notifications -->
-    <div *ngIf="submitSuccess"
+    <!-- *****CREATE FORM***** -->
+    <div *ngIf="submitSuccess && currentUrl==='/create'"
         class="fixed top-4 right-4 z-50 flex items-center bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-lg animate-slide-in">
         <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span class="font-medium">Form Published Successfully!</span>
+    </div>
+    <!-- *****EDIT FORM***** -->
+    <div *ngIf="submitSuccess && currentUrl.startsWith('/edit')"
+        class="fixed top-4 right-4 z-50 flex items-center bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-lg animate-slide-in">
+        <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="font-medium">Form Saved Successfully!</span>
     </div>
 </div> <!--BODY-->
   
