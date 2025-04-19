@@ -27,7 +27,12 @@ export class FormService {
                         type: q.type,
                         required: q.required,
                         options: q.options.length ? q.options : undefined,
-                        rating: q.rating ? q.rating : 5
+                        rating: q.rating ? q.rating : 5,
+                        startValue: q.startValue !== undefined ? q.startValue : 0,
+                        endValue: q.endValue !== undefined ? q.endValue : 5,
+                        rows: q.rows?.length ? q.rows : undefined,
+                        columns: q.columns?.length ? q.columns : undefined,
+                        fileUrl: q.fileUrl
                     })));
                 }
             });
@@ -85,7 +90,11 @@ export class FormService {
       dropdown: "dropdown",
       rating: "rating",
       date:"date",
-      time:"time"
+      time:"time",
+      linearscale:"linearscale",
+      multipleChoiceGrid:"multipleChoiceGrid",
+      checkboxGrid:"checkboxGrid",
+      file:"file"
     };
     return typeMapping[type] || "shortText"; // Default to "shortText"
   }
