@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({
@@ -17,15 +17,15 @@ export class ResponseService {
     return this.http.get<any[]>(`${this.apiUrl}/${formId}`);
   }
 
-  submitResponse(formId: number, response: any) {
-    console.log(formId)
-    return this.http.post(`${this.apiUrl}/submit/${formId}`, JSON.stringify(response)).subscribe(response => {
-      console.log("Response saved successfully", response);
-    }, error => {
-      console.error("Error saving form", error);
-    });
+  submitResponse(formId: number, response: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/submit/${formId}`, response).pipe(
+      catchError(error => {
+        console.error('Submission error:', error);
+        return throwError(() => error);
+      })
+    );
   }
-  
+
   getUserSubmissions(): Observable<any[]> {
     const token = localStorage.getItem('jwt'); // Retrieve token
     // const headers = new HttpHeaders({

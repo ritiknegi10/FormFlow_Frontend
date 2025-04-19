@@ -23,4 +23,17 @@ export class FormParentComponent implements OnInit{
     updateFormTitle(newTitle: string) {
         this.formTitle = newTitle;
     }
+
+    handlePreviewClick(){
+        // console.log("Current session data - ", sessionStorage.getItem('formPreviewData'));
+        // console.log("**************************");
+
+        const formData = this.formHero.getFormData();
+        sessionStorage.setItem('formPreviewData', JSON.stringify(formData));
+
+        // console.log("Form Saved to sessionstorage");
+        // console.log("**************************");
+        // console.log(sessionStorage.getItem('formPreviewData'));
+        // console.log("**************************");
+    }
 }
