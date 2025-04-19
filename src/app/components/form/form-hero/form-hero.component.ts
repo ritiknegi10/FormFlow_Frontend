@@ -313,11 +313,16 @@ export class FormHeroComponent implements OnInit{
         }
         else{
             const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
+            const otherIndex = options.controls.findIndex(opt => opt.value.label === 'Other');
             const newOption = this.fb.group({
                 label: [`Option ${index + (otherAdded? 0:1)}`],
                 goToSection: [sectionIndex + 1]
             });
-            options.push(newOption);
+            
+            if(otherIndex != -1)
+                options.insert(otherIndex, newOption)
+            else
+                options.push(newOption);
         }
         // if(value!=''){
         //     if(!this.otherAddedMap[sectionIndex])
