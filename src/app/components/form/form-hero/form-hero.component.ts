@@ -1,8 +1,9 @@
 import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-form-hero',
@@ -13,6 +14,7 @@ export class FormHeroComponent implements OnInit{
     formId: number | null = null;
     formBuilder: FormGroup;
     ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
+    currentUrl!: String
     submitClicked = false;
     submitSuccess = false;
     singleOption = false;
@@ -32,6 +34,12 @@ export class FormHeroComponent implements OnInit{
             title: 'Untitled Form',
             description: '',
             sections: this.fb.array([])
+        });
+
+        this.router.events
+            .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event: any) => {
+            this.currentUrl = event.url;
         });
     }
 
@@ -305,10 +313,15 @@ export class FormHeroComponent implements OnInit{
         }
         else{
             const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
+            const otherIndex = options.controls.findIndex(opt => opt.value.label === 'Other');
             const newOption = this.fb.group({
                 label: [`Option ${index + (otherAdded? 0:1)}`],
                 goToSection: [sectionIndex + 1]
             });
+            
+            if(otherIndex != -1)
+                options.insert(otherIndex, newOption)
+            else
             options.push(newOption);
         }
         // if(value!=''){
