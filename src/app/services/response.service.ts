@@ -27,11 +27,6 @@ export class ResponseService {
   }
 
   getUserSubmissions(): Observable<any[]> {
-    const token = localStorage.getItem('jwt'); // Retrieve token
-    // const headers = new HttpHeaders({
-    //   'Authorization': `Bearer ${token}` // Add Authorization header
-    // });
-  
     return this.http.get<any[]>(`${this.apiUrl}/my-submissions/`);
   }
 
