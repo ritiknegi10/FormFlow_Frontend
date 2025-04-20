@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { FormService } from '../../services/form.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { AbstractControl } from '@angular/forms';
+
 
 @Component({
   selector: 'app-edit-form',
@@ -32,9 +34,12 @@ export class EditFormComponent implements OnInit {
         const formSchema = JSON.parse(formData.formSchema);
         const sections = formSchema.sections;
 
+        const questions = formSchema.fields;
+        console.log("this is form schema",formSchema);
         this.form = this.fb.group({
           title: new FormControl(formData.title || ''),
           description: new FormControl(formData.description || ''),
+          questions: this.fb.array(questions.map((q: any, index:number) => this.createQuestionGroup(q, index))),
           sections: sections,
           // questions: this.fb.array(questions.map((q: any) => this.createQuestionGroup(q)))
         });
@@ -48,13 +53,18 @@ export class EditFormComponent implements OnInit {
     this.questions.updateValueAndValidity();
   }
 
-  createQuestionGroup(question: any): FormGroup {
+  createQuestionGroup(question: any, index: number): FormGroup {
     return this.fb.group({
       questionText: new FormControl(question.label || ''),
       type: new FormControl(question.type || 'shortText'),
       required: new FormControl(question.required || false),
       options: this.fb.array(question.options ? question.options.map((opt: any) => new FormControl(opt)) : []),
-      rating: new FormControl(question.rating || 5)
+      rating: new FormControl(question.rating || 5),
+      startValue: new FormControl(question.startValue ?? 0),
+      endValue: new FormControl(question.endValue ?? 5),
+      rows: this.fb.array(question.rows ? question.rows.map((r: any) => new FormControl(r)) : []),
+      columns: this.fb.array(question.columns ? question.columns.map((c: any) => new FormControl(c)) : []),
+
     });
   }
 
@@ -78,6 +88,11 @@ export class EditFormComponent implements OnInit {
       options: this.fb.array([]),
       rating: ['5'],
       required: false,
+      startValue: new FormControl(0),
+      endValue: new FormControl(5),
+      rows: this.fb.array([]),
+      columns: this.fb.array([]),
+
     });
 
     questionGroup.get('type')?.valueChanges.subscribe(type => {
@@ -87,6 +102,13 @@ export class EditFormComponent implements OnInit {
         if (options.length === 0) {
           options.push(new FormControl(''));
         }
+      }
+      if (type === 'multipleChoiceGrid' || type === 'checkboxGrid') {
+        const rows = questionGroup.get('rows') as FormArray;
+        const columns = questionGroup.get('columns') as FormArray;
+  
+        if (rows.length === 0) rows.push(new FormControl(''));
+        if (columns.length === 0) columns.push(new FormControl(''));
       }
     });
 
@@ -101,7 +123,15 @@ export class EditFormComponent implements OnInit {
       type: [originalQuestion.type],
       required: [originalQuestion.required],
       options: this.fb.array(originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []),
-      rating: [originalQuestion.rating]
+      rating: [originalQuestion.rating],
+      startValue: new FormControl(originalQuestion.startValue ?? 0),
+      endValue: new FormControl(originalQuestion.endValue ?? 5),
+      rows: this.fb.array(
+        originalQuestion.rows ? originalQuestion.rows.map((row: any) => this.fb.control(row)) : []
+      ),
+      columns: this.fb.array(
+        originalQuestion.columns ? originalQuestion.columns.map((col: any) => this.fb.control(col)) : []
+      )
     });
     this.questions.insert(index + 1, duplicatedQuestion);
   }
@@ -126,11 +156,43 @@ export class EditFormComponent implements OnInit {
     return question.get('options') as FormArray;
   }
 
+  getRows(question: AbstractControl): FormArray {
+    return question.get('rows') as FormArray;
+  }
+  
+  getColumns(question: AbstractControl): FormArray {
+    return question.get('columns') as FormArray;
+  }
+  
+  addRow(index: number) {
+    const question = this.questions.at(index);
+    const rows = this.getRows(question);
+    rows.push(this.fb.control(''));
+  }
+  
+  addColumn(index: number) {
+    const question = this.questions.at(index);
+    const cols = this.getColumns(question);
+    cols.push(this.fb.control(''));
+  }
+  
+  removeRow(questionIndex: number, rowIndex: number) {
+    const rows = this.getRows(this.questions.at(questionIndex));
+    rows.removeAt(rowIndex);
+  }
+  
+  removeColumn(questionIndex: number, colIndex: number) {
+    const cols = this.getColumns(this.questions.at(questionIndex));
+    cols.removeAt(colIndex);
+  }
+  
+  
+
   cancelEditform() {
     this.router.navigate(['/forms']);
     window.scrollTo(0, 0);
   }
-
+  
   saveChanges() {
     this.submitClicked = true;
 
@@ -164,7 +226,12 @@ export class EditFormComponent implements OnInit {
         questionText: q.questionText || '',
         type: q.type || 'text',
         required: q.required,
-        options: q.options ? q.options.map((opt: any) => opt) : []
+        options: q.options ? q.options.map((opt: any) => opt) : [],
+        rating: q.rating,
+        startValue: q.startValue,
+        endValue: q.endValue,
+        rows: q.rows ? q.rows.map((row: any) => row) : [],
+        columns: q.columns ? q.columns.map((col: any) => col) : [],
       }))
     };
 

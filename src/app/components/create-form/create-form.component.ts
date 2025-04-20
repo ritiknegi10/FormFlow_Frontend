@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { FormService } from '../../services/form.service';
 import { Router } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'app-create-form',
@@ -10,7 +11,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
   styleUrls: ['./create-form.component.scss']
 })
 export class CreateFormComponent implements OnInit {
-  formId: number | null = null;
+  formId!: number;
   formBuilder: FormGroup;
   submitClicked = false;
   submitSuccess = false;
@@ -66,6 +67,10 @@ export class CreateFormComponent implements OnInit {
             required: field.required,
             options: this.fb.array(field.options || []),
             rating: field.rating || 5,
+            startValue: [field.startValue ?? 0],   
+            endValue: [field.endValue ?? 5],   
+            gridRows: this.fb.array(field.gridRows || []),
+            gridColumns: this.fb.array(field.gridColumns || [])    
           });
         });
         this.formBuilder.setControl('questions', this.fb.array(questionsArray));
@@ -95,6 +100,11 @@ export class CreateFormComponent implements OnInit {
       options: this.fb.array([]),
       rating: [5],
       required: false,
+      startValue:[0],
+      endValue:[5],
+      rows: this.fb.array([]),     
+      columns: this.fb.array([]) 
+
     });
 
     questionGroup.get('type')?.valueChanges.subscribe(type => {
@@ -104,6 +114,13 @@ export class CreateFormComponent implements OnInit {
         if (options.length === 0) {
           options.push(new FormControl(''));
         }
+      }
+      if (type === 'multipleChoiceGrid' || type === 'checkboxGrid') {
+        const rows = questionGroup.get('rows') as FormArray;
+        const columns = questionGroup.get('columns') as FormArray;
+    
+        if (rows.length === 0) rows.push(new FormControl(''));
+        if (columns.length === 0) columns.push(new FormControl(''));
       }
     });
 
@@ -118,10 +135,59 @@ export class CreateFormComponent implements OnInit {
       type: [originalQuestion.type],
       required: [originalQuestion.required],
       options: this.fb.array(originalQuestion.options ? originalQuestion.options.map((opt: any) => this.fb.control(opt)) : []),
-      rating: [originalQuestion.rating]
+      rating: [originalQuestion.rating],
+      startValue: [originalQuestion.startValue ?? 0],  
+      endValue: [originalQuestion.endValue ?? 5],
+      rows: this.fb.array(originalQuestion.rows ? originalQuestion.rows.map((row: any) => this.fb.control(row)) : []),
+      columns: this.fb.array(originalQuestion.columns ? originalQuestion.columns.map((col: any) => this.fb.control(col)) : [])
     });
     this.questions.insert(index + 1, duplicatedQuestion);
   }
+
+  
+  addGridRow(index: number) {
+    const question = this.questions.at(index) as FormGroup;
+    let rows = question.get('rows') as FormArray;
+  
+    if (!rows) {
+      rows = this.fb.array([]);
+      question.addControl('rows', rows);
+    }
+  
+    rows.push(this.fb.control(''));
+  }
+  
+  addGridColumn(index: number) {
+    const question = this.questions.at(index) as FormGroup;
+    let cols = question.get('columns') as FormArray;
+  
+    if (!cols) {
+      cols = this.fb.array([]);
+      question.addControl('columns', cols);
+    }
+  
+    cols.push(this.fb.control(''));
+  }
+  
+  
+  removeGridRow(questionIndex: number, rowIndex: number) {
+    const rows = this.getRows(this.questions.at(questionIndex));
+    rows.removeAt(rowIndex);
+  }
+  
+  removeGridColumn(questionIndex: number, colIndex: number) {
+    const columns = this.getColumns(this.questions.at(questionIndex));
+    columns.removeAt(colIndex);
+  }
+  
+  getRows(question: AbstractControl): FormArray {
+    return question.get('rows') as FormArray;
+  }
+  
+  getColumns(question: AbstractControl): FormArray {
+    return question.get('columns') as FormArray;
+  }
+  
 
   removeQuestion(index: number) {
     this.questions.removeAt(index);
@@ -142,11 +208,19 @@ export class CreateFormComponent implements OnInit {
   getOptions(question: any): FormArray {
     return question.get('options') as FormArray;
   }
+  getNonEmptyGridItems(array: FormArray): number {
+    return array.controls.filter(control => control.value?.trim()).length;
+  }
+  
+  hasEmptyGridItem(array: FormArray): boolean {
+    return array.controls.some(control => !control.value?.trim());
+  }
+ 
 
   onSubmit() {
     this.submitClicked = true;
     if (!this.getTitleControl()?.value.trim()) return;
-
+    
     this.isQuestionInvalid = false;
     this.singleOption = false;
     let isOptionInvalid = false;
@@ -155,6 +229,8 @@ export class CreateFormComponent implements OnInit {
       if (control instanceof FormGroup) {
         const ques = control;
         const optionsArray = this.getOptions(ques);
+        const rowsArray = this.getRows(ques);
+        const colsArray = this.getColumns(ques);
 
         if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
 
@@ -164,11 +240,28 @@ export class CreateFormComponent implements OnInit {
             (ques.get('type')?.value === "dropdown") && (optionsArray.controls.length < 2))
             this.singleOption = true;
         });
+
+        if (ques.get('type')?.value === "multipleChoiceGrid" || ques.get('type')?.value === "checkboxGrid") {
+          let nonEmptyRows = 0;
+          let nonEmptyCols = 0;
+    
+          rowsArray.controls.forEach(rowControl => {
+            if (rowControl.value.trim()) nonEmptyRows++;
+          });
+    
+          colsArray.controls.forEach(colControl => {
+            if (colControl.value.trim()) nonEmptyCols++;
+          });
+    
+          if (nonEmptyRows === 0 || nonEmptyCols === 0) {
+            this.isQuestionInvalid = true;
+          }
+        }
       }
     });
 
     if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
-
+    
 
     if (this.formBuilder.valid) {
       if (this.formId) {

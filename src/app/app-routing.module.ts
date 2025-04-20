@@ -1,3 +1,4 @@
+// src/app/app-routing.module.ts
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
@@ -20,32 +21,44 @@ import { UserFormsListComponent } from './components/user-forms-list/user-forms-
 import { OtpComponent } from './components/otp/otp.component';
 import { FormParentComponent } from './components/form/form-parent/form-parent.component';
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import {ResetPasswordComponent} from './components/reset-password/reset-password.component'
+import { AssignFormComponent } from './components/assign-form/assign-form.component';
+import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
+  { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
+  { path: 'edit/:id', component: FormParentComponent, canActivate: [AuthGuard] },
+  { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard] },
   { path: 'deprecated', component: CreateFormComponent, canActivate: [AuthGuard]  },
   { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard]  },
-  { path: 'edit/:id', component: FormParentComponent, canActivate: [AuthGuard]  },
   { path: 'forms/:formId/versions/:formVersion', component: FormVersionsComponent },
-  { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard]  },  
-  { path: 'login', component: LoginComponent },
-  { path: 'signout', component: SignOutComponent, canActivate: [AuthGuard]  },
+  { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard] },
+  { path: 'forms/:id/assign', component: AssignFormComponent, canActivate: [AuthGuard] }, 
+  { path: 'assigned-forms', component: AssignedFormsComponent, canActivate: [AuthGuard] },  { path: 'login', component: LoginComponent },
+  { path: 'signout', component: SignOutComponent, canActivate: [AuthGuard] },
   { path: 'register', component: RegisterComponent },
   { path: 'otp', component: OtpComponent },
-  { path: 'view-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard]  }, 
-  { path: 'view-responses/my-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard]  }, 
-  { path: 'user-forms', component: UserFormsListComponent, canActivate: [AuthGuard]  }, 
+  { path: 'view-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard] },
+  { path: 'view-responses/my-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard] },
+  { path: 'user-forms', component: UserFormsListComponent, canActivate: [AuthGuard] },
   { path: 'contact', component: ContactComponent },
   { path:'about',component:AboutUsComponent },
   { path: 'faq', component:FaqComponent },
-  { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard]  },
   { path: 'submit/:title', component: SubmitPageComponent , canActivate: [AuthGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent},
+  { path: 'about', component: AboutUsComponent },
+  { path: 'faq', component: FaqComponent },
+  { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard] },
+  { path: 'submit/:title', component: SubmitPageComponent, canActivate: [AuthGuard] },
+
+  
   { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
   { path: 'form-preview', component: FormPreviewComponent },
   { path: '**', redirectTo: '' } // make sure this line is always at last else it wont allow routing to new paths
 ];
-
-
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

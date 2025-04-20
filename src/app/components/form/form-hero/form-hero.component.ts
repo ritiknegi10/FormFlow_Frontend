@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
-import { NavigationEnd, Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { filter } from 'rxjs';
 
@@ -34,6 +34,12 @@ export class FormHeroComponent implements OnInit{
             title: 'Untitled Form',
             description: '',
             sections: this.fb.array([])
+        });
+
+        this.router.events
+            .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event: any) => {
+            this.currentUrl = event.url;
         });
 
         this.router.events
@@ -358,10 +364,6 @@ export class FormHeroComponent implements OnInit{
                 label: [`Option ${index + (otherAdded? 0:1)}`],
                 goToSection: [sectionIndex + 1]
             });
-            
-            if(otherIndex != -1)
-                options.insert(otherIndex, newOption)
-            else
             options.push(newOption);
         }
         // if(value!=''){
