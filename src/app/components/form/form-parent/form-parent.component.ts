@@ -20,6 +20,10 @@ export class FormParentComponent implements OnInit{
         this.formHero.onSubmit();
     }
 
+    handleSaveAsTemplate() {
+        this.formHero.onSubmit(true);
+    }
+    
     updateFormTitle(newTitle: string) {
         this.formTitle = newTitle;
     }

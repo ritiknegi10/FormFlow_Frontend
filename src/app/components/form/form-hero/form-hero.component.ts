@@ -11,6 +11,7 @@ import { filter } from 'rxjs';
   styleUrls: ['./form-hero.component.scss']
 })
 export class FormHeroComponent implements OnInit{
+    showTemplateSuccess = false;
     formId: number | null = null;
     formBuilder: FormGroup;
     ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
@@ -356,46 +357,49 @@ export class FormHeroComponent implements OnInit{
         questionsArray.updateValueAndValidity();
     }
 
-    onSubmit(){
-        this.submitClicked = true;
-        if(!this.getTitleControl()?.value.trim()) return;
 
-        this.isQuestionInvalid = false;
-        this.singleOption = false;
-        let isOptionInvalid = false;
+onSubmit(isTemplate: boolean = false) {
+    this.submitClicked = true;
+    if (!this.getTitleControl()?.value.trim()) return;
 
-        this.sections.controls.forEach(section => {
-            const questionsArray = (section.get('questions') as FormArray);
-            questionsArray.controls.forEach(control => {
-                if (control instanceof FormGroup) {
-                    const ques = control;
-                    const optionsArray = this.getOptions(ques);
+    this.isQuestionInvalid = false;
+    this.singleOption = false;
+    let isOptionInvalid = false;
 
-                    if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
+    this.sections.controls.forEach(section => {
+        const questionsArray = (section.get('questions') as FormArray);
+        questionsArray.controls.forEach(control => {
+            if (control instanceof FormGroup) {
+                const ques = control;
+                const optionsArray = this.getOptions(ques);
 
-                    // optionsArray.controls.forEach(optionControl => {
-                    //     if (((ques.get('type')?.value === "multipleChoice") || (ques.get('type')?.value === "dropdown"))
-                    //         &&
-                    //         (optionsArray.length < 2))
-                    //         this.singleOption = true;
-                    // });
-                }
-            });
+                if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
+            }
         });
+    });
 
-        if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
+    if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
 
-        if (this.formBuilder.valid) {
-            const payload = {
-                title: this.formBuilder.value.title,
-                description: this.formBuilder.value.description,
-                formSchema: {
-                    sections: this.formBuilder.value.sections
-                }
-            };
-            // console.log("logging form");
-            // console.log(payload);
+    if (this.formBuilder.valid) {
+        const payload = {
+            title: this.formBuilder.value.title,
+            description: this.formBuilder.value.description,
+            formSchema: {
+                sections: this.formBuilder.value.sections
+            }
+        };
 
+        if (isTemplate) {
+            this.formService.saveAsTemplate(payload).subscribe({
+                next: () => {
+                    this.showTemplateSuccess = true;
+                    setTimeout(() => {
+                        this.router.navigate(['/form-template']);
+                    }, 2000);
+                },
+                error: (error) => console.error(error)
+            });
+        } else {
             if (this.formId) {
                 this.formService.updateForm(this.formId, payload).subscribe({
                     next: () => {
@@ -417,8 +421,8 @@ export class FormHeroComponent implements OnInit{
                     this.router.navigate(['/forms']);
                 }, 3000);
             }
-        } else {
-            console.log("Form is invalid");
-        }
+        } }else {  // Move this else inside the main if block
+        console.log("Form is invalid");
     }
+}
 }

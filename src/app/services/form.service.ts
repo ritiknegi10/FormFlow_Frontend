@@ -27,8 +27,7 @@ export class FormService {
     this.forms.next(forms);
   }
 
-  addForm(newForm: any): void {
-    const allQuestions: any[] = [];
+  addForm(newForm: any): void { const allQuestions: any[] = [];
     
     if (newForm.formSchema && newForm.formSchema.sections) {
       newForm.formSchema.sections.forEach((section: any) => {
@@ -63,6 +62,26 @@ export class FormService {
     });
   }
 
+
+  saveAsTemplate(templateForm: any): Observable<any> {
+    const backendFormat = {
+        title: templateForm.title,
+        description: templateForm.description,
+        formSchema: JSON.stringify(templateForm.formSchema),
+        isTemplate: 'true'
+    };
+    return this.http.post(`${this.apiUrl}/create`, backendFormat);
+}
+
+getTemplates(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/templates`).pipe(
+        catchError(error => {
+            console.error('Error fetching templates:', error);
+            return of([]);
+        })
+    );
+}
+  
   uploadFile(file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
