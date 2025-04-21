@@ -13,6 +13,20 @@ export class AuthService {
 
 
   private loggedIn = new BehaviorSubject<boolean>(false);
+  private redirectUrl: string | null = null;
+
+setRedirectUrl(url: string) {
+  this.redirectUrl = url;
+}
+
+getRedirectUrl(): string | null {
+  return this.redirectUrl;
+}
+
+clearRedirectUrl() {
+  this.redirectUrl = null;
+}
+
   // Add this observable
   isLoggedIn$ = this.loggedIn.asObservable();
 
