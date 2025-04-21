@@ -129,16 +129,11 @@ getTemplates(): Observable<any[]> {
   //     tap(forms => this.formsSubject.next(forms))
   //   );
   // }
+
   getFormById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
-      map(form => ({
-        ...form,
-        formSchema: typeof form.formSchema === 'string' ? 
-                  JSON.parse(form.formSchema) : 
-                  form.formSchema
-      }))
-    );
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
+ 
   private getToken(): string {
     return localStorage.getItem('jwt') || '';
   }
