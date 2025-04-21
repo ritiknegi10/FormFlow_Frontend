@@ -36,6 +36,7 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { AssignFormComponent } from './components/assign-form/assign-form.component';
 import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
+import { FormTemplateComponent } from './components/form-template/form-template.component';
 
 
 @NgModule({
@@ -64,7 +65,8 @@ import { AssignedFormsComponent } from './components/assigned-forms/assigned-for
     ResetPasswordComponent,
     OtpComponent,
     AssignFormComponent,
-    AssignedFormsComponent
+    AssignedFormsComponent,
+    FormTemplateComponent
   ],
   imports: [
     BrowserModule,

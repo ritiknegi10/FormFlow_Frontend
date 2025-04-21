@@ -25,6 +25,7 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import {ResetPasswordComponent} from './components/reset-password/reset-password.component'
 import { AssignFormComponent } from './components/assign-form/assign-form.component';
 import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
+import { FormTemplateComponent } from './components/form-template/form-template.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -56,6 +57,7 @@ const routes: Routes = [
 
   
   { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
+  { path: 'form-template', component: FormTemplateComponent, canActivate: [AuthGuard] },
   { path: 'form-preview', component: FormPreviewComponent },
   { path: '**', redirectTo: '' } // make sure this line is always at last else it wont allow routing to new paths
 ];

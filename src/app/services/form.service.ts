@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, forkJoin, map, of, switchMap, tap, throwError, Observable } from 'rxjs';
@@ -27,8 +27,7 @@ export class FormService {
     this.forms.next(forms);
   }
 
-  addForm(newForm: any): void {
-    const allQuestions: any[] = [];
+  addForm(newForm: any): void { const allQuestions: any[] = [];
     
     if (newForm.formSchema && newForm.formSchema.sections) {
       newForm.formSchema.sections.forEach((section: any) => {
@@ -63,6 +62,45 @@ export class FormService {
     });
   }
 
+
+  getForms(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/myCreated`).pipe(
+      map(forms => forms.map(form => ({
+        ...form,
+        // Ensure formSchema is parsed if it's a string
+        formSchema: typeof form.formSchema === 'string' 
+                  ? JSON.parse(form.formSchema)
+                  : form.formSchema
+      }))),
+      tap(forms => this.formsSubject.next(forms))
+    );
+  }
+  
+  saveAsTemplate(templateForm: any): Observable<any> {
+    // Stringify only if not already a string
+    const formSchema = typeof templateForm.formSchema === 'string'
+                     ? templateForm.formSchema
+                     : JSON.stringify(templateForm.formSchema);
+  
+    const backendFormat = {
+      title: templateForm.title,
+      description: templateForm.description,
+      formSchema: formSchema,
+      isTemplate: 'true'
+    };
+    
+    return this.http.post(`${this.apiUrl}/create`, backendFormat);
+  }
+
+getTemplates(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/templates`).pipe(
+        catchError(error => {
+            console.error('Error fetching templates:', error);
+            return of([]);
+        })
+    );
+}
+  
   uploadFile(file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
@@ -86,14 +124,23 @@ export class FormService {
     return this.http.post(`${this.apiUrl}/edit/${id}`, backendFormat);
   }
 
-  getForms(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/myCreated`).pipe(
-      tap(forms => this.formsSubject.next(forms))
+  // getForms(): Observable<any[]> {
+  //   return this.http.get<any[]>(`${this.apiUrl}/myCreated`).pipe(
+  //     tap(forms => this.formsSubject.next(forms))
+  //   );
+  // }
+  getFormById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map(form => ({
+        ...form,
+        formSchema: typeof form.formSchema === 'string' ? 
+                  JSON.parse(form.formSchema) : 
+                  form.formSchema
+      }))
     );
   }
-
-  getFormById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  private getToken(): string {
+    return localStorage.getItem('jwt') || '';
   }
 
   getFormVersions(formId: number): Observable<any> {

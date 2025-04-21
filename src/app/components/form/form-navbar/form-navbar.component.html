@@ -1,13 +1,9 @@
 <!-- ********DRAWER******** -->
 <!-- Overlay -->
-<div 
-    class="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
-    *ngIf="!firstRender"
-    [ngClass]="{
+<div class="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300" *ngIf="!firstRender" [ngClass]="{
         'opacity-100 pointer-events-auto': isDrawerOpen,
         'opacity-0 pointer-events-none': !isDrawerOpen
-    }"
-    (click)="toggleDrawer()">
+    }" (click)="toggleDrawer()">
 </div>
 
 <!-- Side Drawer -->
@@ -21,12 +17,16 @@
         <!-- Logo with Hover Effect -->
         <div class="flex items-center space-x-2">
             <a routerLink="/" class="relative group">
-                <div class="absolute -inset-2 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div
+                    class="absolute -inset-2 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity">
+                </div>
                 <div class="relative z-10 flex items-center space-x-3">
-                    <svg class="w-8 h-8 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="w-8 h-8 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                     </svg>
-                    <span class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-500 bg-clip-text text-transparent">
+                    <span
+                        class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-500 bg-clip-text text-transparent">
                         FormFlow
                     </span>
                 </div>
@@ -46,15 +46,16 @@
                 <button (click)="toggleProfileMenu()"
                     class="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:shadow-lg transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                 </button>
 
                 <!-- Dropdown Menu -->
                 <div *ngIf="isProfileMenuOpen"
                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100 z-50">
-                    <a routerLink="/user-forms" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors">
+                    <a routerLink="/user-forms"
+                        class="block px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors">
                         Submitted Forms
                     </a>
                     <a routerLink="/signout" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors">
@@ -70,99 +71,99 @@
 <nav class="bg-white/80 backdrop-blur-xl shadow-lg sticky top-0 z-30 border-b border-white/20">
     <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div class="relative flex justify-between items-center h-16">
-           
+
             <div class="flex gap-2 items-center">
                 <!-- MENU BUTTON   -->
                 <button (click)="toggleDrawer()" class="p-4 text-gray-600 rounded-full hover:bg-gray-100">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect y="4" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
-                        <rect y="11" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
-                        <rect y="18" width="24" height="2" fill="rgb(75, 85, 99, 0.9)"/>
-                    </svg>                 
+                        <rect y="4" width="24" height="2" fill="rgb(75, 85, 99, 0.9)" />
+                        <rect y="11" width="24" height="2" fill="rgb(75, 85, 99, 0.9)" />
+                        <rect y="18" width="24" height="2" fill="rgb(75, 85, 99, 0.9)" />
+                    </svg>
                 </button>
                 <!-- FORM TITLE -->
                 <div class="flex items-center">
                     <button routerLink="/">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="url(#gradient)" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" 
-                            class="w-16 h-16 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="url(#gradient)" viewBox="0 0 24 24"
+                            stroke-width="1" stroke="currentColor" class="w-16 h-16 text-white">
                             <defs>
                                 <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                <stop offset="0%" stop-color="#3b82f6" />  <!-- Tailwind blue-500 -->
-                                <stop offset="100%" stop-color="#8b5cf6" /> <!-- Tailwind purple-500 -->
+                                    <stop offset="0%" stop-color="#3b82f6" /> <!-- Tailwind blue-500 -->
+                                    <stop offset="100%" stop-color="#8b5cf6" /> <!-- Tailwind purple-500 -->
                                 </linearGradient>
                             </defs>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75h-9a2.25 2.25 0 00-2.25 2.25v12a2.25 2.25 0 002.25 2.25h9A2.25 2.25 0 0018.75 18V6a2.25 2.25 0 00-2.25-2.25zM9 7.5h6M9 10.5h6m-6 3h3" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M16.5 3.75h-9a2.25 2.25 0 00-2.25 2.25v12a2.25 2.25 0 002.25 2.25h9A2.25 2.25 0 0018.75 18V6a2.25 2.25 0 00-2.25-2.25zM9 7.5h6M9 10.5h6m-6 3h3" />
                         </svg>
                     </button>
-                    <input type="text" [value]="formTitle" (input)="onTitleChange($event)" (blur)="onTitleBlur($event)" #myInput (focus)="myInput.select()"
-                        class="flex-1 mt-1 text-lg font-medium text-gray-700 bg-transparent outline-none focus:border-b-2 focus:border-indigo-500"/>
+                    <input type="text" [value]="formTitle" (input)="onTitleChange($event)" (blur)="onTitleBlur($event)"
+                        #myInput (focus)="myInput.select()"
+                        class="flex-1 mt-1 text-lg font-medium text-gray-700 bg-transparent outline-none focus:border-b-2 focus:border-indigo-500" />
 
                 </div>
             </div>
-            
-            
-           
-    
-            <h2 *ngIf="currentUrl=='/create'" 
+
+
+
+            <!-- *****CREATE FORM***** -->
+            <h2 *ngIf="currentUrl=='/create'"
                 class="hidden md:block absolute left-1/2 -translate-x-1/2 text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Build Your Form
             </h2>
-            <h2 *ngIf="currentUrl?.startsWith('/edit')" 
+            <h2 *ngIf="currentUrl?.startsWith('/edit')"
                 class="hidden md:block absolute left-1/2 -translate-x-1/2 text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Edit Form
             </h2>
             <div class="flex items-center px-4">
                 <!-- Preview -->
                 <div class="relative flex flex-col items-center">
-                    <button
-                        (click)="onPreviewClick()"
-                        class="p-3 rounded-full hover:bg-gray-100 peer">
+                    <button (click)="onPreviewClick()" class="p-3 rounded-full hover:bg-gray-100 peer">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2"/>
-                            <circle cx="12" cy="12" r="4" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2"/>
-                        </svg>                      
+                            <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
+                                stroke="rgb(75, 85, 99, 0.9)" stroke-width="2" />
+                            <circle cx="12" cy="12" r="4" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2" />
+                        </svg>
                     </button>
                     <div
                         class="absolute top-14 invisible peer-hover:visible text-nowrap transition-all duration-100 text-white text-xs px-2 py-1 rounded-lg bg-gray-700 bg-opacity-80">
                         Preview
                     </div>
                 </div>
-                
+
 
                 <!-- Share -->
                 <div class="relative flex flex-col items-center">
                     <button class="p-3 rounded-full hover:bg-gray-100 peer">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="9" cy="7" r="4" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2"/>
-                            <path d="M2 20C2 16 6 14 9 14C12 14 16 16 16 20" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M18 8V14" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M21 11H15" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2" stroke-linecap="round"/>
-                          </svg>                      
+                            <circle cx="9" cy="7" r="4" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2" />
+                            <path d="M2 20C2 16 6 14 9 14C12 14 16 16 16 20" stroke="rgb(75, 85, 99, 0.9)"
+                                stroke-width="2" stroke-linecap="round" />
+                            <path d="M18 8V14" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2" stroke-linecap="round" />
+                            <path d="M21 11H15" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2" stroke-linecap="round" />
+                        </svg>
                     </button>
                     <div
                         class="absolute top-14 invisible peer-hover:visible text-nowrap transition-all duration-100 text-white text-xs px-2 py-1 rounded-lg bg-gray-700 bg-opacity-80">
                         Share
                     </div>
                 </div>
-                
+
                 <!-- Publish -->
-                <div class="ml-4">
-                    <!-- *****CREATE FORM***** -->
-                    <button *ngIf="currentUrl==='/create'" type="submit"
-                        (click)="onPublishClick()"
-                        class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold 
-                                rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
-                        Publish
+                <div class="ml-4 flex gap-2">
+                    <!-- Save as Template -->
+                    <button *ngIf="currentUrl==='/create'" type="button" (click)="onSaveAsTemplateClick()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold 
+                                rounded-md hover:shadow-lg transition-all duration-300 shadow-sm">
+                        Save as Template
                     </button>
-                    <!-- *****EDIT FORM***** -->
-                    <button *ngIf="currentUrl.startsWith('/edit')" type="submit"
-                        (click)="onPublishClick()"
+
+                    <!-- Publish/Save Button -->
+                    <button type="submit" (click)="onPublishClick()"
                         class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold 
                                 rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
-                        Save
+                        {{ currentUrl.startsWith('/edit') ? 'Save' : 'Publish' }}
                     </button>
                 </div>
-                
+
             </div>
         </div>
     </div>
