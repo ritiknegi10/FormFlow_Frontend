@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -17,6 +17,7 @@ export class FormHeroComponent implements OnInit{
     formId: number | null = null;
     formBuilder: FormGroup;
     ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
+    scalingOptions=Array.from({ length: 6 }, (_, i) => i + 5);
     currentUrl!: String
     submitClicked = false;
     submitSuccess = false;
@@ -28,7 +29,6 @@ export class FormHeroComponent implements OnInit{
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     otherAddedMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
 
-
     constructor(private fb: FormBuilder, 
                 private formService: FormService, 
                 private router: Router, 
@@ -38,6 +38,12 @@ export class FormHeroComponent implements OnInit{
             title: 'Untitled Form',
             description: '',
             sections: this.fb.array([])
+        });
+
+        this.router.events
+            .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event: any) => {
+            this.currentUrl = event.url;
         });
 
         this.router.events
@@ -83,6 +89,11 @@ export class FormHeroComponent implements OnInit{
                                 )
                             ),
                             rating: field.rating || 5,
+                            startValue: [field.startValue ?? 0],
+                            endValue: [field.endValue ?? 5],
+                            rows: this.fb.array(field.rows || []),         
+                            columns: this.fb.array(field.columns || []),   
+                            fileUrl: [field.fileUrl || ''], 
                             sectionBasedonAnswer: field.sectionBasedonAnswer || false
                         });
                     });
@@ -308,6 +319,10 @@ private loadTemplate(templateId: number) {
             options: this.fb.array([]),
             rating: [5],
             required: false,
+            rows: this.fb.array([]),
+            columns: this.fb.array([]),
+            startValue: [0],
+            endValue: [5],
             sectionBasedonAnswer: false, 
         });
 
@@ -334,12 +349,31 @@ private loadTemplate(templateId: number) {
                 
         }
 
+        if (type === 'multipleChoiceGrid' || type === 'checkboxGrid') {
+            const rows = questionGroup.get('rows') as FormArray;
+            const columns = questionGroup.get('columns') as FormArray;
+        
+            if (rows.length === 0) rows.push(this.fb.control('Row 1'));
+            if (columns.length === 0) columns.push(this.fb.control('Column 1'));
+        }
+        
+       
         //Removing default option added when the type is not from the 3
         questionGroup.get('type')?.valueChanges.subscribe(type => {
+            const rows = questionGroup.get('rows') as FormArray;
+            const columns = questionGroup.get('columns') as FormArray;    
             if(!(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown')){
                 const options = questionGroup.get('options') as FormArray;
                 options.clear();
             }
+            if (!(type === 'multipleChoiceGrid' || type === 'checkboxGrid')) {
+                rows.clear();
+                columns.clear();
+            }
+            if (type !== 'linearScale') {
+                questionGroup.patchValue({ startValue: 0, endValue: 5 });
+            }
+          
             this.submitClicked = false;
         });
         section.push(questionGroup);
@@ -357,6 +391,18 @@ private loadTemplate(templateId: number) {
             options: this.fb.array(originalQuestion.options.map((opt: any) => this.fb.control(opt))),
             rating: [originalQuestion.rating],
             required: [originalQuestion.required],
+            startValue: [originalQuestion.startValue ?? 0],
+            endValue: [originalQuestion.endValue ?? 5],
+            rows: this.fb.array(
+                originalQuestion.rows
+                ? originalQuestion.rows.map((row: any) => this.fb.control(row))
+                : []
+            ),
+            columns: this.fb.array(
+                originalQuestion.columns
+                ? originalQuestion.columns.map((col: any) => this.fb.control(col))
+                : []
+            ),
             sectionBasedonAnswer: [originalQuestion.sectionBasedonAnswer] 
         });
         section.insert(questionIndex + 1, duplicated);
@@ -397,11 +443,7 @@ private loadTemplate(templateId: number) {
                 label: [`Option ${index + (otherAdded? 0:1)}`],
                 goToSection: [sectionIndex + 1]
             });
-            
-            if(otherIndex != -1)
-                options.insert(otherIndex, newOption)
-            else
-                options.push(newOption);
+            options.push(newOption);
         }
         // if(value!=''){
         //     if(!this.otherAddedMap[sectionIndex])
@@ -436,6 +478,63 @@ private loadTemplate(templateId: number) {
     }
 
 
+
+    addGridRow(sectionIndex: number, questionIndex: number) {
+        const question = this.getSectionQuestions(sectionIndex).at(questionIndex) as FormGroup;
+      
+        let rows = question.get('rows') as FormArray;
+        if (!rows) {
+          rows = this.fb.array([]);
+          question.addControl('rows', rows);
+        }
+      
+        rows.push(this.fb.control(''));
+      }
+      
+      addGridColumn(sectionIndex: number, questionIndex: number) {
+        const question = this.getSectionQuestions(sectionIndex).at(questionIndex) as FormGroup;
+      
+        let columns = question.get('columns') as FormArray;
+        if (!columns) {
+          columns = this.fb.array([]);
+          question.addControl('columns', columns);
+        }
+      
+        columns.push(this.fb.control(''));
+      }
+      getNonEmptyGridItems(items: FormArray): number {
+        return items.controls.filter(control => {
+          return control.value && control.value.trim() !== '';
+        }).length;
+      }      
+      
+      removeGridRow(sectionIndex: number, questionIndex: number, rowIndex: number) {
+        const question = this.getSectionQuestions(sectionIndex).at(questionIndex);
+        const rows = this.getRows(question);
+        rows.removeAt(rowIndex);
+      }
+      
+  
+      removeGridColumn(sectionIndex: number, questionIndex: number, colIndex: number) {
+        const questions = this.getSectionQuestions(sectionIndex);
+        const question = questions.at(questionIndex) as FormGroup;
+        const columns = this.getColumns(question);
+        columns.removeAt(colIndex);
+      }      
+  
+  getRows(question: AbstractControl): FormArray {
+    return question.get('rows') as FormArray;
+  }
+  
+  getColumns(question: AbstractControl): FormArray {
+    return question.get('columns') as FormArray;
+  }
+  hasEmptyGridItem(array: FormArray): boolean {
+    return array.controls.some(control => !control.value?.trim());
+  }
+  
+
+
 onSubmit(isTemplate: boolean = false) {
     this.submitClicked = true;
     if (!this.getTitleControl()?.value.trim()) return;
@@ -451,10 +550,27 @@ onSubmit(isTemplate: boolean = false) {
                 const ques = control;
                 const optionsArray = this.getOptions(ques);
 
-                if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
-            }
+                    if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
+
+                    const type = ques.get('type')?.value;
+                    const rows = ques.get('rows') as FormArray;
+                    const columns = ques.get('columns') as FormArray;
+                    if ((type === 'checkboxGrid' || type === 'multipleChoiceGrid')) {
+                        const nonEmptyRows = rows?.controls.filter(rowCtrl => rowCtrl.value?.trim()) || [];
+                        const nonEmptyCols = columns?.controls.filter(colCtrl => colCtrl.value?.trim()) || [];
+                        if (nonEmptyRows.length === 0 || nonEmptyCols.length === 0) {
+                            this.isQuestionInvalid = true;
+                        }
+                    }
+                    // optionsArray.controls.forEach(optionControl => {
+                    //     if (((ques.get('type')?.value === "multipleChoice") || (ques.get('type')?.value === "dropdown"))
+                    //         &&
+                    //         (optionsArray.length < 2))
+                    //         this.singleOption = true;
+                    // });
+                }
+            });
         });
-    });
 
     if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
 
