@@ -59,26 +59,34 @@ export class FormPreviewComponent implements OnInit {
         }
       }
 
-    onAnswerSelected(event: Event, question: any){
-        const selectedOption = (event.target as HTMLInputElement).value;
+    onAnswerSelected(option: any, question: any) {
+        // console.log("answer selected");
+        // const selectedOption = (event.target as HTMLInputElement).value;
 
-        // if(!question.get('sectionBasedonAnswer')?.value) return;
-        if(!question.sectionBasedonAnswer) return;
+        // if(!question.sectionBasedonAnswer) return;
 
-        const options = question.options;
-        // console.log(typeof(options));
-        // console.log("Options  : ", options);
+        // const options = question.options;
 
-        for(let i=0; i<options.length; i++){
-            const option = options.at(i);
-            // console.log("options label : ", option.label);
-            const label = option.label
+        // for(let i=0; i<options.length; i++){
+        //     const option = options.at(i);
+        //     const label = option.label
 
-            if(label === selectedOption){
-                const gotoSectionIndex = option.goToSection;
-                this.nextSectionData[this.currentSectionIndex] = gotoSectionIndex;
-                break;
-            }
+        //     if(label === selectedOption){
+        //         const gotoSectionIndex = option.goToSection;
+        //         this.nextSectionData[this.currentSectionIndex] = gotoSectionIndex;
+        //         break;
+        //     }
+        // }
+
+        if (!question.sectionBasedonAnswer) return;
+
+        const gotoSectionIndex = option.goToSection;
+        if (gotoSectionIndex !== undefined && gotoSectionIndex !== -1) {
+            this.nextSectionData[this.currentSectionIndex] = gotoSectionIndex;
+            console.log(`Setting next section to ${gotoSectionIndex} based on option ${option.label}`);
+        }
+        if(gotoSectionIndex === -1) {
+            console.log("submit form section");
         }
     }
 
