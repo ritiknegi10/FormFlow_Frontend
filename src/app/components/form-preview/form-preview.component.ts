@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-form-preview',
@@ -7,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FormPreviewComponent implements OnInit {
     formPreviewData: any;
-    sections: any[]=[];
-    nextSectionData: { [key: number]: number }={};
+    sections: any[] = [];
+    nextSectionData: { [key: number]: number } = {};
+    nextClicked: boolean = false;
     currentSectionIndex!: number;
+    dropdownOpen: boolean = false;
+    selectedOption: string | null = null;
 
     ngOnInit(): void {
         this.currentSectionIndex=0;
@@ -31,9 +35,29 @@ export class FormPreviewComponent implements OnInit {
         
     }
 
-    gotoNextSection(){
+    gotoNextSection() {
         this.currentSectionIndex = this.nextSectionData[this.currentSectionIndex];
+        window.scroll(0,0);
+        this.nextClicked = true;
     }
+
+    gotoPreviousSection() {
+        if(this.currentSectionIndex > 0) {
+            this.currentSectionIndex--;
+            window.scroll(0,0);
+        }
+
+    }
+
+    toggleCheckbox(label: string, question: any) {
+        if (!question.answer) question.answer = [];
+        const idx = question.answer.indexOf(label);
+        if (idx === -1) {
+          question.answer.push(label);
+        } else {
+          question.answer.splice(idx, 1);
+        }
+      }
 
     onAnswerSelected(event: Event, question: any){
         const selectedOption = (event.target as HTMLInputElement).value;
@@ -56,5 +80,25 @@ export class FormPreviewComponent implements OnInit {
                 break;
             }
         }
+    }
+
+    confirmClearForm(formRef: any) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This will erase all answers from your form, and cannot be undone',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, clear form',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.clearForm(formRef);
+            }
+        });
+      }
+
+    clearForm(formRef: any) {
+        formRef.resetForm();
     }
 }
