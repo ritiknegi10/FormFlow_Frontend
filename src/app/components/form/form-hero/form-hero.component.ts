@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { filter } from 'rxjs';
 
@@ -12,6 +12,8 @@ import { filter } from 'rxjs';
 })
 export class FormHeroComponent implements OnInit{
     showTemplateSuccess = false;
+    isTemplateMode = false;
+
     formId: number | null = null;
     formBuilder: FormGroup;
     ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
@@ -30,7 +32,8 @@ export class FormHeroComponent implements OnInit{
     constructor(private fb: FormBuilder, 
                 private formService: FormService, 
                 private router: Router, 
-                private cdr: ChangeDetectorRef) {
+                private cdr: ChangeDetectorRef,
+            private route: ActivatedRoute) {
         this.formBuilder = this.fb.group({
             title: 'Untitled Form',
             description: '',
@@ -47,8 +50,12 @@ export class FormHeroComponent implements OnInit{
     ngOnInit() {
         // if you're editing an existing form, fetch data
         const urlParts = this.router.url.split('/');
-        // console.log(urlParts);
-        if (urlParts[1] === 'edit' && urlParts[2]) {
+        this.route.queryParams.subscribe(params => {
+            const templateId = params['templateId'];
+            if (templateId) {
+              this.loadTemplate(templateId);
+            }
+            else if (urlParts[1] === 'edit' && urlParts[2]) {
             this.formId = parseInt(urlParts[2]);
             this.formService.getFormById(this.formId).subscribe(form => {
 
@@ -93,8 +100,79 @@ export class FormHeroComponent implements OnInit{
         else {
             this.addSection(); // Start with one section by default
         }
-    }
+    });
+}
 
+private loadTemplate(templateId: number) {
+    this.formService.getFormById(templateId).subscribe({
+      next: (form) => {
+        // Clear existing form
+        while (this.sections.length !== 0) {
+          this.sections.removeAt(0);
+        }
+  
+        // Parse form schema
+        const parsedSchema = typeof form.formSchema === 'string' ? 
+                           JSON.parse(form.formSchema) : 
+                           form.formSchema;
+  
+        // Rebuild sections
+        parsedSchema.sections.forEach((section: any) => {
+          const newSection = this.fb.group({
+            sectionTitle: section.sectionTitle,
+            sectionDescription: section.sectionDescription,
+            nextSection: section.nextSection,
+            questions: this.fb.array([])
+          });
+  
+          section.questions.forEach((question: any) => {
+            const questionGroup = this.fb.group({
+              questionText: question.questionText,
+              questionDescription: question.questionDescription,
+              type: question.type,
+              options: this.fb.array(
+                (question.options || []).map((opt: any) =>
+                  this.fb.group({
+                    label: opt.label,
+                    goToSection: opt.goToSection
+                  })
+                )
+              ),
+              rating: question.rating || 5,
+              required: question.required,
+              sectionBasedonAnswer: question.sectionBasedonAnswer
+            });
+            
+            (newSection.get('questions') as FormArray).push(questionGroup);
+          });
+  
+          this.sections.push(newSection);
+        });
+  
+        this.formBuilder.patchValue({
+          title: form.title + ' (Copy)',
+          description: form.description
+        });
+        
+        this.formFetched = true;
+      },
+      error: (err) => {
+        console.error('Error loading template:', err);
+        this.router.navigate(['/form-template']);
+      }
+    });
+  }
+  
+
+
+
+  ngAfterViewInit() {
+    if (this.formFetched && !this.sections.length) {
+      this.router.navigate(['/form-template'], {
+        queryParams: { error: 'invalid-template' }
+      });
+    }
+  }
     //* Getting Form title in navbar
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
