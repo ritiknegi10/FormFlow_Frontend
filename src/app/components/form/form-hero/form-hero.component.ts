@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { filter } from 'rxjs';
 
@@ -11,9 +11,13 @@ import { filter } from 'rxjs';
   styleUrls: ['./form-hero.component.scss']
 })
 export class FormHeroComponent implements OnInit{
+    showTemplateSuccess = false;
+    isTemplateMode = false;
+
     formId: number | null = null;
     formBuilder: FormGroup;
     ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
+    scalingOptions=Array.from({ length: 6 }, (_, i) => i + 5);
     currentUrl!: String
     submitClicked = false;
     submitSuccess = false;
@@ -25,15 +29,21 @@ export class FormHeroComponent implements OnInit{
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     otherAddedMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
 
-
     constructor(private fb: FormBuilder, 
                 private formService: FormService, 
                 private router: Router, 
-                private cdr: ChangeDetectorRef) {
+                private cdr: ChangeDetectorRef,
+            private route: ActivatedRoute) {
         this.formBuilder = this.fb.group({
             title: 'Untitled Form',
             description: '',
             sections: this.fb.array([])
+        });
+
+        this.router.events
+            .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event: any) => {
+            this.currentUrl = event.url;
         });
 
         this.router.events
@@ -46,8 +56,12 @@ export class FormHeroComponent implements OnInit{
     ngOnInit() {
         // if you're editing an existing form, fetch data
         const urlParts = this.router.url.split('/');
-        // console.log(urlParts);
-        if (urlParts[1] === 'edit' && urlParts[2]) {
+        this.route.queryParams.subscribe(params => {
+            const templateId = params['templateId'];
+            if (templateId) {
+              this.loadTemplate(templateId);
+            }
+            else if (urlParts[1] === 'edit' && urlParts[2]) {
             this.formId = parseInt(urlParts[2]);
             this.formService.getFormById(this.formId).subscribe(form => {
 
@@ -75,6 +89,11 @@ export class FormHeroComponent implements OnInit{
                                 )
                             ),
                             rating: field.rating || 5,
+                            startValue: [field.startValue ?? 0],
+                            endValue: [field.endValue ?? 5],
+                            rows: this.fb.array(field.rows || []),         
+                            columns: this.fb.array(field.columns || []),   
+                            fileUrl: [field.fileUrl || ''], 
                             sectionBasedonAnswer: field.sectionBasedonAnswer || false
                         });
                     });
@@ -92,8 +111,79 @@ export class FormHeroComponent implements OnInit{
         else {
             this.addSection(); // Start with one section by default
         }
-    }
+    });
+}
 
+private loadTemplate(templateId: number) {
+    this.formService.getFormById(templateId).subscribe({
+      next: (form) => {
+        // Clear existing form
+        while (this.sections.length !== 0) {
+          this.sections.removeAt(0);
+        }
+  
+        // Parse form schema
+        const parsedSchema = typeof form.formSchema === 'string' ? 
+                           JSON.parse(form.formSchema) : 
+                           form.formSchema;
+  
+        // Rebuild sections
+        parsedSchema.sections.forEach((section: any) => {
+          const newSection = this.fb.group({
+            sectionTitle: section.sectionTitle,
+            sectionDescription: section.sectionDescription,
+            nextSection: section.nextSection,
+            questions: this.fb.array([])
+          });
+  
+          section.questions.forEach((question: any) => {
+            const questionGroup = this.fb.group({
+              questionText: question.questionText,
+              questionDescription: question.questionDescription,
+              type: question.type,
+              options: this.fb.array(
+                (question.options || []).map((opt: any) =>
+                  this.fb.group({
+                    label: opt.label,
+                    goToSection: opt.goToSection
+                  })
+                )
+              ),
+              rating: question.rating || 5,
+              required: question.required,
+              sectionBasedonAnswer: question.sectionBasedonAnswer
+            });
+            
+            (newSection.get('questions') as FormArray).push(questionGroup);
+          });
+  
+          this.sections.push(newSection);
+        });
+  
+        this.formBuilder.patchValue({
+          title: form.title + ' (Copy)',
+          description: form.description
+        });
+        
+        this.formFetched = true;
+      },
+      error: (err) => {
+        console.error('Error loading template:', err);
+        this.router.navigate(['/form-template']);
+      }
+    });
+  }
+  
+
+
+
+  ngAfterViewInit() {
+    if (this.formFetched && !this.sections.length) {
+      this.router.navigate(['/form-template'], {
+        queryParams: { error: 'invalid-template' }
+      });
+    }
+  }
     //* Getting Form title in navbar
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
@@ -229,6 +319,10 @@ export class FormHeroComponent implements OnInit{
             options: this.fb.array([]),
             rating: [5],
             required: false,
+            rows: this.fb.array([]),
+            columns: this.fb.array([]),
+            startValue: [0],
+            endValue: [5],
             sectionBasedonAnswer: false, 
         });
 
@@ -255,12 +349,31 @@ export class FormHeroComponent implements OnInit{
                 
         }
 
+        if (type === 'multipleChoiceGrid' || type === 'checkboxGrid') {
+            const rows = questionGroup.get('rows') as FormArray;
+            const columns = questionGroup.get('columns') as FormArray;
+        
+            if (rows.length === 0) rows.push(this.fb.control('Row 1'));
+            if (columns.length === 0) columns.push(this.fb.control('Column 1'));
+        }
+        
+       
         //Removing default option added when the type is not from the 3
         questionGroup.get('type')?.valueChanges.subscribe(type => {
+            const rows = questionGroup.get('rows') as FormArray;
+            const columns = questionGroup.get('columns') as FormArray;    
             if(!(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown')){
                 const options = questionGroup.get('options') as FormArray;
                 options.clear();
             }
+            if (!(type === 'multipleChoiceGrid' || type === 'checkboxGrid')) {
+                rows.clear();
+                columns.clear();
+            }
+            if (type !== 'linearScale') {
+                questionGroup.patchValue({ startValue: 0, endValue: 5 });
+            }
+          
             this.submitClicked = false;
         });
         section.push(questionGroup);
@@ -278,6 +391,18 @@ export class FormHeroComponent implements OnInit{
             options: this.fb.array(originalQuestion.options.map((opt: any) => this.fb.control(opt))),
             rating: [originalQuestion.rating],
             required: [originalQuestion.required],
+            startValue: [originalQuestion.startValue ?? 0],
+            endValue: [originalQuestion.endValue ?? 5],
+            rows: this.fb.array(
+                originalQuestion.rows
+                ? originalQuestion.rows.map((row: any) => this.fb.control(row))
+                : []
+            ),
+            columns: this.fb.array(
+                originalQuestion.columns
+                ? originalQuestion.columns.map((col: any) => this.fb.control(col))
+                : []
+            ),
             sectionBasedonAnswer: [originalQuestion.sectionBasedonAnswer] 
         });
         section.insert(questionIndex + 1, duplicated);
@@ -318,11 +443,7 @@ export class FormHeroComponent implements OnInit{
                 label: [`Option ${index + (otherAdded? 0:1)}`],
                 goToSection: [sectionIndex + 1]
             });
-            
-            if(otherIndex != -1)
-                options.insert(otherIndex, newOption)
-            else
-                options.push(newOption);
+            options.push(newOption);
         }
         // if(value!=''){
         //     if(!this.otherAddedMap[sectionIndex])
@@ -356,23 +477,91 @@ export class FormHeroComponent implements OnInit{
         questionsArray.updateValueAndValidity();
     }
 
-    onSubmit(){
-        this.submitClicked = true;
-        if(!this.getTitleControl()?.value.trim()) return;
 
-        this.isQuestionInvalid = false;
-        this.singleOption = false;
-        let isOptionInvalid = false;
 
-        this.sections.controls.forEach(section => {
-            const questionsArray = (section.get('questions') as FormArray);
-            questionsArray.controls.forEach(control => {
-                if (control instanceof FormGroup) {
-                    const ques = control;
-                    const optionsArray = this.getOptions(ques);
+    addGridRow(sectionIndex: number, questionIndex: number) {
+        const question = this.getSectionQuestions(sectionIndex).at(questionIndex) as FormGroup;
+      
+        let rows = question.get('rows') as FormArray;
+        if (!rows) {
+          rows = this.fb.array([]);
+          question.addControl('rows', rows);
+        }
+      
+        rows.push(this.fb.control(''));
+      }
+      
+      addGridColumn(sectionIndex: number, questionIndex: number) {
+        const question = this.getSectionQuestions(sectionIndex).at(questionIndex) as FormGroup;
+      
+        let columns = question.get('columns') as FormArray;
+        if (!columns) {
+          columns = this.fb.array([]);
+          question.addControl('columns', columns);
+        }
+      
+        columns.push(this.fb.control(''));
+      }
+      getNonEmptyGridItems(items: FormArray): number {
+        return items.controls.filter(control => {
+          return control.value && control.value.trim() !== '';
+        }).length;
+      }      
+      
+      removeGridRow(sectionIndex: number, questionIndex: number, rowIndex: number) {
+        const question = this.getSectionQuestions(sectionIndex).at(questionIndex);
+        const rows = this.getRows(question);
+        rows.removeAt(rowIndex);
+      }
+      
+  
+      removeGridColumn(sectionIndex: number, questionIndex: number, colIndex: number) {
+        const questions = this.getSectionQuestions(sectionIndex);
+        const question = questions.at(questionIndex) as FormGroup;
+        const columns = this.getColumns(question);
+        columns.removeAt(colIndex);
+      }      
+  
+  getRows(question: AbstractControl): FormArray {
+    return question.get('rows') as FormArray;
+  }
+  
+  getColumns(question: AbstractControl): FormArray {
+    return question.get('columns') as FormArray;
+  }
+  hasEmptyGridItem(array: FormArray): boolean {
+    return array.controls.some(control => !control.value?.trim());
+  }
+  
+
+
+onSubmit(isTemplate: boolean = false) {
+    this.submitClicked = true;
+    if (!this.getTitleControl()?.value.trim()) return;
+
+    this.isQuestionInvalid = false;
+    this.singleOption = false;
+    let isOptionInvalid = false;
+
+    this.sections.controls.forEach(section => {
+        const questionsArray = (section.get('questions') as FormArray);
+        questionsArray.controls.forEach(control => {
+            if (control instanceof FormGroup) {
+                const ques = control;
+                const optionsArray = this.getOptions(ques);
 
                     if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
 
+                    const type = ques.get('type')?.value;
+                    const rows = ques.get('rows') as FormArray;
+                    const columns = ques.get('columns') as FormArray;
+                    if ((type === 'checkboxGrid' || type === 'multipleChoiceGrid')) {
+                        const nonEmptyRows = rows?.controls.filter(rowCtrl => rowCtrl.value?.trim()) || [];
+                        const nonEmptyCols = columns?.controls.filter(colCtrl => colCtrl.value?.trim()) || [];
+                        if (nonEmptyRows.length === 0 || nonEmptyCols.length === 0) {
+                            this.isQuestionInvalid = true;
+                        }
+                    }
                     // optionsArray.controls.forEach(optionControl => {
                     //     if (((ques.get('type')?.value === "multipleChoice") || (ques.get('type')?.value === "dropdown"))
                     //         &&
@@ -383,19 +572,28 @@ export class FormHeroComponent implements OnInit{
             });
         });
 
-        if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
+    if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
 
-        if (this.formBuilder.valid) {
-            const payload = {
-                title: this.formBuilder.value.title,
-                description: this.formBuilder.value.description,
-                formSchema: {
-                    sections: this.formBuilder.value.sections
-                }
-            };
-            // console.log("logging form");
-            // console.log(payload);
+    if (this.formBuilder.valid) {
+        const payload = {
+            title: this.formBuilder.value.title,
+            description: this.formBuilder.value.description,
+            formSchema: {
+                sections: this.formBuilder.value.sections
+            }
+        };
 
+        if (isTemplate) {
+            this.formService.saveAsTemplate(payload).subscribe({
+                next: () => {
+                    this.showTemplateSuccess = true;
+                    setTimeout(() => {
+                        this.router.navigate(['/form-template']);
+                    }, 2000);
+                },
+                error: (error) => console.error(error)
+            });
+        } else {
             if (this.formId) {
                 this.formService.updateForm(this.formId, payload).subscribe({
                     next: () => {
@@ -417,8 +615,8 @@ export class FormHeroComponent implements OnInit{
                     this.router.navigate(['/forms']);
                 }, 3000);
             }
-        } else {
-            console.log("Form is invalid");
-        }
+        } }else {  // Move this else inside the main if block
+        console.log("Form is invalid");
     }
+}
 }

@@ -8,6 +8,8 @@ import { filter } from 'rxjs';
   styleUrls: ['./form-navbar.component.scss']
 })
 export class FormNavbarComponent implements OnInit {
+    @Output() saveAsTemplateClicked = new EventEmitter<void>();
+
     currentUrl!: string;
     //* ******side drawer******
     isDrawerOpen: boolean = false;
@@ -35,6 +37,11 @@ export class FormNavbarComponent implements OnInit {
     //* Handling Form Title change
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
+
+
+    onSaveAsTemplateClick() {
+        this.saveAsTemplateClicked.emit();
+    }
 
     onTitleChange(event: Event) {
         const input = event.target as HTMLInputElement;
