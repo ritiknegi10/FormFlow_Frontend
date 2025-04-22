@@ -204,6 +204,13 @@ getTemplates(): Observable<any[]> {
       })
     );
   }
+  
+  removeAssignedUsers(formId: number, emails: string[]): Observable<any> {
+    return this.http.put(
+      `${this.apiUrl}/${formId}/remove-assigned-users`,
+      emails
+    );
+  }
 
   checkUserSubmission(formId: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiUrl}/${formId}/submitted`);
