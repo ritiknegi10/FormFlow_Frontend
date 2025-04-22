@@ -58,7 +58,7 @@ export class FormNavbarComponent implements OnInit {
     
     //* Handling publish button click
     @Output() publishClicked = new EventEmitter<void>();
-    onPublishClick(){
+    onSaveClick(){
         this.publishClicked.emit();
     }
 

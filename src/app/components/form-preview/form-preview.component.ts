@@ -12,7 +12,7 @@ export class FormPreviewComponent implements OnInit {
     nextSectionData: { [key: number]: number } = {};
     nextClicked: boolean = false;
     currentSectionIndex!: number;
-    dropdownOpen: boolean = false;
+    dropdownOpen: boolean[] = [];
     selectedOption: string | null = null;
 
     ngOnInit(): void {
