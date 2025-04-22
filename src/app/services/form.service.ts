@@ -209,6 +209,17 @@ getTemplates(): Observable<any[]> {
     return this.http.post(`${this.apiUrl}/${formId}/assign`, userEmails);
   }
 
+  updateVisibility(formId: number, isPublic: boolean): Observable<string> {
+    return this.http.put(
+      `${this.apiUrl}/${formId}/visibility`,
+      null,
+      { 
+        params: new HttpParams().set('isPublic', isPublic.toString()),
+        responseType: 'text'
+      }
+    );
+  }
+
   // Helper method to maintain question type consistency
   private mapQuestionType(type: string): string {
     const typeMapping: { [key: string]: string } = {
