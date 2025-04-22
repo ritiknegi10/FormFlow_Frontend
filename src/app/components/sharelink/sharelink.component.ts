@@ -49,7 +49,6 @@ export class SharelinkComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading form:', error);
-        this.router.navigate(['/']);
       }
     });
   }
@@ -63,7 +62,6 @@ export class SharelinkComponent implements OnInit {
         .map(() => 0);
     } catch (error) {
       console.error('Error parsing form schema:', error);
-      this.router.navigate(['/']);
     }
   }
 
