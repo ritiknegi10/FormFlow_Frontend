@@ -11,12 +11,12 @@ export class FormNavbarComponent implements OnInit {
     @Output() saveAsTemplateClicked = new EventEmitter<void>();
 
     currentUrl!: string;
-    //* ******side drawer******
+    // side drawer
     isDrawerOpen: boolean = false;
     firstRender: boolean = true;
-
-    //* *****Profile Menu******
-    isProfileMenuOpen = false;
+    
+    isProfileMenuOpen: boolean = false;
+    isSaveMenuOpen = false;
 
     ngOnInit() {
         // using firstRender to remove side drawer from DOM until page is ready
@@ -79,5 +79,10 @@ export class FormNavbarComponent implements OnInit {
     // profile menu function
     toggleProfileMenu() {
         this.isProfileMenuOpen = !this.isProfileMenuOpen;
+    }
+
+    // save menu function
+    toggleSaveMenu() {
+        this.isSaveMenuOpen = !this.isSaveMenuOpen;
     }
 }
