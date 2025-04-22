@@ -18,7 +18,16 @@ export class FormVersionsComponent implements OnInit {
   currentFormVersion!: any;
   ratingOptions: number[] = [3, 4, 5, 6, 7, 8, 9, 10];
 
-  constructor( private route: ActivatedRoute, private fb: FormBuilder, private formService: FormService, private router: Router ) {}
+  constructor(private route: ActivatedRoute, 
+              private fb: FormBuilder, 
+              private formService: FormService, 
+              private router: Router ) {
+      this.form = this.fb.group({
+        title: '',
+        description: '',
+        sections: this.fb.array([])
+      });
+  }
   
   ngOnInit() {
     window.scrollTo(0, 0);
@@ -40,7 +49,7 @@ export class FormVersionsComponent implements OnInit {
         return;
       }
       const versionsList: any = formVersions; 
-      console.log(versionsList);
+      // console.log(versionsList);
 
       // initialise and sort array of version numbers 
       this.versions = versionsList.map((vers: any) => vers.version).sort((a: number, b: number) => b-a); 
@@ -53,26 +62,79 @@ export class FormVersionsComponent implements OnInit {
 
   loadFormVersion(version: number) {
     this.formService.getFormByVersion(this.formIndex, version).subscribe((versionData) => {
-      if(!versionData) {
-        console.error("Version not found", versionData);
-        return;
-      }
+        if(!versionData) {
+            console.error("Version not found", versionData);
+            return;
+        }
 
-      const formSchema = JSON.parse(versionData.formSchema);
-      const questions = formSchema.fields;
-      //console.log(questions);
-      
-      this.form = this.fb.group({
-        title: new FormControl(versionData.title || ''),
-        description: new FormControl(versionData.description || ''),
-        questions: this.fb.array(questions.map((q: any) => {
-          return this.createQuestionGroup(q);
-        })),
-      }); 
-      this.form.disable();
-      this.currentFormVersion = versionData;
-      console.log(this.currentFormVersion);
+        //console.log(questions);
+
+        this.form.patchValue({
+            title: versionData.title,
+            descriptio: versionData.description
+        });
+
+        const formSchema = JSON.parse(versionData.formSchema);
+        console.log("form schema");
+        console.log(formSchema)
+
+        const sectionsArray = (formSchema.sections || []).map((section: any) => {
+            const questions = section.questions.map((field:any) =>{
+                return this.fb.group({
+                    questionText: field.questionText,
+                    questionDescription: '',
+                    type: field.type,
+                    required: field.required,
+                    options: this.fb.array(
+                        (field.options || []).map((option: any) => 
+                            this.fb.group({
+                                label: option.label,
+                                goToSection: option.goToSection || null
+                            })
+                        )
+                    ),
+                    rating: field.rating || 5,
+                    startValue: [field.startValue ?? 0],
+                    endValue: [field.endValue ?? 5],
+                    rows: this.fb.array(field.rows || []),         
+                    columns: this.fb.array(field.columns || []),   
+                    fileUrl: [field.fileUrl || ''], 
+                    sectionBasedonAnswer: field.sectionBasedonAnswer || false
+                });
+            });
+            return this.fb.group({
+                sectionTitle: section.sectionTitle,
+                sectionDescription: section.sectionDescription,
+                nextSection: section.nextSection,
+                questions: this.fb.array(questions)
+            });
+        });
+
+        this.form.setControl('sections', this.fb.array(sectionsArray));
+        
+        // this.form = this.fb.group({
+        //   title: new FormControl(versionData.title || ''),
+        //   description: new FormControl(versionData.description || ''),
+        //   sections: this.fb.array(formSchema.sections.map((s: any) => {
+        //     return this.createSectionGroup(s);
+        //   })),
+        // });
+
+        this.form.disable();
+        this.currentFormVersion = versionData;
+        // console.log("current form version")
+        // console.log(this.currentFormVersion);
     });
+  }
+
+  createSectionGroup(section: any){
+    const sectiongroup = this.fb.group({
+      sectionTitle: section.sectionTitle,
+      sectionDescription: section.sectionDescription,
+      nextSection: section.nextSection,
+      questions: section.questions
+    });
+    return sectiongroup;
   }
 
   createQuestionGroup(question: any): FormGroup {
@@ -86,12 +148,17 @@ export class FormVersionsComponent implements OnInit {
     return questionGroup;
   }
 
-  get questions(): FormArray {
-    return this.form.get('questions') as FormArray;
+  get sections(): FormArray{
+    return this.form.get('sections') as FormArray;
   }
-  getOptions(question: any): FormArray {
-      return question.get('options') as FormArray;
+
+  getQuestionsControl(section: any): FormArray{
+    return section.get('questions') as FormArray;
   }
+
+  getOptions(question: any): FormArray{
+    return question.get('options') as FormArray;
+}
 
   onVersionChange() {
     this.loadFormVersion(this.selectedVersion);

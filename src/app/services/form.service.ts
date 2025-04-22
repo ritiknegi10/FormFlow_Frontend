@@ -27,7 +27,9 @@ export class FormService {
     this.forms.next(forms);
   }
 
-  addForm(newForm: any): void { const allQuestions: any[] = [];
+  addForm(newForm: any): void { 
+    
+    const allQuestions: any[] = [];
     
     if (newForm.formSchema && newForm.formSchema.sections) {
       newForm.formSchema.sections.forEach((section: any) => {
