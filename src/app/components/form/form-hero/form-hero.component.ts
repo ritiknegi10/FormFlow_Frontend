@@ -54,7 +54,7 @@ export class FormHeroComponent implements OnInit{
     }
 
     ngOnInit() {
-        // if you're editing an existing form, fetch data
+        // --if you're editing an existing form, fetch data
         const urlParts = this.router.url.split('/');
         this.route.queryParams.subscribe(params => {
             const templateId = params['templateId'];
@@ -184,11 +184,11 @@ private loadTemplate(templateId: number) {
       });
     }
   }
-    //* Getting Form title in navbar
+    //* --Getting Form title in navbar
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
 
-    //* Getting Form data to preview
+    //* --Getting Form data to preview
     getFormData(){
         return this.formBuilder.value;
     }
@@ -214,7 +214,7 @@ private loadTemplate(templateId: number) {
     }
     
 
-    // other options menu toggle
+    // --other options menu toggle
     toggleOtherOptionsMenu(sectionIndex: number, questionIndex: number) {
         if (!this.showMenuMap[sectionIndex]) {
             this.showMenuMap[sectionIndex] = {};
@@ -223,7 +223,7 @@ private loadTemplate(templateId: number) {
         this.showMenuMap[sectionIndex][questionIndex] = !isMenuOpen;
     }
 
-    // collapse or explan options
+    // --collapse or explan options
     toggleOptions(sectionIndex: number, questionIndex: number) {
         const isVisible = this.showOptionsMap[sectionIndex][questionIndex];
         this.showOptionsMap[sectionIndex][questionIndex] = !isVisible;
@@ -234,7 +234,7 @@ private loadTemplate(templateId: number) {
         this.showQuestionDescription[sectionIndex][questionIndex] = !isVisible;
     }
 
-    //selects all text when focused on option input field
+    // --selects all text when focused on option input field
     selectAllText(eventTarget: EventTarget | null){
         if(eventTarget instanceof HTMLInputElement)
             eventTarget.select();
@@ -263,13 +263,13 @@ private loadTemplate(templateId: number) {
             nextSection: [this.sections.length + 1],
             questions: this.fb.array([]),
         });
-        // handling form title change and updating first secitons title
+        // --handling form title change and updating first secitons title
         this.getTitleControl()?.valueChanges.subscribe(title => {
             this.sections.at(0).get('sectionTitle')?.setValue(title);
         });
         this.sections.push(sectionGroup);
         
-        // Add 1 question by default to new section 
+        // --Add 1 question by default to new section 
         this.addQuestionToSection(this.sections.length - 1);
         this.cdr.detectChanges();
     }
@@ -279,10 +279,10 @@ private loadTemplate(templateId: number) {
     }
 
     getSectionTitleControl(section: any){
-        // Making form title as 1st sections title
+        // --Making form title as 1st sections title
         this.sections.at(0).get('sectionTitle')?.setValue(this.getTitleControl()?.value || 'Untitled Section');
 
-        // handling form title change and updating first secitons title
+        // --handling form title change and updating first secitons title
         this.getTitleControl()?.valueChanges.subscribe(title => {
             this.sections.at(0).get('sectionTitle')?.setValue(title);
         });
@@ -329,53 +329,63 @@ private loadTemplate(templateId: number) {
         if (!this.showQuestionDescription[sectionIndex]) {
             this.showQuestionDescription[sectionIndex] = {};
         }
-        
-        const type = questionGroup.get('type')?.value;
-        if(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown') {
 
+        const type = questionGroup.get('type')?.value;
+        const options = questionGroup.get('options') as FormArray;
+        const rows = questionGroup.get('rows') as FormArray;
+        const columns = questionGroup.get('columns') as FormArray;
+
+        const isOptionType = type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown';
+        const isGridType = type === 'multipleChoiceGrid' || type === 'checkboxGrid';
+
+        // --Handle option-based questions
+        if (isOptionType) {
             if (!this.showOptionsMap[sectionIndex]) {
                 this.showOptionsMap[sectionIndex] = {};
             }
             this.showOptionsMap[sectionIndex][section.length] = true;
 
-            const options = questionGroup.get('options') as FormArray;
-            if(options.length === 0) {
-                const newOption = this.fb.group({
-                    label: [`Option 1`],
+            if (options.length === 0) {
+                options.push(this.fb.group({
+                    label: ['Option 1'],
                     goToSection: [sectionIndex + 1]
-                });
-                options.push(newOption);
+                }));
             }
-                
         }
 
-        if (type === 'multipleChoiceGrid' || type === 'checkboxGrid') {
-            const rows = questionGroup.get('rows') as FormArray;
-            const columns = questionGroup.get('columns') as FormArray;
-        
+        // --Handle grid-based questions
+        if (isGridType) {
             if (rows.length === 0) rows.push(this.fb.control('Row 1'));
             if (columns.length === 0) columns.push(this.fb.control('Column 1'));
         }
-        
-       
-        //Removing default option added when the type is not from the 3
-        questionGroup.get('type')?.valueChanges.subscribe(type => {
-            const rows = questionGroup.get('rows') as FormArray;
-            const columns = questionGroup.get('columns') as FormArray;    
-            if(!(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown')){
-                const options = questionGroup.get('options') as FormArray;
+
+        // --Subscribe to type changes
+        questionGroup.get('type')?.valueChanges.subscribe(updatedType => {
+            if (typeof updatedType !== 'string') return; 
+            const isNewOptionType = ['multipleChoice', 'checkboxes', 'dropdown'].includes(updatedType);
+            const isNewGridType = ['multipleChoiceGrid', 'checkboxGrid'].includes(updatedType);
+
+            if (isNewOptionType && options.length === 0) {
+                options.push(this.fb.group({
+                    label: ['Option 1'],
+                    goToSection: [sectionIndex + 1]
+                }));
+            } else if (!isNewOptionType) {
                 options.clear();
             }
-            if (!(type === 'multipleChoiceGrid' || type === 'checkboxGrid')) {
+
+            if (!isNewGridType) {
                 rows.clear();
                 columns.clear();
             }
-            if (type !== 'linearScale') {
+
+            if (updatedType !== 'linearScale') {
                 questionGroup.patchValue({ startValue: 0, endValue: 5 });
             }
-          
+
             this.submitClicked = false;
         });
+
         section.push(questionGroup);
         this.cdr.detectChanges();
     }
@@ -423,7 +433,7 @@ private loadTemplate(templateId: number) {
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
         const index = options.length;
 
-        //* Checking for option - 'Other' added
+        //* --Checking for option - 'Other' added
         if (value === 'Other') {
             if (!this.otherAddedMap[sectionIndex])
                 this.otherAddedMap[sectionIndex] = {};
@@ -433,8 +443,6 @@ private loadTemplate(templateId: number) {
                 goToSection: [sectionIndex + 1]
             });
             options.push(newOption);
-    
-            // newOption.get('label')?.disable(); // Disable editing "Other"
         }
         else{
             const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
@@ -443,19 +451,13 @@ private loadTemplate(templateId: number) {
                 label: [`Option ${index + (otherAdded? 0:1)}`],
                 goToSection: [sectionIndex + 1]
             });
+            
+            // -- keeping 'Other' option always below normal options
+            if(otherIndex != -1)
+                options.insert(otherIndex, newOption)
+            else
             options.push(newOption);
         }
-        // if(value!=''){
-        //     if(!this.otherAddedMap[sectionIndex])
-        //         this.otherAddedMap[sectionIndex]={};
-        //     this.otherAddedMap[sectionIndex][questionIndex]=true;
-        //     options.push(new FormControl(value));
-        //     options.at(index).disable() // Can't edit option - 'Other'
-        // }
-        // else{
-        //     const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
-        //     options.push(new FormControl(`Option ${index + (otherAdded? 0:1)}`));
-        // }
         this.singleOption = false;
     }
 
@@ -481,142 +483,138 @@ private loadTemplate(templateId: number) {
 
     addGridRow(sectionIndex: number, questionIndex: number) {
         const question = this.getSectionQuestions(sectionIndex).at(questionIndex) as FormGroup;
-      
+        
         let rows = question.get('rows') as FormArray;
         if (!rows) {
-          rows = this.fb.array([]);
-          question.addControl('rows', rows);
+            rows = this.fb.array([]);
+            question.addControl('rows', rows);
         }
-      
+        
         rows.push(this.fb.control(''));
-      }
+    }
       
-      addGridColumn(sectionIndex: number, questionIndex: number) {
+    addGridColumn(sectionIndex: number, questionIndex: number) {
         const question = this.getSectionQuestions(sectionIndex).at(questionIndex) as FormGroup;
-      
+        
         let columns = question.get('columns') as FormArray;
         if (!columns) {
-          columns = this.fb.array([]);
-          question.addControl('columns', columns);
+            columns = this.fb.array([]);
+            question.addControl('columns', columns);
         }
-      
+        
         columns.push(this.fb.control(''));
-      }
-      getNonEmptyGridItems(items: FormArray): number {
+    }
+
+    getNonEmptyGridItems(items: FormArray): number {
         return items.controls.filter(control => {
-          return control.value && control.value.trim() !== '';
+            return control.value && control.value.trim() !== '';
         }).length;
-      }      
+    }      
       
-      removeGridRow(sectionIndex: number, questionIndex: number, rowIndex: number) {
+    removeGridRow(sectionIndex: number, questionIndex: number, rowIndex: number) {
         const question = this.getSectionQuestions(sectionIndex).at(questionIndex);
         const rows = this.getRows(question);
         rows.removeAt(rowIndex);
-      }
+    }
       
   
-      removeGridColumn(sectionIndex: number, questionIndex: number, colIndex: number) {
+    removeGridColumn(sectionIndex: number, questionIndex: number, colIndex: number) {
         const questions = this.getSectionQuestions(sectionIndex);
         const question = questions.at(questionIndex) as FormGroup;
         const columns = this.getColumns(question);
         columns.removeAt(colIndex);
-      }      
+    }      
   
-  getRows(question: AbstractControl): FormArray {
-    return question.get('rows') as FormArray;
-  }
+    getRows(question: AbstractControl): FormArray {
+        return question.get('rows') as FormArray;
+    }
+
+    getColumns(question: AbstractControl): FormArray {
+        return question.get('columns') as FormArray;
+    }
+    hasEmptyGridItem(array: FormArray): boolean {
+        return array.controls.some(control => !control.value?.trim());
+    }
   
-  getColumns(question: AbstractControl): FormArray {
-    return question.get('columns') as FormArray;
-  }
-  hasEmptyGridItem(array: FormArray): boolean {
-    return array.controls.some(control => !control.value?.trim());
-  }
-  
 
 
-onSubmit(isTemplate: boolean = false) {
-    this.submitClicked = true;
-    if (!this.getTitleControl()?.value.trim()) return;
+    onSubmit(isTemplate: boolean = false) {
+        this.submitClicked = true;
+        if (!this.getTitleControl()?.value.trim()) return;
 
-    this.isQuestionInvalid = false;
-    this.singleOption = false;
-    let isOptionInvalid = false;
+        this.isQuestionInvalid = false;
+        this.singleOption = false;
+        let isOptionInvalid = false;
 
-    this.sections.controls.forEach(section => {
-        const questionsArray = (section.get('questions') as FormArray);
-        questionsArray.controls.forEach(control => {
-            if (control instanceof FormGroup) {
-                const ques = control;
-                const optionsArray = this.getOptions(ques);
+        this.sections.controls.forEach(section => {
+            const questionsArray = (section.get('questions') as FormArray);
+            questionsArray.controls.forEach(control => {
+                if (control instanceof FormGroup) {
+                    const ques = control;
+                    const optionsArray = this.getOptions(ques);
 
-                    if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
+                        if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
 
-                    const type = ques.get('type')?.value;
-                    const rows = ques.get('rows') as FormArray;
-                    const columns = ques.get('columns') as FormArray;
-                    if ((type === 'checkboxGrid' || type === 'multipleChoiceGrid')) {
-                        const nonEmptyRows = rows?.controls.filter(rowCtrl => rowCtrl.value?.trim()) || [];
-                        const nonEmptyCols = columns?.controls.filter(colCtrl => colCtrl.value?.trim()) || [];
-                        if (nonEmptyRows.length === 0 || nonEmptyCols.length === 0) {
-                            this.isQuestionInvalid = true;
+                        const type = ques.get('type')?.value;
+                        const rows = ques.get('rows') as FormArray;
+                        const columns = ques.get('columns') as FormArray;
+                        if ((type === 'checkboxGrid' || type === 'multipleChoiceGrid')) {
+                            const nonEmptyRows = rows?.controls.filter(rowCtrl => rowCtrl.value?.trim()) || [];
+                            const nonEmptyCols = columns?.controls.filter(colCtrl => colCtrl.value?.trim()) || [];
+                            if (nonEmptyRows.length === 0 || nonEmptyCols.length === 0) {
+                                this.isQuestionInvalid = true;
+                            }
                         }
                     }
-                    // optionsArray.controls.forEach(optionControl => {
-                    //     if (((ques.get('type')?.value === "multipleChoice") || (ques.get('type')?.value === "dropdown"))
-                    //         &&
-                    //         (optionsArray.length < 2))
-                    //         this.singleOption = true;
-                    // });
+                });
+            });
+
+        if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
+
+        if (this.formBuilder.valid) {
+            const payload = {
+                title: this.formBuilder.value.title,
+                description: this.formBuilder.value.description,
+                formSchema: {
+                    sections: this.formBuilder.value.sections
                 }
-            });
-        });
+            };
 
-    if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
-
-    if (this.formBuilder.valid) {
-        const payload = {
-            title: this.formBuilder.value.title,
-            description: this.formBuilder.value.description,
-            formSchema: {
-                sections: this.formBuilder.value.sections
-            }
-        };
-
-        if (isTemplate) {
-            this.formService.saveAsTemplate(payload).subscribe({
-                next: () => {
-                    this.showTemplateSuccess = true;
-                    setTimeout(() => {
-                        this.router.navigate(['/form-template']);
-                    }, 2000);
-                },
-                error: (error) => console.error(error)
-            });
-        } else {
-            if (this.formId) {
-                this.formService.updateForm(this.formId, payload).subscribe({
+            if (isTemplate) {
+                this.formService.saveAsTemplate(payload).subscribe({
                     next: () => {
-                        this.submitSuccess = true;
+                        this.showTemplateSuccess = true;
                         setTimeout(() => {
-                            this.submitSuccess = false;
-                            this.router.navigate(['/forms']);
-                        }, 3000);
+                            this.router.navigate(['/form-template']);
+                        }, 2000);
                     },
-                    error: (error) => {
-                        console.error("Error updating form", error);
-                    }
+                    error: (error) => console.error(error)
                 });
             } else {
-                this.formService.addForm(payload);
-                this.submitSuccess = true;
-                setTimeout(() => {
-                    this.submitSuccess = false;
-                    this.router.navigate(['/forms']);
-                }, 3000);
-            }
-        } }else {  // Move this else inside the main if block
-        console.log("Form is invalid");
+                if (this.formId) {
+                    this.formService.updateForm(this.formId, payload).subscribe({
+                        next: () => {
+                            this.submitSuccess = true;
+                            setTimeout(() => {
+                                this.submitSuccess = false;
+                                this.router.navigate(['/forms']);
+                            }, 3000);
+                        },
+                        error: (error) => {
+                            console.error("Error updating form", error);
+                        }
+                    });
+                } else {
+                    this.formService.addForm(payload);
+                    this.submitSuccess = true;
+                    setTimeout(() => {
+                        this.submitSuccess = false;
+                        this.router.navigate(['/forms']);
+                    }, 3000);
+                }
+            } 
+        }else {  // Move this else inside the main if block
+            console.log("Form is invalid");
+        }
     }
-}
 }
