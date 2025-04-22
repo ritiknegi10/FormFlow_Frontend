@@ -53,7 +53,8 @@ export class FormService {
       description: newForm.description,
       formSchema: JSON.stringify({
         sections: newForm.formSchema.sections
-      })
+      }),
+      isTemplate: false
     };
 
     this.http.post(`${this.apiUrl}/create`, backendFormat).subscribe({
@@ -86,7 +87,7 @@ export class FormService {
       title: templateForm.title,
       description: templateForm.description,
       formSchema: formSchema,
-      isTemplate: 'true'
+      isTemplate: true
     };
     
     return this.http.post(`${this.apiUrl}/create`, backendFormat);
@@ -118,7 +119,8 @@ getTemplates(): Observable<any[]> {
       description: updatedForm.description,
       formSchema: JSON.stringify({
         sections: updatedForm.formSchema.sections
-      })
+      }),
+      isTemplate: false
     };
 
     return this.http.post(`${this.apiUrl}/edit/${id}`, backendFormat);
@@ -135,16 +137,7 @@ getTemplates(): Observable<any[]> {
   getFormById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
-  // getFormById(id: number): Observable<any> {
-  //   return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
-  //     map(form => ({
-  //       ...form,
-  //       formSchema: typeof form.formSchema === 'string' ? 
-  //                 JSON.parse(form.formSchema) : 
-  //                 form.formSchema
-  //     }))
-  //   );
-  // }
+ 
   private getToken(): string {
     return localStorage.getItem('jwt') || '';
   }
