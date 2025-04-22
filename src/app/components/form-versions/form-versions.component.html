@@ -20,10 +20,12 @@
       <div class="flex justify-end items-center mb-4">
         <label for="versionDropdown" class="font-semibold text-gray-900 tracking-wide">Select Version:</label>
         <select id="versionDropdown" [(ngModel)]="selectedVersion" (change)="onVersionChange()"
-          class="w-48 px-2 py-3 ml-3 border-2 border-gray-200 rounded-lg focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all">
-          <option *ngFor="let version of versions" [value]="version">Version {{ version }}</option>
+          class="w-48 px-2 py-3 ml-3 border-2 border-gray-200 rounded-lg focus:ring-4 
+            focus:ring-indigo-100 focus:border-indigo-500 transition-all cursor-pointer">
+            <option *ngFor="let version of versions" [value]="version">Version {{ version }}</option>
         </select>
       </div>
+      
       <form *ngIf="form" [formGroup]="form" (submit)="$event.preventDefault()">
         <div class="mb-12 space-y-6">
             <div>
@@ -36,13 +38,13 @@
                     Form Details
                 </label>
                 <input type="text" formControlName="title" placeholder="Form Title"
-                    class="bg-gray-100 cursor-not-allowed w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all">
+                    class="bg-gray-100 w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all">
 
             </div>
 
             <div>
                 <textarea formControlName="description" rows="3" placeholder="Form Description"
-                    class="cursor-not-allowed w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all">
+                    class= "w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all">
                 </textarea>
             </div>
         </div>
@@ -82,7 +84,7 @@
                                     <input type="text" formControlName="questionText" placeholder="Enter your question"
                                         class="sm:flex-1 w-full px-4 py-2.5 border-2 outline-none border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-200 transition-all">
                                     <select formControlName="type"
-                                        class="sm:w-56 w-full px-3 py-3 cursor-pointer border-2 outline-none border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-200 transition-all">
+                                        class="sm:w-56 w-full px-3 py-3 border-2 outline-none border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-200 transition-all">
                                         <option value="shortText">Short Text</option>
                                         <option value="paragraph">☰ Paragraph</option>
                                         <option value="multipleChoice">◉ Multiple Choice</option>
@@ -134,7 +136,7 @@
 
                                             <div *ngIf="question.get('sectionBasedonAnswer')?.value">
                                                 <select formControlName="goToSection"
-                                                    class="px-3 py-2 cursor-pointer outline-none focus:bg-gray-200">
+                                                    class="px-3 py-2 outline-none focus:bg-gray-200">
                                                     <option *ngFor="let section of sections.controls; let idx = index" [ngValue]="idx">
                                                         Go to {{ 'Section' + (idx+1) }} ({{ section.get('sectionTitle')?.value }})
                                                     </option>
@@ -148,7 +150,7 @@
                                 <!-- QUESTION OTHER ACTIONS -->
                                 <div class="flex items-center justify-end mt-6 mx-4 pt-4 pb-6 border-t px-6 border-gray-200">
                                     <!-- REQUIRED TOGGLE -->
-                                    <label class="flex items-center gap-2 cursor-pointer px-3 text-gray-600 border-r-2 border-gray-200">
+                                    <label class="flex items-center gap-2 px-3 text-gray-600">
                                         <input type="checkbox" formControlName="required" class="sr-only peer">
                                         <div class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-indigo-600
                                             transition-colors duration-200 right-0.5">
@@ -158,7 +160,6 @@
                                             transition-transform duration-200 peer-checked:translate-x-5"></div>
                                         <span class="text-sm -ml-6 font-medium">Required</span>
                                     </label>
-
                                 </div>
                             </div>
                         </div> <!--QUESTION END-->
@@ -169,7 +170,7 @@
                     class="px-2 py-4">
                     After Section {{ sIdx + 1}}:
                     <select formControlName="nextSection"
-                        class="p-2 ml-2 outline-none bg-transparent cursor-pointer focus:bg-gray-200">
+                        class="p-2 ml-2 outline-none bg-transparent focus:bg-gray-200">
                         <option [ngValue]="sIdx + 1">Continue to next section</option>
                         <option *ngFor="let section of sections.controls; let idx = index" [ngValue]="idx">
                             Go to {{ 'Section' + (idx+1) }} ({{ section.get('sectionTitle')?.value }})
