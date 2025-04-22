@@ -17,7 +17,8 @@
         <div *ngIf="!isLoading" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <!-- Default Templates -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                <div class="h-48 bg-indigo-50 rounded-lg mb-4 flex items-center justify-center">
+                <div (click)="createNewForm()" 
+                    class="h-48 bg-indigo-50 rounded-lg mb-4 flex items-center justify-center cursor-pointer">
                     <svg class="w-16 h-16 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
