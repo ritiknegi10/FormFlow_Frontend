@@ -19,6 +19,8 @@ export class AssignFormComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  isPublic = false;
+
 
   constructor(
     private route: ActivatedRoute,
@@ -35,6 +37,33 @@ export class AssignFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAssignedUsers();
+    this.formId = +this.route.snapshot.paramMap.get('id')!;
+    this.loadInitialVisibility();
+  
+  }
+
+  private loadInitialVisibility() {
+    this.formService.getFormById(this.formId).subscribe({
+      next: (form) => {
+        this.isPublic = form.isPublic; 
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to load form settings';
+      }
+    });
+  }
+
+  onVisibilityChange() {
+    this.formService.updateVisibility(this.formId, this.isPublic).subscribe({
+      next: (res) => {
+        this.successMessage = res;
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to update visibility';
+        this.isPublic = !this.isPublic; 
+      }
+    });
   }
 
   private loadAssignedUsers(): void {

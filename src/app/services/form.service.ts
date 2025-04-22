@@ -27,7 +27,9 @@ export class FormService {
     this.forms.next(forms);
   }
 
-  addForm(newForm: any): void { const allQuestions: any[] = [];
+  addForm(newForm: any): void { 
+    
+    const allQuestions: any[] = [];
     
     if (newForm.formSchema && newForm.formSchema.sections) {
       newForm.formSchema.sections.forEach((section: any) => {
@@ -209,6 +211,17 @@ getTemplates(): Observable<any[]> {
 
   assignUsersToForm(formId: number, userEmails: string[]): Observable<any> {
     return this.http.post(`${this.apiUrl}/${formId}/assign`, userEmails);
+  }
+
+  updateVisibility(formId: number, isPublic: boolean): Observable<string> {
+    return this.http.put(
+      `${this.apiUrl}/${formId}/visibility`,
+      null,
+      { 
+        params: new HttpParams().set('isPublic', isPublic.toString()),
+        responseType: 'text'
+      }
+    );
   }
 
   // Helper method to maintain question type consistency
