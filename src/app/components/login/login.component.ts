@@ -38,7 +38,13 @@ export class LoginComponent {
         next: (token: string) => {
           console.log('token', token)
           this.authService.saveToken(token);
-          this.router.navigate(['/']);
+          const redirectUrl = this.authService.getRedirectUrl();
+          if (redirectUrl) {
+            this.authService.clearRedirectUrl();  // prevent future unwanted redirects
+            this.router.navigateByUrl(redirectUrl);
+          } else {
+            this.router.navigate(['/']);
+          }
         },
         error: () => {
           this.errorMessage = "Invalid username or password!";
