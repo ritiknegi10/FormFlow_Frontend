@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+     fill="rgb(75, 85, 99)" stroke="rgb(75, 85, 99)" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
+  <!-- Checkbox options (square checkboxes within each grid cell) -->
+  <rect x="4" y="4" width="4" height="4" rx="1" ry="1" />
+  <rect x="4" y="11" width="4" height="4" rx="1" ry="1" />
+  <rect x="4" y="18" width="4" height="4" rx="1" ry="1" />
+  
+  <rect x="11" y="4" width="4" height="4" rx="1" ry="1" />
+  <rect x="11" y="11" width="4" height="4" rx="1" ry="1" />
+  <rect x="11" y="18" width="4" height="4" rx="1" ry="1" />
+  
+  <rect x="18" y="4" width="4" height="4" rx="1" ry="1" />
+  <rect x="18" y="11" width="4" height="4" rx="1" ry="1" />
+  <rect x="18" y="18" width="4" height="4" rx="1" ry="1" />
+</svg>

@@ -14,10 +14,26 @@ export class FormHeroComponent implements OnInit{
     showTemplateSuccess = false;
     isTemplateMode = false;
 
+    // maintain order in questionTypes
+    questionTypes = [
+        { type: 'shortText', label: 'Short Text', icon: 'assets/question-type-icons/shortText.svg' },
+        { type: 'paragraph', label: 'Paragraph', icon: 'assets/question-type-icons/paragraph.svg'},
+        { type: 'multipleChoice', label: 'Multiple Choice', icon: 'assets/question-type-icons/multipleChoice.svg'},
+        { type: 'checkboxes', label: 'Checkboxes', icon: 'assets/question-type-icons/checkboxes.svg'},
+        { type: 'dropdown', label: 'Dropdown', icon: 'assets/question-type-icons/dropdown.svg'},
+        { type: 'date', label: 'Date', icon: 'assets/question-type-icons/date.svg'},
+        { type: 'time', label: 'Time', icon: 'assets/question-type-icons/time.svg'},
+        { type: 'linearScale', label: 'Linear Scale', icon: 'assets/question-type-icons/linearScale.svg'},
+        { type: 'multipleChoiceGrid', label: 'Multiple Choice Grid', icon: 'assets/question-type-icons/multipleChoiceGrid.svg'},
+        { type: 'checkboxGrid', label: 'Checkbox Grid', icon: 'assets/question-type-icons/checkboxGrid.svg'},
+        { type: 'rating', label: 'Rating', icon: 'assets/question-type-icons/rating.svg'},
+        { type: 'file', label: 'File Upload', icon: 'assets/question-type-icons/file.svg'},
+    ];
+    selectedTypes: { [sIdx: number]: { [qIdx: number]: any } } = {};
     formId: number | null = null;
     formBuilder: FormGroup;
     ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
-    scalingOptions=Array.from({ length: 6 }, (_, i) => i + 5);
+    scalingOptions = Array.from({ length: 6 }, (_, i) => i + 5);
     currentUrl!: String
     submitClicked = false;
     submitSuccess = false;
@@ -28,6 +44,7 @@ export class FormHeroComponent implements OnInit{
     showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     otherAddedMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
+    questionTypeDropdown: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
 
     constructor(private fb: FormBuilder, 
                 private formService: FormService, 
@@ -206,6 +223,18 @@ private loadTemplate(templateId: number) {
         }
     }
 
+    selectType(sIdx: number, qIdx: number, type: string) {
+        const question = (this.sections.at(sIdx).get('questions') as FormArray).at(qIdx) as FormGroup;
+        question.get('type')?.setValue(type);
+
+        const selected = this.questionTypes.find(opt => opt.type === type);
+        if (!this.selectedTypes[sIdx]) this.selectedTypes[sIdx] = {};
+        this.selectedTypes[sIdx][qIdx] = selected;
+
+        this.questionTypeDropdown[sIdx][qIdx] = false; // Close dropdown
+    }
+
+
     togglesectionBasedonAnswer(sectionIndex: number, questionIndex: number){
         const question = (this.sections.at(sectionIndex).get('questions') as FormArray).at(questionIndex) as FormGroup;
         
@@ -216,11 +245,18 @@ private loadTemplate(templateId: number) {
 
     // --other options menu toggle
     toggleOtherOptionsMenu(sectionIndex: number, questionIndex: number) {
-        if (!this.showMenuMap[sectionIndex]) {
-            this.showMenuMap[sectionIndex] = {};
-        }
+        if (!this.showMenuMap[sectionIndex]) this.showMenuMap[sectionIndex] = {};
+        if (!this.selectedTypes[sectionIndex]) this.selectedTypes[sectionIndex] = {};
         const isMenuOpen = this.showMenuMap[sectionIndex][questionIndex];
         this.showMenuMap[sectionIndex][questionIndex] = !isMenuOpen;
+    }
+
+    toggleQuestionTypeDropdown(sectionIndex: number, questionIndex: number) {
+        if (!this.questionTypeDropdown[sectionIndex]) {
+            this.questionTypeDropdown[sectionIndex] = {};
+        }
+        const isDropDownOpen = this.questionTypeDropdown[sectionIndex][questionIndex];
+        this.questionTypeDropdown[sectionIndex][questionIndex] = !isDropDownOpen;
     }
 
     // --collapse or explan options
@@ -326,10 +362,17 @@ private loadTemplate(templateId: number) {
             sectionBasedonAnswer: false, 
         });
 
-        if (!this.showQuestionDescription[sectionIndex]) {
-            this.showQuestionDescription[sectionIndex] = {};
-        }
+        if (!this.showQuestionDescription[sectionIndex]) this.showQuestionDescription[sectionIndex] = {};
 
+        // set default type as multipleChoice
+        const defaultType = 'multipleChoice'; 
+        const defaultOption = this.questionTypes.find(option => option.type === defaultType);
+        const qIdx = this.getSectionQuestions(sectionIndex).controls.length;
+        if (!this.selectedTypes[sectionIndex]) this.selectedTypes[sectionIndex] = {};
+        console.log(this.getSectionQuestions(sectionIndex).controls.length);
+        this.selectedTypes[sectionIndex][qIdx] = defaultOption;
+        console.log(this.selectedTypes[sectionIndex][qIdx], qIdx);
+        
         const type = questionGroup.get('type')?.value;
         const options = questionGroup.get('options') as FormArray;
         const rows = questionGroup.get('rows') as FormArray;
@@ -443,8 +486,10 @@ private loadTemplate(templateId: number) {
                 goToSection: [sectionIndex + 1]
             });
             options.push(newOption);
+    
+            // newOption.get('label')?.disable(); // Disable editing "Other"
         }
-        else{
+        else {
             const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
             const otherIndex = options.controls.findIndex(opt => opt.value.label === 'Other');
             const newOption = this.fb.group({
@@ -461,12 +506,12 @@ private loadTemplate(templateId: number) {
         this.singleOption = false;
     }
 
-    removeOption(sectionIndex: number, questionIndex: number, optionIndex: number){
+    removeOption(sectionIndex: number, questionIndex: number, optionIndex: number) {
         const questions = this.getSectionQuestions(sectionIndex).at(questionIndex);
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
 
-        if(options.at(optionIndex).get('label')?.value==='Other'){
-            this.otherAddedMap[sectionIndex][questionIndex]=false;
+        if(options.at(optionIndex).get('label')?.value === 'Other') {
+            this.otherAddedMap[sectionIndex][questionIndex] = false;
         }
         options.removeAt(optionIndex);
         if(options.length==1)

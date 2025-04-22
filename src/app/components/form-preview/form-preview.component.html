@@ -77,20 +77,20 @@
                             <ng-container *ngIf="true">
                                 <div class="relative w-56" #dropdownBox>
                                     <!-- Selected Value -->
-                                    <div (click)="dropdownOpen = !dropdownOpen"
+                                    <div (click)="dropdownOpen[qIdx] = !dropdownOpen[qIdx]"
                                         class="flex justify-between items-center bg-transparent border-2 border-gray-300 px-3 py-2 shadow-sm rounded cursor-pointer">
                                         <span [ngClass]="{'text-gray-400': !question.answer}">{{ question.answer || 'Select an option' }}</span> 
                                         <span class="text-gray-500 text-xl">⏷</span>
                                     </div>
                               
                                     <!-- Dropdown Menu -->
-                                    <div *ngIf="dropdownOpen"
+                                    <div *ngIf="dropdownOpen[qIdx]"
                                         class="absolute left-0 top-full w-full rounded shadow-md bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50 border">
                                         <ul class="flex flex-col text-gray-800">
                                             <li *ngFor="let option of question.options"
-                                                (click)="question.answer = option.label; dropdownOpen = false"
+                                                (click)="question.answer = option.label; dropdownOpen[qIdx] = false"
                                                 (click)="onAnswerSelected(option, question)"
-                                                class="hover:bg-slate-200 px-4 py-2 cursor-pointer"
+                                                class="hover:bg-indigo-200 px-4 py-2 cursor-pointer"
                                                 [ngClass]="{'bg-indigo-100': option.label === question.answer}">
                                                 {{ option.label }}
                                             </li>
