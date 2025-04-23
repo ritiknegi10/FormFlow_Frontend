@@ -459,7 +459,7 @@
                                     </label>
 
                                     <!-- OTHER OPTIONS MENU -->
-                                    <div class="ml-1 relative z-0 text-sm flex flex-col items-center"> 
+                                    <div class="ml-1 relative z-[1000] text-sm flex flex-col items-center"> 
                                         <button type="button" (click)="toggleOtherOptionsMenu(sIdx, qIdx)"
                                             class="flex items-center justify-center relative z-0 w-8 h-8 rounded-full hover:bg-gray-100">
                                             <svg width="9" height="20">
@@ -469,7 +469,7 @@
                                             </svg>
                                         </button>
                                         <div *ngIf="showMenuMap[sIdx]?.[qIdx]"
-                                            class="min-w-64 absolute z-50 top-10 bg-white rounded-md shadow-xl py-2 border-2 border-gray-200">
+                                            class="min-w-64 absolute z-[1000] top-10 bg-white rounded-md shadow-xl py-2 border-2 border-gray-200">
                                             <ul>
                                                 <li (click)="toggleQuestionDescription(sIdx, qIdx)"
                                                     class="px-4 py-2 cursor-pointer hover:bg-gray-200"

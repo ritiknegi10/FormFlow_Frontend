@@ -125,6 +125,16 @@ export class FormHeroComponent implements OnInit{
                     });
                 });
                 this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
+
+                this.selectedTypes = parsedSchema.sections.map((section: any) => 
+                    section.questions.map((question: any) => {
+                      const found = this.questionTypes.find(q => q.type === question.type);
+                      return { ...found };
+                    })
+                );
+                this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
+                    section.questions.map(() => false)
+                );
                 this.formFetched=true;
             });
             } 
