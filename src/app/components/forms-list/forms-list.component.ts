@@ -31,7 +31,7 @@ export class FormsListComponent implements OnInit {
     this.formService.getForms().subscribe(forms => {
       this.forms = forms;
       this.noForms = !this.forms.length;
-      console.log(forms);
+      // console.log(forms);
     }); 
   }
   
