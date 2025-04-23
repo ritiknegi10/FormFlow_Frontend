@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter, ElementRef, HostListener, ViewChildren, QueryList } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
@@ -11,6 +11,9 @@ import { filter } from 'rxjs';
   styleUrls: ['./form-hero.component.scss']
 })
 export class FormHeroComponent implements OnInit{
+
+    formId: number | null = null;
+    formBuilder: FormGroup;
     showTemplateSuccess = false;
     isTemplateMode = false;
 
@@ -30,11 +33,10 @@ export class FormHeroComponent implements OnInit{
         { type: 'file', label: 'File Upload', icon: 'assets/question-type-icons/file.svg'},
     ];
     selectedTypes: { [sIdx: number]: { [qIdx: number]: any } } = {};
-    formId: number | null = null;
-    formBuilder: FormGroup;
+    showFormNavigation: boolean = true;
     ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
     scalingOptions = Array.from({ length: 6 }, (_, i) => i + 5);
-    currentUrl!: String
+    currentUrl!: String;
     submitClicked = false;
     submitSuccess = false;
     singleOption = false;
@@ -45,6 +47,7 @@ export class FormHeroComponent implements OnInit{
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     otherAddedMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     questionTypeDropdown: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
+    isDropdownOpen: boolean = false;
 
     constructor(private fb: FormBuilder, 
                 private formService: FormService, 
@@ -124,91 +127,90 @@ export class FormHeroComponent implements OnInit{
                 this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
                 this.formFetched=true;
             });
-        } 
-        else {
-            this.addSection(); // Start with one section by default
-        }
-    });
-}
+            } 
+            else {
+                this.addSection(); // Start with one section by default
+            }
+        });
+    }
 
-private loadTemplate(templateId: number) {
-    this.formService.getFormById(templateId).subscribe({
-      next: (form) => {
-        // Clear existing form
-        while (this.sections.length !== 0) {
-          this.sections.removeAt(0);
-        }
-  
-        // Parse form schema
-        const parsedSchema = typeof form.formSchema === 'string' ? 
-                           JSON.parse(form.formSchema) : 
-                           form.formSchema;
-  
-        // Rebuild sections
-        parsedSchema.sections.forEach((section: any) => {
-          const newSection = this.fb.group({
-            sectionTitle: section.sectionTitle,
-            sectionDescription: section.sectionDescription,
-            nextSection: section.nextSection,
-            questions: this.fb.array([])
-          });
-  
-          section.questions.forEach((question: any) => {
-            const questionGroup = this.fb.group({
-              questionText: question.questionText,
-              questionDescription: question.questionDescription,
-              type: question.type,
-              options: this.fb.array(
-                (question.options || []).map((opt: any) =>
-                  this.fb.group({
-                    label: opt.label,
-                    goToSection: opt.goToSection
-                  })
-                )
-              ),
-              rating: question.rating || 5,
-              required: question.required,
-              sectionBasedonAnswer: question.sectionBasedonAnswer
+    private loadTemplate(templateId: number) {
+        this.formService.getFormById(templateId).subscribe({
+        next: (form) => {
+            // Clear existing form
+            while (this.sections.length !== 0) {
+            this.sections.removeAt(0);
+            }
+    
+            // Parse form schema
+            const parsedSchema = typeof form.formSchema === 'string' ? 
+                            JSON.parse(form.formSchema) : 
+                            form.formSchema;
+    
+            // Rebuild sections
+            parsedSchema.sections.forEach((section: any) => {
+            const newSection = this.fb.group({
+                sectionTitle: section.sectionTitle,
+                sectionDescription: section.sectionDescription,
+                nextSection: section.nextSection,
+                questions: this.fb.array([])
+            });
+    
+            section.questions.forEach((question: any) => {
+                const questionGroup = this.fb.group({
+                questionText: question.questionText,
+                questionDescription: question.questionDescription,
+                type: question.type,
+                options: this.fb.array(
+                    (question.options || []).map((opt: any) =>
+                    this.fb.group({
+                        label: opt.label,
+                        goToSection: opt.goToSection
+                    })
+                    )
+                ),
+                rating: question.rating || 5,
+                required: question.required,
+                sectionBasedonAnswer: question.sectionBasedonAnswer
+                });
+                
+                (newSection.get('questions') as FormArray).push(questionGroup);
+            });
+    
+            this.sections.push(newSection);
+            });
+    
+            this.formBuilder.patchValue({
+            title: form.title + ' (Copy)',
+            description: form.description
             });
             
-            (newSection.get('questions') as FormArray).push(questionGroup);
-          });
-  
-          this.sections.push(newSection);
+            this.formFetched = true;
+        },
+        error: (err) => {
+            console.error('Error loading template:', err);
+            this.router.navigate(['/form-template']);
+        }
         });
-  
-        this.formBuilder.patchValue({
-          title: form.title + ' (Copy)',
-          description: form.description
-        });
-        
-        this.formFetched = true;
-      },
-      error: (err) => {
-        console.error('Error loading template:', err);
-        this.router.navigate(['/form-template']);
-      }
-    });
-  }
-  
-
-
-
-  ngAfterViewInit() {
-    if (this.formFetched && !this.sections.length) {
-      this.router.navigate(['/form-template'], {
-        queryParams: { error: 'invalid-template' }
-      });
     }
-  }
-    //* --Getting Form title in navbar
-    @Input() formTitle: string = '';
-    @Output() formTitleChange = new EventEmitter<string>();
+  
+    ngAfterViewInit() {
+        if (this.formFetched && !this.sections.length) {
+        this.router.navigate(['/form-template'], {
+            queryParams: { error: 'invalid-template' }
+        });
+        }
+    }
+
 
     //* --Getting Form data to preview
     getFormData(){
         return this.formBuilder.value;
     }
+
+    //* Getting Form title in navbar
+    @Input() formTitle: string = '';
+    @Output() formTitleChange = new EventEmitter<string>();
 
     onTitleChange(event: Event) {
         const input = event.target as HTMLInputElement;
@@ -223,6 +225,20 @@ private loadTemplate(templateId: number) {
         }
     }
 
+    // navigate to question from form navigation
+    scrollToQuestion(sectionIndex: number, questionIndex: number): void {
+        const el = document.getElementById(`question-${sectionIndex}-${questionIndex}`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            el.classList.add('ring-2', 'ring-indigo-200');
+        
+            setTimeout(() => {
+              el.classList.remove('ring-2', 'ring-indigo-200');
+            }, 1500);
+        }
+    }
+
     selectType(sIdx: number, qIdx: number, type: string) {
         const question = (this.sections.at(sIdx).get('questions') as FormArray).at(qIdx) as FormGroup;
         question.get('type')?.setValue(type);
@@ -231,9 +247,37 @@ private loadTemplate(templateId: number) {
         if (!this.selectedTypes[sIdx]) this.selectedTypes[sIdx] = {};
         this.selectedTypes[sIdx][qIdx] = selected;
 
-        this.questionTypeDropdown[sIdx][qIdx] = false; // Close dropdown
+        // Close dropdown
+        this.questionTypeDropdown[sIdx][qIdx] = false; 
+        this.isDropdownOpen = false;
+    }
+    
+    @ViewChildren('dropdownBox') dropdownBoxes!: QueryList<ElementRef>;
+    @HostListener('document:click', ['$event.target'])
+    onClickOutside(target: HTMLElement) {
+        const clickedInsideAny = this.dropdownBoxes.some(dropdown =>
+            dropdown.nativeElement.contains(target)
+        );
+
+        if (!clickedInsideAny) {
+            this.isDropdownOpen = false;
+
+            // Optionally close all dropdowns
+            for (let sIdx in this.questionTypeDropdown) {
+            for (let qIdx in this.questionTypeDropdown[sIdx]) {
+                this.questionTypeDropdown[sIdx][qIdx] = false;
+            }
+            }
+        }
     }
 
+    showQuestionTypeDropdown(sectionIndex: number, questionIndex: number) {
+        if (!this.questionTypeDropdown[sectionIndex]) {
+            this.questionTypeDropdown[sectionIndex] = {};
+        }
+        this.questionTypeDropdown[sectionIndex][questionIndex] = true;
+        this.isDropdownOpen = true;
+    }
 
     togglesectionBasedonAnswer(sectionIndex: number, questionIndex: number){
         const question = (this.sections.at(sectionIndex).get('questions') as FormArray).at(questionIndex) as FormGroup;
@@ -241,22 +285,13 @@ private loadTemplate(templateId: number) {
         const currentVal = question.get('sectionBasedonAnswer')?.value || false;
         question.get('sectionBasedonAnswer')?.setValue(!currentVal);
     }
-    
-
+  
     // --other options menu toggle
     toggleOtherOptionsMenu(sectionIndex: number, questionIndex: number) {
         if (!this.showMenuMap[sectionIndex]) this.showMenuMap[sectionIndex] = {};
         if (!this.selectedTypes[sectionIndex]) this.selectedTypes[sectionIndex] = {};
         const isMenuOpen = this.showMenuMap[sectionIndex][questionIndex];
         this.showMenuMap[sectionIndex][questionIndex] = !isMenuOpen;
-    }
-
-    toggleQuestionTypeDropdown(sectionIndex: number, questionIndex: number) {
-        if (!this.questionTypeDropdown[sectionIndex]) {
-            this.questionTypeDropdown[sectionIndex] = {};
-        }
-        const isDropDownOpen = this.questionTypeDropdown[sectionIndex][questionIndex];
-        this.questionTypeDropdown[sectionIndex][questionIndex] = !isDropDownOpen;
     }
 
     // --collapse or explan options
@@ -270,11 +305,11 @@ private loadTemplate(templateId: number) {
         this.showQuestionDescription[sectionIndex][questionIndex] = !isVisible;
     }
 
-    // --selects all text when focused on option input field
-    selectAllText(eventTarget: EventTarget | null){
-        if(eventTarget instanceof HTMLInputElement)
-            eventTarget.select();
-    }
+    //selects all text when focused on option input field
+    // selectAllText(eventTarget: EventTarget | null){
+    //     if(eventTarget instanceof HTMLInputElement)
+    //         eventTarget.select();
+    // }
 
     setDefaultValueIfEmpty(inputElement: EventTarget | null, question: any, opIdx: number){
         if(inputElement instanceof HTMLInputElement){
@@ -363,16 +398,17 @@ private loadTemplate(templateId: number) {
         });
 
         if (!this.showQuestionDescription[sectionIndex]) this.showQuestionDescription[sectionIndex] = {};
-
-        // set default type as multipleChoice
+        if (!this.questionTypeDropdown[sectionIndex]) this.questionTypeDropdown[sectionIndex] = {};
+        
+        // set default question type as multipleChoice
         const defaultType = 'multipleChoice'; 
         const defaultOption = this.questionTypes.find(option => option.type === defaultType);
         const qIdx = this.getSectionQuestions(sectionIndex).controls.length;
+
         if (!this.selectedTypes[sectionIndex]) this.selectedTypes[sectionIndex] = {};
-        console.log(this.getSectionQuestions(sectionIndex).controls.length);
         this.selectedTypes[sectionIndex][qIdx] = defaultOption;
-        console.log(this.selectedTypes[sectionIndex][qIdx], qIdx);
         
+        // add default option if question type is mcq, checkbox, or dropdown
         const type = questionGroup.get('type')?.value;
         const options = questionGroup.get('options') as FormArray;
         const rows = questionGroup.get('rows') as FormArray;
