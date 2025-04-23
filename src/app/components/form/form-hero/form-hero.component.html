@@ -486,13 +486,13 @@
                                 </div> 
                                 
                                 <!-- QUESTION OTHER ACTIONS -->
-                                <div class="flex items-center justify-end relative z-[0] mt-6 mx-4 pt-4 pb-6 border-t px-6 border-gray-200">
+                                <div class="flex items-center justify-end relative z-[500] mt-6 mx-4 pt-4 pb-6 border-t px-6 border-gray-200">
                                     <!-- REQUIRED TOGGLE -->
                                     <label class="flex items-center gap-2 cursor-pointer px-3 text-gray-600 border-r-2 border-gray-200">
                                         <input type="checkbox" formControlName="required" class="sr-only peer">
                                         <div class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-indigo-600 transition-colors duration-200 right-0.5">
                                         </div>
-                                        <div class="relative z-0 right-12 w-4 h-4 bg-white rounded-full shadow-sm
+                                        <div class="relative right-12 w-4 h-4 bg-white rounded-full shadow-sm
                                             transition-transform duration-200 peer-checked:translate-x-5">
                                         </div>
                                         <!--if type is any grid, it will ask for each row else just required-->
@@ -508,7 +508,7 @@
                                     </label>
 
                                     <!-- OTHER OPTIONS MENU -->
-                                    <div class="ml-1 relative z-[1000] text-sm flex flex-col items-center"> 
+                                    <div class="ml-1 relative text-sm flex flex-col items-center"> 
                                         <button type="button" (click)="toggleOtherOptionsMenu(sIdx, qIdx)"
                                             class="flex items-center justify-center relative z-0 w-8 h-8 rounded-full hover:bg-gray-100">
                                             <svg width="9" height="20">
@@ -518,7 +518,7 @@
                                             </svg>
                                         </button>
                                         <div *ngIf="showMenuMap[sIdx]?.[qIdx]"
-                                            class="min-w-64 absolute z-[1000] top-10 bg-white rounded-md shadow-xl py-2 border-2 border-gray-200">
+                                            class="min-w-64 absolute top-10 bg-white rounded-md shadow-xl py-2 border-2 border-gray-200">
                                             <ul>
                                                 <li (click)="toggleQuestionDescription(sIdx, qIdx)"
                                                     class="px-4 py-2 cursor-pointer hover:bg-gray-200"
@@ -537,9 +537,8 @@
                                                 </li>
                                             </ul>
                                         </div>
-
-                                    </div>
-                                </div>
+                                    </div> <!--OTHER OPTIONS MENU END-->
+                                </div> <!--QUESTION OTHER ACTIONS END-->
                             </div> <!--QUESTION END -->
                         </div> <!-- SECTION QUESTIONS DIV END-->
         
