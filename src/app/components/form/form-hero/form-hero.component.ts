@@ -34,7 +34,7 @@ export class FormHeroComponent implements OnInit{
     ];
     selectedTypes: { [sIdx: number]: { [qIdx: number]: any } } = {};
     showFormNavigation: boolean = true;
-    ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
+    ratingOptions = Array.from({ length: 8 }, (_, i) => i + 3);
     scalingOptions = Array.from({ length: 6 }, (_, i) => i + 5);
     currentUrl!: String;
     submitClicked = false;
@@ -125,6 +125,16 @@ export class FormHeroComponent implements OnInit{
                     });
                 });
                 this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
+
+                this.selectedTypes = parsedSchema.sections.map((section: any) => 
+                    section.questions.map((question: any) => {
+                      const found = this.questionTypes.find(q => q.type === question.type);
+                      return { ...found };
+                    })
+                );
+                this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
+                    section.questions.map(() => false)
+                );
                 this.formFetched=true;
             });
             } 
@@ -206,6 +216,10 @@ export class FormHeroComponent implements OnInit{
     //* --Getting Form data to preview
     getFormData(){
         return this.formBuilder.value;
+    }
+
+    getStarsArray(count: number): number[] {
+        return Array.from({ length: count }, (_, i) => i + 1);
     }
 
     //* Getting Form title in navbar
@@ -558,6 +572,15 @@ export class FormHeroComponent implements OnInit{
         const questionsArray = this.getSectionQuestions(sectionIndex);
         moveItemInArray(questionsArray.controls, event.previousIndex, event.currentIndex);
         questionsArray.updateValueAndValidity();
+    }
+
+    dropOption(event: CdkDragDrop<any[]>, sIdx: number, qIdx: number) {
+        const optionsArray = this.getOptions(this.getSectionQuestions(sIdx).at(qIdx));
+        moveItemInArray(optionsArray.controls, event.previousIndex, event.currentIndex);
+      
+        const updatedControls = optionsArray.controls.map(ctrl => ctrl);
+        optionsArray.clear();
+        updatedControls.forEach(ctrl => optionsArray.push(ctrl));
     }
 
 
