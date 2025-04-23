@@ -10,6 +10,7 @@ import { EditFormComponent } from './components/edit-form/edit-form.component';
 import { FormAnalyticsComponent } from './components/form-analytics/form-analytics.component';
 import { FormVersionsComponent } from './components/form-versions/form-versions.component';
 import { ViewResponseComponent } from './components/view-response/view-response.component';
+import { AnalyticsChartsComponent } from './components/analytics-charts/analytics-charts.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { AboutUsComponent } from './components/about-us/about-us.component';
 import { FaqComponent } from './components/faq/faq.component';
@@ -44,6 +45,7 @@ const routes: Routes = [
   { path: 'otp', component: OtpComponent },
   { path: 'view-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard] },
   { path: 'view-responses/my-responses/:id', component: ViewResponseComponent, canActivate: [AuthGuard] },
+  { path: 'analytics-charts/:id', component: AnalyticsChartsComponent, canActivate: [AuthGuard] },
   { path: 'user-forms', component: UserFormsListComponent, canActivate: [AuthGuard] },
   { path: 'contact', component: ContactComponent },
   { path:'about',component:AboutUsComponent },

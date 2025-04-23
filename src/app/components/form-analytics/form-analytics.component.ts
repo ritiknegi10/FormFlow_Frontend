@@ -42,6 +42,13 @@ export class FormAnalyticsComponent implements OnInit {
     }
   }
 
+  analyseResponses() {
+    if (this.formId !== null) {
+      console.log("Navigating to Analyse Responses with Form ID:", this.formId);
+      this.router.navigate(['/analytics-charts', this.formId]);
+    }
+  }
+
   exportToExcel() {
     const worksheet = XLSX.utils.json_to_sheet(this.responses);
     const workbook = XLSX.utils.book_new();

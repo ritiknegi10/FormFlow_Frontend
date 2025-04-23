@@ -77,6 +77,21 @@
           </div>
         </button>
 
+        <button (click)="analyseResponses()" class="p-6 bg-white border-2 border-indigo-100 rounded-xl hover:border-indigo-200 
+                             transition-all shadow-sm hover:shadow-md group">
+  <div class="flex flex-col items-center">
+    <div class="w-12 h-12 bg-indigo-100 rounded-lg mb-3 flex items-center justify-center">
+      <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M5 13h4v6H5v-6zM10 9h4v10h-4V9zM15 11h4v8h-4v-8z" />
+      </svg>
+    </div>
+    <span class="text-sm font-medium text-gray-700 group-hover:text-indigo-600">
+      Analyse Responses
+    </span>
+  </div>
+</button>
+
         <button (click)="exportToExcel()" class="p-6 bg-white border-2 border-green-100 rounded-xl hover:border-green-200 
                              transition-all shadow-sm hover:shadow-md group">
           <div class="flex flex-col items-center">
@@ -107,7 +122,6 @@
           </div>
         </button>
       </div>
-
 
     </div>
   </div>

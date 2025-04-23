@@ -16,36 +16,6 @@
 
     <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-8">
       <div *ngIf="selectedForm; else noData" class="flex flex-col gap-10">
-        
-        <!-- Line Chart -->
-        <div class="flex-shrink-0">
-          <h3 class="text-2xl font-semibold text-gray-800 mb-4">Submission Trends</h3>
-          <ngx-charts-line-chart
-            [view]="[700, 300]"
-            [scheme]="'cool'"
-            [results]="submissionTrend"
-            [xAxis]="true"
-            [yAxis]="true"
-            [legend]="true"
-            [showXAxisLabel]="true"
-            [showYAxisLabel]="true"
-            xAxisLabel="Date"
-            yAxisLabel="Submissions">
-          </ngx-charts-line-chart>
-        </div>
-
-        <!-- Pie Charts -->
-        <div class="flex-shrink-0" *ngFor="let questionData of questionResponseData">
-          <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ questionData.question }}</h3>
-          <ngx-charts-pie-chart
-            [view]="[500, 300]"
-            [scheme]="'flame'"
-            [results]="questionData.data"
-            [legend]="true"
-            [labels]="true"
-            [doughnut]="true">
-          </ngx-charts-pie-chart>
-        </div>
 
         <!-- Response Details -->
         <div class="flex-shrink-0">

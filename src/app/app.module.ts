@@ -37,6 +37,7 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
 import { AssignFormComponent } from './components/assign-form/assign-form.component';
 import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
 import { FormTemplateComponent } from './components/form-template/form-template.component';
+import { AnalyticsChartsComponent } from './components/analytics-charts/analytics-charts.component';
 
 
 @NgModule({
@@ -66,7 +67,8 @@ import { FormTemplateComponent } from './components/form-template/form-template.
     OtpComponent,
     AssignFormComponent,
     AssignedFormsComponent,
-    FormTemplateComponent
+    FormTemplateComponent,
+    AnalyticsChartsComponent
   ],
   imports: [
     BrowserModule,
