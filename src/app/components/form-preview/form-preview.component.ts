@@ -22,7 +22,7 @@ export class FormPreviewComponent implements OnInit {
         if(data){
             this.formPreviewData = JSON.parse(data);
             this.sections = this.formPreviewData.sections;
-            // console.log(this.sections);
+            console.log(this.sections);
         }
         else{
             console.warn("No session data found");
@@ -59,6 +59,13 @@ export class FormPreviewComponent implements OnInit {
         }
       }
 
+    getScaleRange(question: any): number[]{
+        const range: number[] = [];
+        for(let i=question.startValue; i<=question.endValue; i++)
+            range.push(i);
+        return range;
+    }
+    
     onAnswerSelected(option: any, question: any) {
         // console.log("answer selected");
         // const selectedOption = (event.target as HTMLInputElement).value;

@@ -24,6 +24,10 @@
                         <span>{{ question.questionText }}</span>
                         <span *ngIf="question.required" class="text-red-600 ml-1">*</span>
                     </div>
+                    <div class="text-base font-extralight mb-5">
+                        <span>{{ question.questionDescription }}</span>
+                    </div>
+
                     <div [ngSwitch]="question.type">
                         <div *ngSwitchCase="'shortText'">
                             <input type="text" placeholder="Your answer"
@@ -109,10 +113,74 @@
                             [(ngModel)]="question.answer" name="time {{currentSectionIndex}}{{qIdx}}"
                             class="w-56 p-1 bg-transparent border-b-2 border-gray-300 focus:outline-none focus:border-purple-700">
                         </div>
+                        <div *ngSwitchCase="'linearscale'" class="flex space-x-4">
+                            <label *ngFor="let i of getScaleRange(question)" class="flex flex-col items-center space-y-1">
+                                <label for="">{{ i }}</label>
+                                <input 
+                                    type="radio" 
+                                    name="linearscale {{currentSectionIndex}}{{qIdx}}"
+                                >
+                            </label>
+                        </div>
+                        <div *ngSwitchCase="'multipleChoiceGrid'">
+                            <table class="w-full border-collapse">
+                            <thead>
+                                <tr>
+                                    <th class="border border-gray-300 py-2 px-4 text-left font-semibold text-gray-700"></th>
+                                    <th *ngFor="let column of question.columns"
+                                    class="border border-gray-300 py-2 px-4 font-semibold text-gray-700">
+                                        {{ column }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let row of question.rows">
+                                    <th class="border border-gray-300 py-2 px-4 text-left text-gray-600">
+                                        {{row}}
+                                    </th>
+                                    <td *ngFor="let column of question.columns" class="border border-gray-300 py-2 px-4 text-center">
+                                        <input 
+                                            type="radio" 
+                                            name="multipleChoiceGrid {{currentSectionIndex}}{{qIdx}}"
+                                            class="h-4 w-4"
+                                        >
+                                    </td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </div>
+                        <div *ngSwitchCase="'checkboxGrid'">
+                            <table class="w-full border-collapse">
+                            <thead>
+                                <tr>
+                                    <th class="border border-gray-300 py-2 px-4 text-left font-semibold text-gray-700"></th>
+                                    <th *ngFor="let column of question.columns"
+                                    class="border border-gray-300 py-2 px-4 font-semibold text-gray-700">
+                                        {{ column }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let row of question.rows">
+                                    <th class="border border-gray-300 py-2 px-4 text-left text-gray-600">{{row}}</th>
+                                    <td *ngFor="let column of question.columns" class="border border-gray-300 py-2 px-4 text-center">
+                                        <input 
+                                            type="checkbox" 
+                                            name="multipleChoiceGrid {{currentSectionIndex}}{{qIdx}}"
+                                            class="h-4 w-4"
+                                        >
+                                    </td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </div>
+                        <div *ngSwitchCase="'file'">
+                            <input type="file" name="file {{currentSectionIndex}}{{qIdx}}">
+                        </div>
                         <div *ngSwitchDefault>output2</div>
-                    </div>
+                    </div> <!--SWITCH END-->
                 </div>
-            </div>
+            </div> <!--QUESTIONS FOR LOOP-->
             
         </div>   
     </div>
