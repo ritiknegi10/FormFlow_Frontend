@@ -48,7 +48,7 @@
             </a>
         </li>
         <li>
-            <a (click)="confirmNavigateAway('/create')" class="cursor-pointer flex items-center gap-2 px-6 py-3 rounded-r-full hover:bg-gray-200">
+            <a (click)="confirmNavigateAway('/form-template')" class="cursor-pointer flex items-center gap-2 px-6 py-3 rounded-r-full hover:bg-gray-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="-mt-1 text-gray-600" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                     <line x1="12" y1="8" x2="12" y2="16" />
@@ -107,11 +107,11 @@
                 <!-- Dropdown Menu -->
                 <div *ngIf="isProfileMenuOpen"
                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100 z-50">
-                    <a routerLink="/user-forms"
+                    <a (click)="confirmNavigateAway('/user-forms')"
                         class="block px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors">
                         Submitted Forms
                     </a>
-                    <a routerLink="/signout" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors">
+                    <a (click)="confirmNavigateAway('/signout')" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors">
                         Sign Out
                     </a>
                 </div>
