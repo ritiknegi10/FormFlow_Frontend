@@ -57,7 +57,14 @@ export class FormPreviewComponent implements OnInit {
         } else {
           question.answer.splice(idx, 1);
         }
-      }
+    }
+    
+    getratingRange(question: any): number[]{
+        const range: number[] = [];
+        for(let i=1; i<=question.rating; i++)
+            range.push(i)
+        return range;
+    }
 
     getScaleRange(question: any): number[]{
         const range: number[] = [];

@@ -103,6 +103,18 @@
                                 </div>
                             </ng-container>
                         </div>
+                        <div *ngSwitchCase="'rating'">
+                            <div class="flex space-x-2">
+                                <label *ngFor="let i of getratingRange(question)" class="cursor-pointer">
+                                    <input 
+                                        type="radio" 
+                                        name="rating{{currentSectionIndex}}{{qIdx}}" 
+                                        class="hidden"
+                                    >
+                                    <span class="text-2xl hover:text-yellow-500">&#9734;</span>
+                                </label>
+                            </div>
+                        </div>
                         <div *ngSwitchCase="'date'">
                             <input type="date"
                             [(ngModel)]="question.answer" name="date {{currentSectionIndex}}{{qIdx}}"
@@ -195,50 +207,48 @@
         </div>
         <div class="flex gap-2">
             <button (click)="gotoPreviousSection()"
-            *ngIf="currentSectionIndex > 0"
-            class="pr-6 pl-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium flex items-center
-            rounded-md hover:shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration:300 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" class="-ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-            </svg>
-            <span>Back</span> 
-        </button>
-        <button (click)="gotoNextSection()"
-            *ngIf="sections.length>1 
-                && sections[currentSectionIndex].nextSection < sections.length 
-                && sections[currentSectionIndex].nextSection != -1;
-            else dosubmit"
-            class="pl-6 pr-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium flex items-center
-            rounded-md hover:shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration:300 shadow-sm">
-            <span>Next</span>
-            
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" class="-ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
-            </svg>   
-        </button>
+                *ngIf="currentSectionIndex > 0"
+                class="pr-6 pl-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium flex items-center
+                rounded-md hover:shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration:300 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="-ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>Back</span> 
+            </button>
+            <button (click)="gotoNextSection()"
+                *ngIf="sections.length>1 
+                    && sections[currentSectionIndex].nextSection < sections.length 
+                    && sections[currentSectionIndex].nextSection != -1;
+                else dosubmit"
+                class="pl-6 pr-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium flex items-center
+                rounded-md hover:shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration:300 shadow-sm">
+                <span>Next</span>
+                
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="-ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                </svg>   
+            </button>
 
-        
-        <ng-template #dosubmit >
-            <div class="flex flex-col items-center relative">
-                <button 
-                    class="px-6 py-2.5 bg-gray-300 text-gray-600 font-medium peer rounded-md cursor-default">
-                    Submit
-                </button>
-                <div
-                    class="absolute invisible top-10 peer-hover:visible text-nowrap transition-all duration-100 text-white text-xs px-2 py-1 rounded-md bg-gray-700 bg-opacity-70">
-                    You cannot submit a form in preview mode
-                </div>
-            </div>
             
-        </ng-template>
+            <ng-template #dosubmit >
+                <div class="flex flex-col items-center relative">
+                    <button 
+                        class="px-6 py-2.5 bg-gray-300 text-gray-600 font-medium peer rounded-md cursor-default">
+                        Submit
+                    </button>
+                    <div
+                        class="absolute invisible top-10 peer-hover:visible text-nowrap transition-all duration-100 text-white text-xs px-2 py-1 rounded-md bg-gray-700 bg-opacity-70">
+                        You cannot submit a form in preview mode
+                    </div>
+                </div>
+            </ng-template>
         </div>
-        
     </div>
     </form>
 </div>
