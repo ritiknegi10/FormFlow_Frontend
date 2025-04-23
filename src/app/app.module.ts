@@ -38,6 +38,7 @@ import { AssignFormComponent } from './components/assign-form/assign-form.compon
 import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
 import { FormTemplateComponent } from './components/form-template/form-template.component';
 import { AnalyticsChartsComponent } from './components/analytics-charts/analytics-charts.component';
+import { AssignmentDetailsComponent } from './components/assignment-details/assignment-details.component';
 
 
 @NgModule({
@@ -68,7 +69,8 @@ import { AnalyticsChartsComponent } from './components/analytics-charts/analytic
     AssignFormComponent,
     AssignedFormsComponent,
     FormTemplateComponent,
-    AnalyticsChartsComponent
+    AnalyticsChartsComponent,
+    AssignmentDetailsComponent
   ],
   imports: [
     BrowserModule,
