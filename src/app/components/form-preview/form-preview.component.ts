@@ -104,7 +104,7 @@ export class FormPreviewComponent implements OnInit {
                 this.clearForm(formRef);
             }
         });
-      }
+    }
 
     clearForm(formRef: any) {
         formRef.resetForm();
