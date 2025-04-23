@@ -49,6 +49,14 @@ export class FormAnalyticsComponent implements OnInit {
     }
   }
 
+  viewAssignmentDetails(): void {
+    if (this.formId && !isNaN(this.formId)) {
+      this.router.navigate(['/assignment-details', this.formId]);
+    } else {
+      console.error('Cannot navigate: Invalid form ID');
+    }
+  }
+
   exportToExcel() {
     const worksheet = XLSX.utils.json_to_sheet(this.responses);
     const workbook = XLSX.utils.book_new();

@@ -27,6 +27,7 @@ import {ResetPasswordComponent} from './components/reset-password/reset-password
 import { AssignFormComponent } from './components/assign-form/assign-form.component';
 import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
 import { FormTemplateComponent } from './components/form-template/form-template.component';
+import { AssignmentDetailsComponent } from './components/assignment-details/assignment-details.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -39,6 +40,7 @@ const routes: Routes = [
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard] },
   { path: 'forms/:id/assign', component: AssignFormComponent, canActivate: [AuthGuard] }, 
   { path: 'assigned-forms', component: AssignedFormsComponent, canActivate: [AuthGuard] },  
+  { path: 'assignment-details/:id', component: AssignmentDetailsComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'signout', component: SignOutComponent, canActivate: [AuthGuard] },
   { path: 'register', component: RegisterComponent },
