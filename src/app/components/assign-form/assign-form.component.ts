@@ -20,6 +20,10 @@ export class AssignFormComponent implements OnInit {
   successMessage = '';
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   isPublic = false;
+  searchQuery = '';
+selectedUsers = new Set<string>();
+// filteredUsers: any[] = [];
+
 
 
   constructor(
@@ -40,6 +44,55 @@ export class AssignFormComponent implements OnInit {
     this.formId = +this.route.snapshot.paramMap.get('id')!;
     this.loadInitialVisibility();
   
+  }
+
+
+  get filteredUsers() {
+    return this.assignedUsers.filter(user =>
+      user.email.toLowerCase().includes(this.searchQuery.toLowerCase())
+    );
+  }
+  
+  toggleUserSelection(email: string) {
+    this.selectedUsers.has(email) ?
+      this.selectedUsers.delete(email) :
+      this.selectedUsers.add(email);
+  }
+  
+  async removeSelectedUsers() {
+    try {
+      this.loading.users = true;
+      await this.formService.removeAssignedUsers(
+        this.formId, 
+        Array.from(this.selectedUsers)
+      ).toPromise();
+      
+      this.selectedUsers.clear();
+      this.loadAssignedUsers(); // Refresh the list
+      this.successMessage = 'Selected users removed successfully';
+    } catch (error) {
+      this.errorMessage = 'Error removing users';
+    } finally {
+      this.loading.users = false;
+    }
+  }
+  
+  async removeSingleUser(email: string) {
+    try {
+      this.loading.users = true;
+      await this.formService.removeAssignedUsers(
+        this.formId, 
+        [email]
+      ).toPromise();
+      
+      this.selectedUsers.delete(email);
+      this.loadAssignedUsers(); // Refresh the list
+      this.successMessage = 'User removed successfully';
+    } catch (error) {
+      this.errorMessage = 'Error removing user';
+    } finally {
+      this.loading.users = false;
+    }
   }
 
   private loadInitialVisibility() {
