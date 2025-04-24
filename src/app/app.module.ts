@@ -43,6 +43,7 @@ import { ErrorPageComponent } from './components/error-page/error-page.component
 import { AssignedViewersComponent } from './components/assigning/assigned-viewers/assigned-viewers.component';
 import { AssignViewersComponent } from './components/assigning/assign-viewers/assign-viewers.component';
 import { AssigningComponent } from './components/assigning/assigning.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 
 @NgModule({
@@ -78,7 +79,8 @@ import { AssigningComponent } from './components/assigning/assigning.component';
     ErrorPageComponent,
     AssignedViewersComponent,
     AssignViewersComponent,
-    AssigningComponent
+    AssigningComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

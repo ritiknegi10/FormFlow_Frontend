@@ -95,7 +95,19 @@ clearRedirectUrl() {
     }
     return null;
   }
-
+  getCurrentUserDetails(): Observable<any> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getToken()}`
+    });
+    
+    return this.http.get<any>('http://localhost:8080/users/me', { headers }).pipe(
+      catchError(error => {
+        console.error('Error fetching user details', error);
+        return throwError(() => error);
+      })
+    );
+  }
+  
   sendOtp(email: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/register/send-otp`, { email }, { responseType: 'text' }).pipe(
       catchError((error) => {
@@ -114,7 +126,7 @@ clearRedirectUrl() {
       'Authorization': `Bearer ${this.getToken()}`
     });
   
-    return this.http.get<boolean>(`http://localhost:8080/users/search`, {
+    return this.http.get<boolean>(`h  ttp://localhost:8080/users/search`, {
       params: new HttpParams().set('email', email),
       headers: headers
     }).pipe(
