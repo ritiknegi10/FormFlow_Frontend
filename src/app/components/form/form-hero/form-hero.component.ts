@@ -300,7 +300,7 @@ export class FormHeroComponent implements OnInit{
         question.get('sectionBasedonAnswer')?.setValue(!currentVal);
     }
   
-    // --other options menu toggle
+    // other options menu toggle
     toggleOtherOptionsMenu(sectionIndex: number, questionIndex: number) {
         if (!this.showMenuMap[sectionIndex]) this.showMenuMap[sectionIndex] = {};
         if (!this.selectedTypes[sectionIndex]) this.selectedTypes[sectionIndex] = {};
@@ -308,7 +308,7 @@ export class FormHeroComponent implements OnInit{
         this.showMenuMap[sectionIndex][questionIndex] = !isMenuOpen;
     }
 
-    // --collapse or explan options
+    // --collapse or expand options
     toggleOptions(sectionIndex: number, questionIndex: number) {
         const isVisible = this.showOptionsMap[sectionIndex][questionIndex];
         this.showOptionsMap[sectionIndex][questionIndex] = !isVisible;
