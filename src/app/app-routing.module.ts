@@ -24,13 +24,14 @@ import { FormParentComponent } from './components/form/form-parent/form-parent.c
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import {ResetPasswordComponent} from './components/reset-password/reset-password.component'
-import { AssignFormComponent } from './components/assign-form/assign-form.component';
-import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
+import { AssignFormComponent } from './components/assigning/assign-form/assign-form.component';
+import { AssignedFormsComponent } from './components/assigning/assigned-forms/assigned-forms.component';
 import { FormTemplateComponent } from './components/form-template/form-template.component';
 import { AssignmentDetailsComponent } from './components/assignment-details/assignment-details.component';
 import { ErrorPageComponent } from './components/error-page/error-page.component';
-import { AssignViewersComponent } from './components/assign-viewers/assign-viewers.component';
-import { AssignedViewersComponent } from './components/assigned-viewers/assigned-viewers.component';
+import { AssignViewersComponent } from './components/assigning/assign-viewers/assign-viewers.component';
+import { AssignedViewersComponent } from './components/assigning/assigned-viewers/assigned-viewers.component';
+import { AssigningComponent } from './components/assigning/assigning.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -41,6 +42,7 @@ const routes: Routes = [
   { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard]  },
   { path: 'forms/:formId/versions/:formVersion', component: FormVersionsComponent },
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard] },
+  { path: 'forms/:id/assigning', component: AssigningComponent, canActivate: [AuthGuard] },  
   { path: 'forms/:id/assign', component: AssignFormComponent, canActivate: [AuthGuard] }, 
   { path: 'assigned-forms', component: AssignedFormsComponent, canActivate: [AuthGuard] },  
   { path: 'forms/:id/assign-viewers', component: AssignViewersComponent, canActivate: [AuthGuard] }, 

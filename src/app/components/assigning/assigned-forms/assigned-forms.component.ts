@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormService } from '../../services/form.service';
+import { FormService } from '../../../services/form.service';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../../services/auth.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
