@@ -25,6 +25,10 @@ export class ErrorPageComponent {
         this.formTitle="Form Not Found";
         this.description="This form is currently not available"
       }
+      else if(this.ermsg==409){
+        this.formTitle="Subimtted";
+        this.description="You have already submitted this form"
+      }
       else{
         this.formTitle="Unexpected Error";
         this.description="An unexpected error occured. Please try again later. "

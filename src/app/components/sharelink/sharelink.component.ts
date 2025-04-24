@@ -58,7 +58,7 @@ export class SharelinkComponent implements OnInit {
         } 
         else if (error.status === 409) {
           setTimeout(() => {
-            this.router.navigate(['/submit', this.loadedForm.title], { replaceUrl: true });
+            this.router.navigate(['/error', 409], { replaceUrl: true });
           }, 0); 
         } 
       }
