@@ -29,6 +29,8 @@ import { AssignedFormsComponent } from './components/assigned-forms/assigned-for
 import { FormTemplateComponent } from './components/form-template/form-template.component';
 import { AssignmentDetailsComponent } from './components/assignment-details/assignment-details.component';
 import { ErrorPageComponent } from './components/error-page/error-page.component';
+import { AssignViewersComponent } from './components/assign-viewers/assign-viewers.component';
+import { AssignedViewersComponent } from './components/assigned-viewers/assigned-viewers.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -41,6 +43,8 @@ const routes: Routes = [
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard] },
   { path: 'forms/:id/assign', component: AssignFormComponent, canActivate: [AuthGuard] }, 
   { path: 'assigned-forms', component: AssignedFormsComponent, canActivate: [AuthGuard] },  
+  { path: 'forms/:id/assign-viewers', component: AssignViewersComponent, canActivate: [AuthGuard] }, 
+  { path: 'assigned-viewers', component: AssignedViewersComponent, canActivate: [AuthGuard] },  
   { path: 'assignment-details/:id', component: AssignmentDetailsComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'signout', component: SignOutComponent, canActivate: [AuthGuard] },
