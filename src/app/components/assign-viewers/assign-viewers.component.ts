@@ -52,14 +52,13 @@ export class AssignViewersComponent implements OnInit {
   async removeSelectedViewers() {
     try {
       this.loading.viewers = true;
-      await this.formService.removeViewers(
-        this.formId, 
+      await this.formService.removeViewersFromForm(
+        this.formId,
         Array.from(this.selectedViewers)
-      );
-        
-      
+      ).toPromise();
+
       this.selectedViewers.clear();
-      this.loadAssignedViewers();
+      this.loadAssignedViewers(); // Refresh the list
       this.successMessage = 'Selected viewers removed successfully';
     } catch (error) {
       this.errorMessage = 'Error removing viewers';
@@ -71,13 +70,13 @@ export class AssignViewersComponent implements OnInit {
   async removeSingleViewer(email: string) {
     try {
       this.loading.viewers = true;
-      await this.formService.removeViewers(
-        this.formId, 
+      await this.formService.removeViewersFromForm(
+        this.formId,
         [email]
       ).toPromise();
-      
+
       this.selectedViewers.delete(email);
-      this.loadAssignedViewers();
+      this.loadAssignedViewers(); 
       this.successMessage = 'Viewer removed successfully';
     } catch (error) {
       this.errorMessage = 'Error removing viewer';
@@ -106,20 +105,20 @@ export class AssignViewersComponent implements OnInit {
       .map((e: string) => e.trim())
       .filter((e: string) => e.length > 0);
 
-    const newValid = emails.filter((e: string) => 
-      this.emailPattern.test(e) && 
-      !this.validEmails.includes(e) && 
+    const newValid = emails.filter((e: string) =>
+      this.emailPattern.test(e) &&
+      !this.validEmails.includes(e) &&
       !this.assignedViewers.some(v => v.email === e)
     );
-    
-    const newInvalid = emails.filter((e: string) => 
+
+    const newInvalid = emails.filter((e: string) =>
       !this.emailPattern.test(e) ||
       this.assignedViewers.some(v => v.email === e)
     );
 
     this.validEmails = [...this.validEmails, ...newValid];
     this.invalidEmails = [...this.invalidEmails, ...newInvalid];
-    
+
     this.assignForm.patchValue({ searchInput: '' });
   }
 
@@ -132,7 +131,7 @@ export class AssignViewersComponent implements OnInit {
 
     this.loading.assign = true;
     this.errorMessage = '';
-    
+
     this.formService.assignViewersToForm(this.formId, this.validEmails).subscribe({
       next: () => {
         this.successMessage = `${this.validEmails.length} viewers assigned successfully!`;

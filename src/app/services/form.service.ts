@@ -217,19 +217,13 @@ getTemplates(): Observable<any[]> {
 
 
   assignViewersToForm(formId: number, viewerEmails: string[]): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/${formId}/assign-viewers`,
-      viewerEmails
-    );
+    return this.http.put(`${this.apiUrl}/${formId}/assign-viewers`, viewerEmails);
   }
-  
-  removeViewers(formId: number, emails: string[]): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/${formId}/remove-viewers`,
-      emails
-    );
+
+  removeViewersFromForm(formId: number, viewerEmails: string[]): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${formId}/remove-viewers`, viewerEmails);
   }
-  
+
   getAssignedViewers(formId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/${formId}/assigned-viewers`).pipe(
       catchError(error => {
@@ -238,7 +232,17 @@ getTemplates(): Observable<any[]> {
       })
     );
   }
-  
+
+  getViewableForms(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/viewer`).pipe(
+      catchError(error => {
+        console.error('Error fetching viewable forms:', error);
+        return of([]);
+      })
+    );
+  }
+
+
   checkUserSubmission(formId: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiUrl}/${formId}/submitted`);
   }

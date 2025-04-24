@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { FormService } from '../../services/form.service';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-assigned-viewers',
@@ -8,29 +9,37 @@ import { FormService } from '../../services/form.service';
   styleUrls: ['./assigned-viewers.component.css']
 })
 export class AssignedViewersComponent implements OnInit {
-  formId!: number;
-  viewers: any[] = [];
+  forms: any[] = [];
   loading = true;
+  error: string | null = null;
+  userEmail: string | null = null;
 
   constructor(
-    private route: ActivatedRoute,
-    private formService: FormService
-  ) { }
+    private formService: FormService,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.formId = +this.route.snapshot.paramMap.get('id')!;
-    this.loadViewers();
+    this.userEmail = this.authService.getCurrentUserEmail();
+    this.loadViewableForms();
   }
 
-  loadViewers(): void {
-    this.formService.getAssignedViewers(this.formId).subscribe({
-      next: (viewers) => {
-        this.viewers = viewers;
+  loadViewableForms(): void {
+    this.loading = true;
+    this.formService.getViewableForms().subscribe({
+      next: (forms) => {
+        this.forms = forms;
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
+        this.error = 'Failed to load viewable forms. Please try again later.';
         this.loading = false;
       }
     });
+  }
+
+  viewResponses(formId: number): void {
+    this.router.navigate([`/view-responses/${formId}`]);
   }
 }

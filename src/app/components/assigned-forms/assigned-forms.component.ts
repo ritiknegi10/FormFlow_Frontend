@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormService } from '../../services/form.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-assigned-forms',
@@ -9,7 +10,8 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./assigned-forms.component.css']
 })
 export class AssignedFormsComponent implements OnInit {
-  forms: any[] = [];
+  forms: any[] = []; // Forms assigned to respond
+  viewableForms: any[] = []; // Forms where the user has view access
   loading = true;
   error: string | null = null;
   userEmail: string | null = null;
@@ -22,21 +24,25 @@ export class AssignedFormsComponent implements OnInit {
 
   ngOnInit(): void {
     this.userEmail = this.authService.getCurrentUserEmail();
-    this.loadAssignedForms();
+    this.loadForms();
   }
 
-  loadAssignedForms(): void {
+  loadForms(): void {
     this.loading = true;
-    this.formService.getAssignedForms().subscribe({
-      next: (forms) => {
-        this.forms = forms.map(form => ({
+    forkJoin({
+      assigned: this.formService.getAssignedForms(),
+      viewable: this.formService.getViewableForms()
+    }).subscribe({
+      next: (data) => {
+        this.forms = data.assigned.map(form => ({
           ...form,
           hasSubmitted: form.hasSubmitted || false
         }));
+        this.viewableForms = data.viewable;
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'Failed to load assigned forms. Please try again later.';
+        this.error = 'Failed to load forms. Please try again later.';
         this.loading = false;
       }
     });
@@ -48,5 +54,9 @@ export class AssignedFormsComponent implements OnInit {
 
   viewResponse(formId: number): void {
     this.router.navigate([`/view-responses/my-responses/${formId}`]);
+  }
+
+  viewAllResponses(formId: number): void {
+    this.router.navigate([`/view-responses/${formId}`]);
   }
 }
