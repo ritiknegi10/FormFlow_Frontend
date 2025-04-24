@@ -9,57 +9,65 @@
     {{ adminError }}
   </div>
 
-  <!-- Stats Section -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-    <!-- User Stats -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-4">User Stats</h2>
-      <div *ngIf="userStats; else loading">
-        <p>Total Users: {{ userStats?.totalUsers }}</p>
-        <p>Active Users (Last 30 Days): {{ userStats?.activeUsers }}</p>
+  <!-- Charts Section -->
+  <div class="flex flex-col space-y-8">
+    <!-- User and Form Stats Pie Charts -->
+    <div class="flex flex-row flex-wrap -mx-2">
+      <!-- User Stats Pie Chart -->
+      <div class="flex flex-col w-full md:w-1/2 px-2">
+        <div class="bg-white shadow rounded-lg p-6 flex flex-col">
+          <h2 class="text-xl font-semibold mb-4">User Stats</h2>
+          <ngx-charts-pie-chart
+            [results]="userPieData"
+            [legend]="showLegend"
+            [labels]="showLabels"
+            [explodeSlices]="explodeSlices"
+            [doughnut]="doughnut"
+            [scheme]="colorScheme"
+            class="h-64">
+          </ngx-charts-pie-chart>
+        </div>
       </div>
-      <ng-template #loading>Loading...</ng-template>
-    </div>
 
-    <!-- Form Stats -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-4">Form Stats</h2>
-      <div *ngIf="formStats; else loading">
-        <p>Total Forms: {{ formStats?.totalForms }}</p>
-        <p>Active Forms: {{ formStats?.activeForms }}</p>
-        <p>Assigned Forms: {{ formStats?.assignedForms }}</p>
-        <p>Public Forms: {{ formStats?.publicForms }}</p>
+      <!-- Form Stats Pie Chart -->
+      <div class="flex flex-col w-full md:w-1/2 px-2">
+        <div class="bg-white shadow rounded-lg p-6 flex flex-col">
+          <h2 class="text-xl font-semibold mb-4">Form Stats</h2>
+          <ngx-charts-pie-chart
+            [results]="formPieData"
+            [legend]="showLegend"
+            [labels]="showLabels"
+            [explodeSlices]="explodeSlices"
+            [doughnut]="doughnut"
+            [scheme]="colorScheme"
+            class="h-64">
+          </ngx-charts-pie-chart>
+        </div>
       </div>
-      <ng-template #loading>Loading...</ng-template>
     </div>
 
-    <!-- Response Stats -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-4">Response Stats</h2>
-      <div *ngIf="responseStats; else loading">
-        <p>Total Responses: {{ responseStats?.totalResponses }}</p>
+    <!-- Response Stats Line Chart -->
+    <div class="flex flex-col">
+      <div class="bg-white shadow rounded-lg p-6 flex flex-col">
+        <h2 class="text-xl font-semibold mb-4">Response Trend</h2>
+        <ngx-charts-line-chart
+          [results]="responseLineData"
+          [xAxis]="true"
+          [yAxis]="true"
+          [legend]="showLegend"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="'Week'"
+          [yAxisLabel]="'Responses'"
+          [scheme]="colorScheme"
+          class="h-64">
+        </ngx-charts-line-chart>
       </div>
-      <ng-template #loading>Loading...</ng-template>
-    </div>
-  </div>
-
-  <!-- Insights Section -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-    <!-- Average Responses -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-4">Average Responses per Form</h2>
-      <p>{{ avgResponsesPerForm | number:'1.2-2' }}</p>
-    </div>
-
-    <!-- File Count -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-4">Total Files in S3</h2>
-      <p>{{ fileCount }}</p>
     </div>
   </div>
 
   <!-- Lists Section -->
-  <div class="space-y-8">
+  <div class="space-y-8 mt-8">
     <!-- Top Creators -->
     <div class="bg-white shadow rounded-lg p-6">
       <h2 class="text-xl font-semibold mb-4">Top Form Creators</h2>
