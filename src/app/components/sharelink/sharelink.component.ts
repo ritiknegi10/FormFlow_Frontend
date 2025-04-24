@@ -57,7 +57,9 @@ export class SharelinkComponent implements OnInit {
           this.router.navigate(['/error', 403]);
         } 
         else if (error.status === 409) {
-          this.router.navigate(['/submit', this.loadedForm.title]);
+          setTimeout(() => {
+            this.router.navigate(['/submit', this.loadedForm.title]);
+          }, 0); 
         } 
       }
     });
@@ -74,7 +76,6 @@ export class SharelinkComponent implements OnInit {
   
           this.formPreviewData = schema;
           this.sections = schema.sections;
-          const title = form?.title || 'Untitled Form'
           this.sections.forEach((section, index) => {
             this.nextSectionData[index] = section.nextSection;
           });
