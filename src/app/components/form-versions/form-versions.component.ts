@@ -75,8 +75,8 @@ export class FormVersionsComponent implements OnInit {
         });
 
         const formSchema = JSON.parse(versionData.formSchema);
-        console.log("form schema");
-        console.log(formSchema)
+        // console.log("form schema");
+        // console.log(formSchema)
 
         const sectionsArray = (formSchema.sections || []).map((section: any) => {
             const questions = section.questions.map((field:any) =>{
@@ -127,27 +127,6 @@ export class FormVersionsComponent implements OnInit {
     });
   }
 
-  createSectionGroup(section: any){
-    const sectiongroup = this.fb.group({
-      sectionTitle: section.sectionTitle,
-      sectionDescription: section.sectionDescription,
-      nextSection: section.nextSection,
-      questions: section.questions
-    });
-    return sectiongroup;
-  }
-
-  createQuestionGroup(question: any): FormGroup {
-    const questionGroup = this.fb.group({ 
-      questionText: new FormControl(question.label || ''),
-      type: new FormControl(question.type || 'shortText'),
-      required: new FormControl(question.required || false),
-      options: this.fb.array(question.options ? question.options.map((opt: any) => new FormControl(opt)) : []),
-      rating: new FormControl(question.rating || 5)
-    });
-    return questionGroup;
-  }
-
   get sections(): FormArray{
     return this.form.get('sections') as FormArray;
   }
@@ -158,7 +137,11 @@ export class FormVersionsComponent implements OnInit {
 
   getOptions(question: any): FormArray{
     return question.get('options') as FormArray;
-}
+  }
+
+  getStarsArray(count: number): number[] {
+    return Array.from({ length: count }, (_, i) => i + 1);
+  }
 
   onVersionChange() {
     this.loadFormVersion(this.selectedVersion);
