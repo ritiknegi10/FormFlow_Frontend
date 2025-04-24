@@ -29,6 +29,8 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RecaptchaModule } from 'ng-recaptcha';
 import { FormModule } from "./components/form/form.module";
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
+import { CommonModule } from '@angular/common';
+import {AdminDashboardComponent} from './components/admin-dashboard/admin-dashboard.component'
 
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -39,7 +41,6 @@ import { AssignedFormsComponent } from './components/assigned-forms/assigned-for
 import { FormTemplateComponent } from './components/form-template/form-template.component';
 import { AnalyticsChartsComponent } from './components/analytics-charts/analytics-charts.component';
 import { AssignmentDetailsComponent } from './components/assignment-details/assignment-details.component';
-import { ErrorPageComponent } from './components/error-page/error-page.component';
 
 
 @NgModule({
@@ -72,7 +73,7 @@ import { ErrorPageComponent } from './components/error-page/error-page.component
     FormTemplateComponent,
     AnalyticsChartsComponent,
     AssignmentDetailsComponent,
-    ErrorPageComponent
+    AdminDashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -83,7 +84,8 @@ import { ErrorPageComponent } from './components/error-page/error-page.component
     DragDropModule,
     RecaptchaModule,
     FormModule,
-    NgxChartsModule
+    NgxChartsModule,
+    CommonModule
 ],
     
 

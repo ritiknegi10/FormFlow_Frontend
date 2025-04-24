@@ -1,38 +1,40 @@
-import { HttpClient , HttpHeaders, HttpParams} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, map, Observable, of, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  
-  private apiUrl = 'http://localhost:8080/auth';
-
-
-
+  private apiUrl = environment.apiUrl + '/auth';
   private loggedIn = new BehaviorSubject<boolean>(false);
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
   private redirectUrl: string | null = null;
 
-setRedirectUrl(url: string) {
-  this.redirectUrl = url;
-}
-
-getRedirectUrl(): string | null {
-  return this.redirectUrl;
-}
-
-clearRedirectUrl() {
-  this.redirectUrl = null;
-}
-
-  // Add this observable
   isLoggedIn$ = this.loggedIn.asObservable();
+  currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
-    // Initialize login state
     this.loggedIn.next(!!this.getToken());
+    if (this.getToken()) {
+      this.loadCurrentUser();
+    }
+  }
+
+  setRedirectUrl(url: string) {
+    this.redirectUrl = url;
+  }
+
+  getRedirectUrl(): string | null {
+    return this.redirectUrl;
+  }
+
+  clearRedirectUrl() {
+    this.redirectUrl = null;
   }
 
   login(credentials: { username: string; password: string }): Observable<any> {
@@ -41,6 +43,7 @@ clearRedirectUrl() {
         this.saveToken(token);
         localStorage.setItem('userEmail', credentials.username);
         this.loggedIn.next(true);
+        this.loadCurrentUser();
       }),
       catchError((error) => {
         console.error('Login error:', error);
@@ -61,12 +64,10 @@ clearRedirectUrl() {
   }
 
   saveToken(token: string) {
-  localStorage.setItem('jwt', token);
-  this.loggedIn.next(true); // Update login state
-}
+    localStorage.setItem('jwt', token);
+    this.loggedIn.next(true);
+  }
 
-
-  // Update existing getToken() method
   getToken(): string | null {
     const token = localStorage.getItem('jwt');
     if (!token) {
@@ -75,8 +76,6 @@ clearRedirectUrl() {
     }
     return token;
   }
-  
-
 
   isLoggedIn(): boolean {
     return !!this.getToken();
@@ -84,7 +83,9 @@ clearRedirectUrl() {
 
   logout() {
     localStorage.removeItem('jwt');
-    this.loggedIn.next(false); 
+    localStorage.removeItem('userEmail');
+    this.loggedIn.next(false);
+    this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }
 
@@ -107,14 +108,13 @@ clearRedirectUrl() {
       })
     );
   }
-  
 
   checkUserByEmail(email: string): Observable<boolean> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`
     });
-  
-    return this.http.get<boolean>(`http://localhost:8080/users/search`, {
+
+    return this.http.get<boolean>(`${environment.apiUrl}/users/search`, {
       params: new HttpParams().set('email', email),
       headers: headers
     }).pipe(
@@ -124,7 +124,7 @@ clearRedirectUrl() {
       })
     );
   }
-  
+
   verifyOtpAndRegister(data: { 
     email: string, 
     otp: string, 
@@ -143,4 +143,39 @@ clearRedirectUrl() {
         }));
       })
     );
-  }}
+  }
+
+  loadCurrentUser(): void {
+    const token = this.getToken();
+    if (!token) {
+      console.log('AuthService: No token, skipping loadCurrentUser');
+      this.currentUserSubject.next(null);
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.get<User>(`${environment.apiUrl}/users/me`, { headers }).subscribe({
+      next: (user) => {
+        console.log('AuthService: Loaded user =', user);
+        this.currentUserSubject.next(user);
+        this.loggedIn.next(true);
+      },
+      error: (err) => {
+        console.error('AuthService: Error loading current user:', {
+          status: err.status,
+          statusText: err.statusText,
+          message: err.message,
+          error: err.error
+        });
+        this.currentUserSubject.next(null);
+        this.loggedIn.next(false);
+        localStorage.removeItem('jwt');
+        localStorage.removeItem('userEmail');
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+}
