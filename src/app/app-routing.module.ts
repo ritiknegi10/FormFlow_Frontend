@@ -28,6 +28,7 @@ import { AssignFormComponent } from './components/assign-form/assign-form.compon
 import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
 import { FormTemplateComponent } from './components/form-template/form-template.component';
 import { AssignmentDetailsComponent } from './components/assignment-details/assignment-details.component';
+import { ErrorPageComponent } from './components/error-page/error-page.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -58,9 +59,8 @@ const routes: Routes = [
   { path: 'about', component: AboutUsComponent },
   { path: 'faq', component: FaqComponent },
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard] },
-  { path: 'submit/:title', component: SubmitPageComponent, canActivate: [AuthGuard] },
-
-  
+  { path: 'submit/:title', component: SubmitPageComponent },
+  { path: 'error/:msg', component: ErrorPageComponent},  
   { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
   { path: 'form-template', component: FormTemplateComponent, canActivate: [AuthGuard] },
   { path: 'form-preview', component: FormPreviewComponent },

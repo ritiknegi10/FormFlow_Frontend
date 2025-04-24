@@ -39,6 +39,7 @@ import { AssignedFormsComponent } from './components/assigned-forms/assigned-for
 import { FormTemplateComponent } from './components/form-template/form-template.component';
 import { AnalyticsChartsComponent } from './components/analytics-charts/analytics-charts.component';
 import { AssignmentDetailsComponent } from './components/assignment-details/assignment-details.component';
+import { ErrorPageComponent } from './components/error-page/error-page.component';
 
 
 @NgModule({
@@ -70,7 +71,8 @@ import { AssignmentDetailsComponent } from './components/assignment-details/assi
     AssignedFormsComponent,
     FormTemplateComponent,
     AnalyticsChartsComponent,
-    AssignmentDetailsComponent
+    AssignmentDetailsComponent,
+    ErrorPageComponent
   ],
   imports: [
     BrowserModule,

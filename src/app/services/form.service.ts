@@ -134,6 +134,9 @@ getTemplates(): Observable<any[]> {
   //   );
   // }
 
+  checkFormAccess(formId: number): Observable<string> {
+    return this.http.get<string>(`${this.apiUrl}/${formId}/access-check`);
+  }
 
 
   getFormById(id: number): Observable<any> {
