@@ -49,22 +49,61 @@ export class AssignViewersComponent implements OnInit {
       this.selectedViewers.add(email);
   }
 
+  get isAllSelected(): boolean {
+    return this.assignedViewers.length > 0 && 
+           this.assignedViewers.every(viewer => this.selectedViewers.has(viewer.email));
+  }
+
+  toggleAllSelection(): void {
+    if (this.isAllSelected) {
+        this.selectedViewers.clear();
+    } else {
+        this.assignedViewers.forEach(viewer => this.selectedViewers.add(viewer.email));
+    }
+  }
   async removeSelectedViewers() {
     try {
-      this.loading.viewers = true;
-      await this.formService.removeViewersFromForm(
-        this.formId,
-        Array.from(this.selectedViewers)
-      ).toPromise();
-
-      this.selectedViewers.clear();
-      this.loadAssignedViewers(); // Refresh the list
-      this.successMessage = 'Selected viewers removed successfully';
-    } catch (error) {
-      this.errorMessage = 'Error removing viewers';
+        this.loading.viewers = true;
+        this.errorMessage = '';
+        this.successMessage = '';
+        
+        const emails = Array.from(this.selectedViewers);
+        await this.formService.removeViewersFromForm(
+            this.formId,
+            emails
+        ).toPromise();
+        
+        this.selectedViewers.clear();
+        await this.loadAssignedViewers();
+        this.successMessage = `${emails.length} viewers removed successfully`;
+        
+        setTimeout(() => this.successMessage = '', 3000);
+    } catch (error:any) {
+        console.error('Removal error:', error);
+        this.errorMessage = error.error || 'Error removing viewers';
+        setTimeout(() => this.errorMessage = '', 5000);
     } finally {
-      this.loading.viewers = false;
+        this.loading.viewers = false;
     }
+  }
+
+  private loadAssignedViewers(): Promise<void> {
+    return new Promise((resolve) => {
+        this.loading.viewers = true;
+        this.formService.getAssignedViewers(this.formId).subscribe({
+            next: (viewers) => {
+                this.assignedViewers = viewers;
+                this.selectedViewers.clear();
+                this.loading.viewers = false;
+                resolve();
+            },
+            error: (err) => {
+                this.loading.viewers = false;
+                this.errorMessage = 'Failed to load assigned viewers';
+                resolve();
+            }
+        });
+    });
   }
 
   async removeSingleViewer(email: string) {
@@ -85,19 +124,19 @@ export class AssignViewersComponent implements OnInit {
     }
   }
 
-  private loadAssignedViewers(): void {
-    this.loading.viewers = true;
-    this.formService.getAssignedViewers(this.formId).subscribe({
-      next: (viewers) => {
-        this.assignedViewers = viewers;
-        this.loading.viewers = false;
-      },
-      error: (err) => {
-        this.loading.viewers = false;
-        this.errorMessage = 'Failed to load assigned viewers';
-      }
-    });
-  }
+  // private loadAssignedViewers(): void {
+  //   this.loading.viewers = true;
+  //   this.formService.getAssignedViewers(this.formId).subscribe({
+  //     next: (viewers) => {
+  //       this.assignedViewers = viewers;
+  //       this.loading.viewers = false;
+  //     },
+  //     error: (err) => {
+  //       this.loading.viewers = false;
+  //       this.errorMessage = 'Failed to load assigned viewers';
+  //     }
+  //   });
+  // }
 
   processInput(): void {
     const input = this.assignForm.get('searchInput')?.value || '';
@@ -131,6 +170,7 @@ export class AssignViewersComponent implements OnInit {
 
     this.loading.assign = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     this.formService.assignViewersToForm(this.formId, this.validEmails).subscribe({
       next: () => {
@@ -138,13 +178,19 @@ export class AssignViewersComponent implements OnInit {
         this.validEmails = [];
         this.invalidEmails = [];
         this.loadAssignedViewers();
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to assign viewers. Please try again.';
-        this.loading.assign = false;
-      },
-      complete: () => this.loading.assign = false
-    });
+        setTimeout(() => this.successMessage = '', 3000);
+    },
+
+    error: (err) => {
+      console.error('Assignment error:', err);
+      this.errorMessage = err.error || 'Failed to assign viewers. Please try again.';
+      setTimeout(() => this.errorMessage = '', 5000);
+  },
+  complete: () => {
+      this.loading.assign = false;
+      this.assignForm.reset();
+  }
+});
   }
 
   cancel(): void {

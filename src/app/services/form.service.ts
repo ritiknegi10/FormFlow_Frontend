@@ -208,21 +208,31 @@ getTemplates(): Observable<any[]> {
     );
   }
   
-  removeAssignedUsers(formId: number, emails: string[]): Observable<any> {
+  removeAssignedUsers(formId: number, emails: string[]): Observable<string> {
     return this.http.put(
-      `${this.apiUrl}/${formId}/remove-assigned-users`,
-      emails
+        `${this.apiUrl}/${formId}/remove-assigned-users`,
+        emails,
+        { responseType: 'text' }
     );
-  }
+}
 
+assignViewersToForm(formId: number, viewerEmails: string[]): Observable<string> {
+  return this.http.put(
+      `${this.apiUrl}/${formId}/assign-viewers`,
+      viewerEmails,
+      { responseType: 'text' }
+  );
+}
 
-  assignViewersToForm(formId: number, viewerEmails: string[]): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${formId}/assign-viewers`, viewerEmails);
-  }
+removeViewersFromForm(formId: number, emails: string[]): Observable<string> {
+  return this.http.put(
+      `${this.apiUrl}/${formId}/remove-viewers`,
+      emails,
+      { responseType: 'text' }
+  );
+}
 
-  removeViewersFromForm(formId: number, viewerEmails: string[]): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${formId}/remove-viewers`, viewerEmails);
-  }
+ 
 
   getAssignedViewers(formId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/${formId}/assigned-viewers`).pipe(
@@ -247,8 +257,12 @@ getTemplates(): Observable<any[]> {
     return this.http.get<boolean>(`${this.apiUrl}/${formId}/submitted`);
   }
 
-  assignUsersToForm(formId: number, userEmails: string[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${formId}/assign`, userEmails);
+  assignUsersToForm(formId: number, userEmails: string[]): Observable<string> {
+    return this.http.post(
+      `${this.apiUrl}/${formId}/assign`,
+      userEmails,
+      { responseType: 'text' } 
+    );
   }
 
   updateVisibility(formId: number, isPublic: boolean): Observable<string> {

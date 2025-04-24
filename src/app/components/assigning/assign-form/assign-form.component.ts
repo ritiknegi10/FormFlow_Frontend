@@ -58,24 +58,82 @@ selectedUsers = new Set<string>();
       this.selectedUsers.delete(email) :
       this.selectedUsers.add(email);
   }
+
   
-  async removeSelectedUsers() {
-    try {
+  
+// Add these to the component class
+get isAllSelected(): boolean {
+  return this.assignedUsers.length > 0 && 
+         this.assignedUsers.every(user => this.selectedUsers.has(user.email));
+}
+
+toggleAllSelection(): void {
+  if (this.isAllSelected) {
+      this.selectedUsers.clear();
+  } else {
+      this.assignedUsers.forEach(user => this.selectedUsers.add(user.email));
+  }
+}
+
+// Update the existing removeSelectedUsers method
+async removeSelectedUsers() {
+  try {
       this.loading.users = true;
-      await this.formService.removeAssignedUsers(
-        this.formId, 
-        Array.from(this.selectedUsers)
-      ).toPromise();
+      this.errorMessage = '';
+      this.successMessage = '';
+      
+      const emails = Array.from(this.selectedUsers);
+      await this.formService.removeAssignedUsers(this.formId, emails).toPromise();
       
       this.selectedUsers.clear();
-      this.loadAssignedUsers(); // Refresh the list
-      this.successMessage = 'Selected users removed successfully';
-    } catch (error) {
-      this.errorMessage = 'Error removing users';
-    } finally {
+      await this.loadAssignedUsers();
+      this.successMessage = `${emails.length} users removed successfully`;
+      
+      setTimeout(() => this.successMessage = '', 3000);
+  } catch (error: any) {
+      console.error('Removal error:', error);
+      this.errorMessage = error.error || 'Error removing users';
+      setTimeout(() => this.errorMessage = '', 5000);
+  } finally {
       this.loading.users = false;
-    }
   }
+}
+
+// Update the loadAssignedUsers method to clear selections
+private loadAssignedUsers(): Promise<void> {
+  return new Promise((resolve) => {
+      this.loading.users = true;
+      this.formService.getAssignedUsers(this.formId).subscribe({
+          next: (users) => {
+              const userEmails = users.map(user => user.email);
+              this.responseService.getResponsesByFormId(this.formId).subscribe({
+                  next: (responses) => {
+                      this.assignedUsers = userEmails.map(email => ({
+                          email,
+                          hasSubmitted: responses.some((r: any) => 
+                              r.respondent?.email.toLowerCase() === email.toLowerCase()
+                          )
+                      }));
+                      this.selectedUsers.clear();
+                      this.loading.users = false;
+                      resolve();
+                  },
+                  error: () => {
+                      this.assignedUsers = userEmails.map(email => ({ email, hasSubmitted: false }));
+                      this.selectedUsers.clear();
+                      this.loading.users = false;
+                      resolve();
+                  }
+              });
+          },
+          error: (err) => {
+              this.loading.users = false;
+              this.errorMessage = 'Failed to load assigned users';
+              resolve();
+          }
+      });
+  });
+}
   
   async removeSingleUser(email: string) {
     try {
@@ -119,33 +177,33 @@ selectedUsers = new Set<string>();
     });
   }
 
-  private loadAssignedUsers(): void {
-    this.loading.users = true;
-    this.formService.getAssignedUsers(this.formId).subscribe({
-      next: (users) => {
-        const userEmails = users.map(user => user.email);
-        this.responseService.getResponsesByFormId(this.formId).subscribe({
-          next: (responses) => {
-            this.assignedUsers = userEmails.map(email => ({
-              email,
-              hasSubmitted: responses.some((r: any) => 
-                r.respondent?.email.toLowerCase() === email.toLowerCase()
-              )
-            }));
-            this.loading.users = false;
-          },
-          error: () => {
-            this.assignedUsers = userEmails.map(email => ({ email, hasSubmitted: false }));
-            this.loading.users = false;
-          }
-        });
-      },
-      error: (err) => {
-        this.loading.users = false;
-        this.errorMessage = 'Failed to load assigned users';
-      }
-    });
-  }
+  // private loadAssignedUsers(): void {
+  //   this.loading.users = true;
+  //   this.formService.getAssignedUsers(this.formId).subscribe({
+  //     next: (users) => {
+  //       const userEmails = users.map(user => user.email);
+  //       this.responseService.getResponsesByFormId(this.formId).subscribe({
+  //         next: (responses) => {
+  //           this.assignedUsers = userEmails.map(email => ({
+  //             email,
+  //             hasSubmitted: responses.some((r: any) => 
+  //               r.respondent?.email.toLowerCase() === email.toLowerCase()
+  //             )
+  //           }));
+  //           this.loading.users = false;
+  //         },
+  //         error: () => {
+  //           this.assignedUsers = userEmails.map(email => ({ email, hasSubmitted: false }));
+  //           this.loading.users = false;
+  //         }
+  //       });
+  //     },
+  //     error: (err) => {
+  //       this.loading.users = false;
+  //       this.errorMessage = 'Failed to load assigned users';
+  //     }
+  //   });
+  // }
 
 processInput(): void {
     const input = this.assignForm.get('searchInput')?.value || '';
@@ -179,19 +237,32 @@ processInput(): void {
 
     this.loading.assign = true;
     this.errorMessage = '';
+    this.successMessage = '';
     
     this.formService.assignUsersToForm(this.formId, this.validEmails).subscribe({
-      next: () => {
+      next: (response) => {
         this.successMessage = `${this.validEmails.length} users assigned successfully!`;
         this.validEmails = [];
         this.invalidEmails = [];
         this.loadAssignedUsers();
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+    
       },
       error: (err) => {
-        this.errorMessage = 'Failed to assign users. Please try again.';
-        this.loading.assign = false;
+        console.error('Assignment error:', err);
+        this.errorMessage = err.error || 'Failed to assign users. Please try again.';
+        
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 5000);
       },
-      complete: () => this.loading.assign = false
+      complete: () => {
+        this.loading.assign = false;
+        this.assignForm.reset();
+      }
     });
   }
 
