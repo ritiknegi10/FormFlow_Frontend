@@ -36,11 +36,15 @@ import {AdminDashboardComponent} from './components/admin-dashboard/admin-dashbo
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
-import { AssignFormComponent } from './components/assign-form/assign-form.component';
-import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
+import { AssignFormComponent } from './components/assigning/assign-form/assign-form.component';
+import { AssignedFormsComponent } from './components/assigning/assigned-forms/assigned-forms.component';
 import { FormTemplateComponent } from './components/form-template/form-template.component';
 import { AnalyticsChartsComponent } from './components/analytics-charts/analytics-charts.component';
 import { AssignmentDetailsComponent } from './components/assignment-details/assignment-details.component';
+import { ErrorPageComponent } from './components/error-page/error-page.component';
+import { AssignedViewersComponent } from './components/assigning/assigned-viewers/assigned-viewers.component';
+import { AssignViewersComponent } from './components/assigning/assign-viewers/assign-viewers.component';
+import { AssigningComponent } from './components/assigning/assigning.component';
 
 
 @NgModule({
@@ -73,7 +77,11 @@ import { AssignmentDetailsComponent } from './components/assignment-details/assi
     FormTemplateComponent,
     AnalyticsChartsComponent,
     AssignmentDetailsComponent,
-    AdminDashboardComponent
+    AdminDashboardComponent,
+    ErrorPageComponent,
+    AssignedViewersComponent,
+    AssignViewersComponent,
+    AssigningComponent
   ],
   imports: [
     BrowserModule,
