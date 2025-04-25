@@ -1,6 +1,7 @@
 <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
 
 
+    <!-- Update the visibility section -->
     <div class="mb-8 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
         <div class="flex items-center justify-between">
             <div>
@@ -9,16 +10,28 @@
                     {{ isPublic ? 'Public form - accessible to anyone with link' : 'Private form - assigned users only'
                     }}
                 </p>
+                <!-- Add this error message -->
+                <div *ngIf="assignedUsers.length > 0 && !isPublic" class="mt-2 text-red-600 text-sm">
+                    Cannot change to public - remove all assigned users first
+                </div>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" [(ngModel)]="isPublic" (change)="onVisibilityChange()" class="sr-only peer">
+            <label class="relative inline-flex items-center cursor-not-allowed opacity-50"
+                *ngIf="assignedUsers.length > 0 && !isPublic; else toggleEnabled">
+                <input type="checkbox" disabled class="sr-only peer">
                 <div
-                    class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-indigo-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all">
+                    class="w-11 h-6 bg-gray-200 rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all">
                 </div>
             </label>
+            <ng-template #toggleEnabled>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" [checked]="isPublic" (change)="attemptVisibilityChange()"
+                        class="sr-only peer">
+                    <div
+                        class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-indigo-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all">
+                    </div>
+                </label>
+            </ng-template>
         </div>
-
-
     </div>
 
     <div *ngIf="!isPublic">
