@@ -136,6 +136,7 @@ export class FormHeroComponent implements OnInit{
                     section.questions.map(() => false)
                 );
                 this.formFetched=true;
+                console.log(this.formBuilder)
             });
             } 
             else {

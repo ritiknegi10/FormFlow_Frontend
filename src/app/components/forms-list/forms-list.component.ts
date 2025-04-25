@@ -80,7 +80,12 @@ export class FormsListComponent implements OnInit {
     });
   }
   
-  getAllVersions(parentFormId: number, formVersion: number){
+  getAllVersions(formID:number, parentFormId: number, formVersion: number){
+
+    //* --if form has only 1 version (never editted yet), its parentId will be null so setting parentId as formId.
+    if(!parentFormId){
+      parentFormId = formID
+    }
     this.router.navigate([`/forms/${parentFormId}/versions/${formVersion}`]);
   }
 
