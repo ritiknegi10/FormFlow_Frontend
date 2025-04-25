@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter, ElementRef, HostListener, ViewChildren, QueryList } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl, Validators, ValidationErrors } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -10,12 +10,11 @@ import { filter } from 'rxjs';
   templateUrl: './form-hero.component.html',
   styleUrls: ['./form-hero.component.scss']
 })
+
 export class FormHeroComponent implements OnInit{
 
     formId: number | null = null;
     formBuilder: FormGroup;
-    showTemplateSuccess = false;
-    isTemplateMode = false;
 
     // maintain order in questionTypes
     questionTypes = [
@@ -32,38 +31,44 @@ export class FormHeroComponent implements OnInit{
         { type: 'rating', label: 'Rating', icon: 'assets/question-type-icons/rating.svg'},
         { type: 'file', label: 'File Upload', icon: 'assets/question-type-icons/file.svg'},
     ];
-    selectedTypes: { [sIdx: number]: { [qIdx: number]: any } } = {};
-    showFormNavigation: boolean = true;
+
     ratingOptions = Array.from({ length: 8 }, (_, i) => i + 3);
     scalingOptions = Array.from({ length: 6 }, (_, i) => i + 5);
+    minDateTime!: string;
     currentUrl!: String;
+
+    // Flags
+    showTemplateSuccess = false;
+    isTemplateMode = false;
+    formFetched = false;
     submitClicked = false;
     submitSuccess = false;
     singleOption = false;
-    formFetched = false;
-    isQuestionInvalid: boolean = false;
+    isQuestionInvalid = false;
+    showFormNavigation = true;
+    isDropdownOpen = false;
+    isDeadline = false;
+    
+    // Mapping properties
+    selectedTypes: { [sIdx: number]: { [qIdx: number]: any } } = {};
     showOptionsMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
+    collapseQuestionMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     otherAddedMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     questionTypeDropdown: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
-    isDropdownOpen: boolean = false;
+    
 
     constructor(private fb: FormBuilder, 
                 private formService: FormService, 
                 private router: Router, 
                 private cdr: ChangeDetectorRef,
-            private route: ActivatedRoute) {
+                private route: ActivatedRoute) {
         this.formBuilder = this.fb.group({
             title: 'Untitled Form',
             description: '',
+            deadline: [null],
             sections: this.fb.array([])
-        });
-
-        this.router.events
-            .pipe(filter(event => event instanceof NavigationEnd))
-        .subscribe((event: any) => {
-            this.currentUrl = event.url;
         });
 
         this.router.events
@@ -74,70 +79,86 @@ export class FormHeroComponent implements OnInit{
     }
 
     ngOnInit() {
-        // --if you're editing an existing form, fetch data
+
+        // deadline validation functions
+        this.updateDeadlineValidator();
+        this.setMinDateTime();
+
+        // if you're editing an existing form, fetch data
         const urlParts = this.router.url.split('/');
         this.route.queryParams.subscribe(params => {
+
+            // for template form
             const templateId = params['templateId'];
             if (templateId) {
               this.loadTemplate(templateId);
             }
+
+            // for non-template form
             else if (urlParts[1] === 'edit' && urlParts[2]) {
-            this.formId = parseInt(urlParts[2]);
-            this.formService.getFormById(this.formId).subscribe(form => {
+                this.formId = parseInt(urlParts[2]);
+                this.formService.getFormById(this.formId).subscribe(form => {
 
-                this.formBuilder.patchValue({
-                    title: form.title,
-                    description: form.description,
-                });
+                    this.formBuilder.patchValue({
+                        title: form.title,
+                        description: form.description,
+                        deadline: form.deadline
+                    });
 
-                const parsedSchema = JSON.parse(form.formSchema);
-                // console.log(JSON.stringify(parsedSchema));
+                    console.log(form);
+                    const parsedSchema = JSON.parse(form.formSchema);
+                    // console.log(JSON.stringify(parsedSchema));
 
-                const sectionsArray = (parsedSchema.sections || []).map((section:any) =>{
-                    const questions = section.questions.map((field:any) =>{
+                    const sectionsArray = (parsedSchema.sections || []).map((section:any) => {
+                        const questions = section.questions.map((field:any) =>{
+                            return this.fb.group({
+                                questionText: field.questionText,
+                                questionDescription: '',
+                                type: field.type,
+                                required: field.required,
+                                sectionBasedonAnswer: field.sectionBasedonAnswer || false,
+                                options: this.fb.array(
+                                    (field.options || []).map((option: any) => 
+                                        this.fb.group({
+                                            label: option.label,
+                                            goToSection: option.goToSection || null
+                                        })
+                                    )
+                                ),
+                                rating: field.rating || 5,
+                                startValue: [field.startValue ?? 0],
+                                endValue: [field.endValue ?? 5],
+                                rows: this.fb.array(field.rows || []),         
+                                columns: this.fb.array(field.columns || []),   
+                                fileUrl: [field.fileUrl || ''], 
+                            });
+                        });
                         return this.fb.group({
-                            questionText: field.questionText,
-                            questionDescription: '',
-                            type: field.type,
-                            required: field.required,
-                            options: this.fb.array(
-                                (field.options || []).map((option: any) => 
-                                    this.fb.group({
-                                        label: option.label,
-                                        goToSection: option.goToSection || null
-                                    })
-                                )
-                            ),
-                            rating: field.rating || 5,
-                            startValue: [field.startValue ?? 0],
-                            endValue: [field.endValue ?? 5],
-                            rows: this.fb.array(field.rows || []),         
-                            columns: this.fb.array(field.columns || []),   
-                            fileUrl: [field.fileUrl || ''], 
-                            sectionBasedonAnswer: field.sectionBasedonAnswer || false
+                            sectionTitle: section.sectionTitle,
+                            sectionDescription: section.sectionDescription,
+                            nextSection: section.nextSection,
+                            questions: this.fb.array(questions)
                         });
                     });
-                    return this.fb.group({
-                        sectionTitle: section.sectionTitle,
-                        sectionDescription: section.sectionDescription,
-                        nextSection: section.nextSection,
-                        questions: this.fb.array(questions)
-                    });
+                    this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
+                    this.formFetched = true;
+                    
+                    // Initialise map properties
+                    this.selectedTypes = parsedSchema.sections.map((section: any) => 
+                        section.questions.map((question: any) => {
+                        const found = this.questionTypes.find(q => q.type === question.type);
+                        return { ...found };
+                        })
+                    );
+                    this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
+                        section.questions.map(() => false)
+                    );
+                    this.collapseQuestionMap = parsedSchema.sections.map((section: any) => 
+                        section.questions.map(() => false)
+                    );
+                    
                 });
-                this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
 
-                this.selectedTypes = parsedSchema.sections.map((section: any) => 
-                    section.questions.map((question: any) => {
-                      const found = this.questionTypes.find(q => q.type === question.type);
-                      return { ...found };
-                    })
-                );
-                this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
-                    section.questions.map(() => false)
-                );
-                this.formFetched=true;
-                console.log(this.formBuilder)
-            });
             } 
             else {
                 this.addSection(); // Start with one section by default
@@ -147,61 +168,80 @@ export class FormHeroComponent implements OnInit{
 
     private loadTemplate(templateId: number) {
         this.formService.getFormById(templateId).subscribe({
-        next: (form) => {
-            // Clear existing form
-            while (this.sections.length !== 0) {
-            this.sections.removeAt(0);
-            }
-    
-            // Parse form schema
-            const parsedSchema = typeof form.formSchema === 'string' ? 
-                            JSON.parse(form.formSchema) : 
-                            form.formSchema;
-    
-            // Rebuild sections
-            parsedSchema.sections.forEach((section: any) => {
-            const newSection = this.fb.group({
-                sectionTitle: section.sectionTitle,
-                sectionDescription: section.sectionDescription,
-                nextSection: section.nextSection,
-                questions: this.fb.array([])
-            });
-    
-            section.questions.forEach((question: any) => {
-                const questionGroup = this.fb.group({
-                questionText: question.questionText,
-                questionDescription: question.questionDescription,
-                type: question.type,
-                options: this.fb.array(
-                    (question.options || []).map((opt: any) =>
-                    this.fb.group({
-                        label: opt.label,
-                        goToSection: opt.goToSection
-                    })
-                    )
-                ),
-                rating: question.rating || 5,
-                required: question.required,
-                sectionBasedonAnswer: question.sectionBasedonAnswer
+            next: (form) => {
+                // Clear existing form
+                while (this.sections.length !== 0) {
+                    this.sections.removeAt(0);
+                }
+        
+                // Parse form schema
+                const parsedSchema = typeof form.formSchema === 'string' ? JSON.parse(form.formSchema) : form.formSchema;
+        
+                // Rebuild sections
+                parsedSchema.sections.forEach((section: any) => {
+                    const newSection = this.fb.group({
+                        sectionTitle: section.sectionTitle,
+                        sectionDescription: section.sectionDescription,
+                        nextSection: section.nextSection,
+                        questions: this.fb.array([])
+                    });
+        
+                    section.questions.forEach((question: any) => {
+                        const questionGroup = this.fb.group({
+                        questionText: question.questionText,
+                        questionDescription: question.questionDescription,
+                        type: question.type,
+                        required: question.required,
+                        sectionBasedonAnswer: question.sectionBasedonAnswer,
+                        options: this.fb.array(
+                            (question.options || []).map((opt: any) =>
+                            this.fb.group({
+                                label: opt.label,
+                                goToSection: opt.goToSection
+                            })
+                            )
+                        ),
+                        rating: question.rating || 5,
+                        startValue: [question.startValue ?? 0],
+                        endValue: [question.endValue ?? 5],
+                        rows: this.fb.array(question.rows || []),         
+                        columns: this.fb.array(question.columns || []),   
+                        fileUrl: [question.fileUrl || ''], 
+                    
                 });
-                
+                    
                 (newSection.get('questions') as FormArray).push(questionGroup);
             });
-    
-            this.sections.push(newSection);
-            });
-    
-            this.formBuilder.patchValue({
-            title: form.title + ' (Copy)',
-            description: form.description
-            });
-            
-            this.formFetched = true;
-        },
-        error: (err) => {
-            console.error('Error loading template:', err);
-            this.router.navigate(['/form-template']);
-        }
+        
+                this.sections.push(newSection);
+        });
+        
+                this.formBuilder.patchValue({
+                    title: form.title + ' (Copy)',
+                    description: form.description,
+                    deadline: form.deadline
+                });
+                this.formFetched = true;
+
+                // Initialise map properties
+                this.selectedTypes = parsedSchema.sections.map((section: any) => 
+                    section.questions.map((question: any) => {
+                    const found = this.questionTypes.find(q => q.type === question.type);
+                    return { ...found };
+                    })
+                );
+                this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
+                    section.questions.map(() => false)
+                );
+                this.collapseQuestionMap = parsedSchema.sections.map((section: any) => 
+                    section.questions.map(() => false)
+                );
+                
+            },
+            error: (err) => {
+                console.error('Error loading template:', err);
+                this.router.navigate(['/form-template']);
+            }
         });
     }
   
@@ -213,6 +253,37 @@ export class FormHeroComponent implements OnInit{
         }
     }
 
+    updateDeadlineValidator() {
+        const deadlineControl = this.formBuilder.get('deadline');
+      
+        if (this.isDeadline) {
+            console.log("deadline");
+            deadlineControl?.setValidators([Validators.required, FormHeroComponent.futureDateValidator]);
+        } else {
+            console.log("deadline clear validator")
+            deadlineControl?.clearValidators();
+            deadlineControl?.setValue(null); // optional: reset field
+        }
+      
+        deadlineControl?.updateValueAndValidity();
+    }
+
+    setMinDateTime() {
+        const now = new Date();
+        // Convert to ISO and remove seconds + milliseconds
+        const isoString = now.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
+        this.minDateTime = isoString;
+    }
+
+    static futureDateValidator(control: AbstractControl): ValidationErrors | null {
+        if (!control.value) return null;
+      
+        const selectedDate = new Date(control.value);
+        const now = new Date();
+        
+        console.log("future validator", selectedDate);
+        return selectedDate > now ? null : { pastDate: true };
+    }
 
     //* --Getting Form data to preview
     getFormData(){
@@ -320,12 +391,6 @@ export class FormHeroComponent implements OnInit{
         this.showQuestionDescription[sectionIndex][questionIndex] = !isVisible;
     }
 
-    //selects all text when focused on option input field
-    // selectAllText(eventTarget: EventTarget | null){
-    //     if(eventTarget instanceof HTMLInputElement)
-    //         eventTarget.select();
-    // }
-
     setDefaultValueIfEmpty(inputElement: EventTarget | null, question: any, opIdx: number){
         if(inputElement instanceof HTMLInputElement){
             if(inputElement && inputElement.value.trim()===''){
@@ -414,6 +479,7 @@ export class FormHeroComponent implements OnInit{
 
         if (!this.showQuestionDescription[sectionIndex]) this.showQuestionDescription[sectionIndex] = {};
         if (!this.questionTypeDropdown[sectionIndex]) this.questionTypeDropdown[sectionIndex] = {};
+        if (!this.collapseQuestionMap[sectionIndex]) this.collapseQuestionMap[sectionIndex] = {};
         
         // set default question type as multipleChoice
         const defaultType = 'multipleChoice'; 
@@ -643,83 +709,82 @@ export class FormHeroComponent implements OnInit{
   
 
 
-    onSubmit(isTemplate: boolean = false) {
-        this.submitClicked = true;
-        if (!this.getTitleControl()?.value.trim()) return;
+onSubmit(isTemplate: boolean = false) {
+    this.submitClicked = true;
+    this.isQuestionInvalid = false;
 
-        this.isQuestionInvalid = false;
-        this.singleOption = false;
-        let isOptionInvalid = false;
+    // Validating form fields
+    this.sections.controls.forEach(section => {
+        const questionsArray = (section.get('questions') as FormArray);
+        questionsArray.controls.forEach(control => {
+            if (control instanceof FormGroup) {
+                const ques = control;
 
-        this.sections.controls.forEach(section => {
-            const questionsArray = (section.get('questions') as FormArray);
-            questionsArray.controls.forEach(control => {
-                if (control instanceof FormGroup) {
-                    const ques = control;
-                    const optionsArray = this.getOptions(ques);
+                if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
 
-                        if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
+                const type = ques.get('type')?.value;
+                const rows = ques.get('rows') as FormArray;
+                const columns = ques.get('columns') as FormArray;
+                if ((type === 'checkboxGrid' || type === 'multipleChoiceGrid')) {
+                    const nonEmptyRows = rows?.controls.filter(rowCtrl => rowCtrl.value?.trim()) || [];
+                    const nonEmptyCols = columns?.controls.filter(colCtrl => colCtrl.value?.trim()) || [];
+                    if (nonEmptyRows.length === 0 || nonEmptyCols.length === 0) {
+                        this.isQuestionInvalid = true;
+                    }
+                }
+            }
+        });
+    });
 
-                        const type = ques.get('type')?.value;
-                        const rows = ques.get('rows') as FormArray;
-                        const columns = ques.get('columns') as FormArray;
-                        if ((type === 'checkboxGrid' || type === 'multipleChoiceGrid')) {
-                            const nonEmptyRows = rows?.controls.filter(rowCtrl => rowCtrl.value?.trim()) || [];
-                            const nonEmptyCols = columns?.controls.filter(colCtrl => colCtrl.value?.trim()) || [];
-                            if (nonEmptyRows.length === 0 || nonEmptyCols.length === 0) {
-                                this.isQuestionInvalid = true;
-                            }
-                        }
+    if (this.isQuestionInvalid) return;
+
+    if (this.formBuilder.valid) {
+        const payload = {
+            title: this.formBuilder.value.title,
+            description: this.formBuilder.value.description,
+            deadline: this.formBuilder.value.deadline,
+            formSchema: {
+                sections: this.formBuilder.value.sections
+            }
+        };
+
+        console.log(payload);
+
+        if (isTemplate) {
+            this.formService.saveAsTemplate(payload).subscribe({
+                next: () => {
+                    this.showTemplateSuccess = true;
+                    setTimeout(() => {
+                        this.router.navigate(['/form-template']);
+                    }, 2000);
+                },
+                error: (error) => console.error(error)
+            });
+        } else {
+            if (this.formId) {
+                this.formService.updateForm(this.formId, payload).subscribe({
+                    next: () => {
+                        this.submitSuccess = true;
+                        setTimeout(() => {
+                            this.submitSuccess = false;
+                            this.router.navigate(['/forms']);
+                        }, 3000);
+                    },
+                    error: (error) => {
+                        console.error("Error updating form", error);
                     }
                 });
-            });
-
-        if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
-
-        if (this.formBuilder.valid) {
-            const payload = {
-                title: this.formBuilder.value.title,
-                description: this.formBuilder.value.description,
-                formSchema: {
-                    sections: this.formBuilder.value.sections
-                }
-            };
-
-            if (isTemplate) {
-                this.formService.saveAsTemplate(payload).subscribe({
-                    next: () => {
-                        this.showTemplateSuccess = true;
-                        setTimeout(() => {
-                            this.router.navigate(['/form-template']);
-                        }, 2000);
-                    },
-                    error: (error) => console.error(error)
-                });
             } else {
-                if (this.formId) {
-                    this.formService.updateForm(this.formId, payload).subscribe({
-                        next: () => {
-                            this.submitSuccess = true;
-                            setTimeout(() => {
-                                this.submitSuccess = false;
-                                this.router.navigate(['/forms']);
-                            }, 3000);
-                        },
-                        error: (error) => {
-                            console.error("Error updating form", error);
-                        }
-                    });
-                } else {
-                    this.formService.addForm(payload);
-                    this.submitSuccess = true;
-                    setTimeout(() => {
-                        this.submitSuccess = false;
-                        this.router.navigate(['/forms']);
-                    }, 3000);
-                }
-            } 
-        }else {  // Move this else inside the main if block
-            console.log("Form is invalid");
-        }
+                this.formService.addForm(payload);
+                this.submitSuccess = true;
+                setTimeout(() => {
+                    this.submitSuccess = false;
+                    // this.router.navigate(['/forms']);
+                }, 3000);
+            }
+        } 
+    } else {  // Move this else inside the main if block
+        console.log("Form is invalid");
     }
+}
 }
