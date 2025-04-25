@@ -27,7 +27,8 @@ export class FormService {
     this.forms.next(forms);
   }
 
-  addForm(newForm: any): void { const allQuestions: any[] = [];
+  addForm(newForm: any): void { 
+    const allQuestions: any[] = [];
     
     if (newForm.formSchema && newForm.formSchema.sections) {
       newForm.formSchema.sections.forEach((section: any) => {
@@ -51,6 +52,7 @@ export class FormService {
     const backendFormat = {
       title: newForm.title,
       description: newForm.description,
+      deadline: newForm.deadline,
       formSchema: JSON.stringify({
         sections: newForm.formSchema.sections
       })
@@ -85,6 +87,7 @@ export class FormService {
     const backendFormat = {
       title: templateForm.title,
       description: templateForm.description,
+      deadline: templateForm.deadline,
       formSchema: formSchema,
       isTemplate: 'true'
     };
@@ -116,6 +119,7 @@ getTemplates(): Observable<any[]> {
     const backendFormat = {
       title: updatedForm.title,
       description: updatedForm.description,
+      deadline: updatedForm.deadline,
       formSchema: JSON.stringify({
         sections: updatedForm.formSchema.sections
       })
