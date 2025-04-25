@@ -33,6 +33,7 @@ import { ErrorPageComponent } from './components/error-page/error-page.component
 import { AssignViewersComponent } from './components/assigning/assign-viewers/assign-viewers.component';
 import { AssignedViewersComponent } from './components/assigning/assigned-viewers/assigned-viewers.component';
 import { AssigningComponent } from './components/assigning/assigning.component';
+import { ProfileComponent } from './components/profile/profile.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 
 const routes: Routes = [
@@ -50,6 +51,7 @@ const routes: Routes = [
   { path: 'forms/:id/assign-viewers', component: AssignViewersComponent, canActivate: [AuthGuard] }, 
   { path: 'assigned-viewers', component: AssignedViewersComponent, canActivate: [AuthGuard] },  
   { path: 'assignment-details/:id', component: AssignmentDetailsComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'signout', component: SignOutComponent, canActivate: [AuthGuard] },
   { path: 'register', component: RegisterComponent },

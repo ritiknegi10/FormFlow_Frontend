@@ -1,0 +1,10 @@
+/* profile.component.css */
+.profile-enter {
+    @apply opacity-0 translate-y-4;
+  }
+  .profile-enter-active {
+    @apply transition-all duration-300 ease-out;
+  }
+  .profile-enter-to {
+    @apply opacity-100 translate-y-0;
+  }

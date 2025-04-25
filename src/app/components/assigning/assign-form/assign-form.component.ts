@@ -153,29 +153,94 @@ private loadAssignedUsers(): Promise<void> {
     }
   }
 
-  private loadInitialVisibility() {
-    this.formService.getFormById(this.formId).subscribe({
-      next: (form) => {
-        this.isPublic = form.isPublic; 
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to load form settings';
-      }
-    });
+  // private loadInitialVisibility() {
+  //   this.formService.getFormById(this.formId).subscribe({
+  //     next: (form) => {
+  //       this.isPublic = form.isPublic; 
+  //     },
+  //     error: (err) => {
+  //       this.errorMessage = 'Failed to load form settings';
+  //     }
+  //   });
+  // }
+
+ // Update the onVisibilityChange method
+onVisibilityChange() {
+  // Check if trying to make public with assigned users
+  if (this.isPublic && this.assignedUsers.length > 0) {
+    this.errorMessage = 'Please remove all assigned users before making the form public';
+    this.isPublic = false; // Reset toggle state
+    setTimeout(() => this.errorMessage = '', 5000);
+    return;
   }
 
-  onVisibilityChange() {
-    this.formService.updateVisibility(this.formId, this.isPublic).subscribe({
+  this.formService.updateVisibility(this.formId, this.isPublic).subscribe({
+    next: (res) => {
+      this.successMessage = res;
+      setTimeout(() => this.successMessage = '', 3000);
+    },
+    error: (err) => {
+      this.errorMessage = 'Failed to update visibility';
+      this.isPublic = !this.isPublic; // Revert on error
+      setTimeout(() => this.errorMessage = '', 5000);
+    }
+  });
+}
+
+// Update the loadInitialVisibility method
+private loadInitialVisibility() {
+  this.formService.getFormById(this.formId).subscribe({
+    next: (form) => {
+      this.isPublic = form.isPublic;
+      // Add warning if public with existing users
+      if (this.isPublic && this.assignedUsers.length > 0) {
+        this.errorMessage = 'Warning: Form is public but has assigned users';
+        setTimeout(() => this.errorMessage = '', 5000);
+      }
+    },
+    error: (err) => {
+      this.errorMessage = 'Failed to load form settings';
+    }
+  });
+}
+
+// Update the component class
+attemptVisibilityChange() {
+  const newPublicState = !this.isPublic;
+  
+  if (newPublicState) { // Trying to make public
+    if (this.assignedUsers.length > 0) {
+      this.errorMessage = 'Remove all assigned users before making the form public';
+      setTimeout(() => this.errorMessage = '', 5000);
+      return;
+    }
+    
+    this.formService.updateVisibility(this.formId, true).subscribe({
       next: (res) => {
+        this.isPublic = true;
         this.successMessage = res;
         setTimeout(() => this.successMessage = '', 3000);
       },
       error: (err) => {
         this.errorMessage = 'Failed to update visibility';
-        this.isPublic = !this.isPublic; 
+        setTimeout(() => this.errorMessage = '', 5000);
+      }
+    });
+  } else { // Making private is always allowed
+    this.formService.updateVisibility(this.formId, false).subscribe({
+      next: (res) => {
+        this.isPublic = false;
+        this.successMessage = res;
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to update visibility';
+        setTimeout(() => this.errorMessage = '', 5000);
       }
     });
   }
+}
+
 
   // private loadAssignedUsers(): void {
   //   this.loading.users = true;
