@@ -76,7 +76,7 @@ export class FormNavbarComponent implements OnInit {
         const input = event.target as HTMLInputElement;
         if (!input.value.trim()) {
             input.value = 'Untitled Form';
-            this.formTitleChange.emit('Untitled Form');
+            this.formTitleChange.emit(input.value);
         }
     }
     

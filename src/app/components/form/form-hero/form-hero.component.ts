@@ -105,9 +105,12 @@ export class FormHeroComponent implements OnInit{
                         deadline: form.deadline
                     });
 
-                    console.log(form);
+                    // Send form title to navbar component
+                    this.formTitleChange.emit(form.title);
+
                     const parsedSchema = JSON.parse(form.formSchema);
                     // console.log(JSON.stringify(parsedSchema));
+                    // console.log(form);
 
                     const sectionsArray = (parsedSchema.sections || []).map((section:any) => {
                         const questions = section.questions.map((field:any) =>{
