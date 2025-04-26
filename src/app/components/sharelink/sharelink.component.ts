@@ -50,12 +50,23 @@ ngOnInit() {
             }
         },
         error: (error) => {  
-            if (error.status === 404)
-                this.router.navigate(['/error', 404]);
-            else if (error.status === 403)
-                this.router.navigate(['/error', 403]);
-            else if (error.status === 409)
-                this.router.navigate(['/submit', this.loadedForm.title]);
+          if (error.status === 404) {
+            this.router.navigate(['/error', 404], { replaceUrl: true });
+          } 
+          else if (error.status === 403) {
+            this.router.navigate(['/error', 403], { replaceUrl: true });
+          } 
+          else if (error.status === 409) {
+            setTimeout(() => {
+              this.router.navigate(['/error', 409], { replaceUrl: true });
+            }, 0); 
+          }
+          else if (error.status === 410) {
+            setTimeout(() => {
+              this.formService.timestamp=true;
+              this.onSubmit();
+            }, 0); 
+          }
         }
     });
     this.currentSectionIndex = 0;

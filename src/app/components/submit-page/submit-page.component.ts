@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormService } from '../../services/form.service';
+
 
 
 @Component({
@@ -9,14 +11,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class SubmitPageComponent {
   formTitle: string = '';
+  msg:string='';
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute, private formService: FormService) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const title = params.get('title');
       this.formTitle = title ? title : 'Untitled Form';
     });
+    if(this.formService.timestamp){
+      this.msg="(Your responses were automatically submitted as the time limit was reached.)";
+      this.formService.timestamp=false;
+    }
   }
   
 
