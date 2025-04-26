@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter, ElementRef, HostListener, ViewChildren, QueryList } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl, Validators, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl, Validators, ValidationErrors, FormArrayName } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -112,6 +112,7 @@ export class FormHeroComponent implements OnInit{
                     // Send form title to navbar component
                     this.formTitleChange.emit(form.title);
 
+                    // console.log(form);
                     const parsedSchema = JSON.parse(form.formSchema);
                     // console.log(JSON.stringify(parsedSchema));
                     console.log(form);
@@ -145,6 +146,9 @@ export class FormHeroComponent implements OnInit{
                                 fileUrl: [field.fileUrl || ''], 
                             });
                         });
+                        if (!this.showQuestionDescription[sIdx]) this.showQuestionDescription[sIdx] = {};
+                        if (!this.questionTypeDropdown[sIdx]) this.questionTypeDropdown[sIdx] = {};
+                        if (!this.collapseQuestionMap[sIdx]) this.collapseQuestionMap[sIdx] = {};
                         return this.fb.group({
                             sectionTitle: section.sectionTitle,
                             sectionDescription: section.sectionDescription,
@@ -292,7 +296,7 @@ export class FormHeroComponent implements OnInit{
         const selectedDate = new Date(control.value);
         const now = new Date();
         
-        console.log("future validator", selectedDate);
+        // console.log("future validator", selectedDate);
         return selectedDate > now ? null : { pastDate: true };
     }
 
@@ -413,11 +417,25 @@ export class FormHeroComponent implements OnInit{
         }
     }
 
+    onRowColBlur(inputElement: EventTarget | null, question: any){
+        const rows = this.getRows(question);
+        rows.controls.forEach((row, index) => {
+            if(row.value.trim()==='')
+                row.setValue(`Row ${index+1}`)
+        });
+
+        const columns = this.getColumns(question);
+        columns.controls.forEach((column, index) => {
+            if(column.value.trim()==='')
+                column.setValue(`Column ${index+1}`);
+        });
+    }
+
     get sections(): FormArray{
         return this.formBuilder.get('sections') as FormArray;
     }
 
-    addSection() {
+    addSection(sIdx: number = -1) {
         const sectionGroup = this.fb.group({
             sectionTitle: [this.sections.length==0? this.getTitleControl()?.value : 'Untitled Section'],
             sectionDescription: [''],
@@ -433,10 +451,26 @@ export class FormHeroComponent implements OnInit{
         // --Add 1 question by default to new section 
         this.addQuestionToSection(this.sections.length - 1);
         this.cdr.detectChanges();
+
+        // --scroll to new section added
+        if(sIdx !== -1){
+            const el = document.getElementById(`section-${sIdx}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
     }
 
-    removeSection(index: number){
-        this.sections.removeAt(index);
+    removeSection(sIdx: number){
+        this.sections.removeAt(sIdx);
+
+        // --scroll to previous section
+        if(sIdx !== -1){
+            const el = document.getElementById(`section-${sIdx-1}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
     }
 
     getSectionTitleControl(section: any){
@@ -540,7 +574,10 @@ export class FormHeroComponent implements OnInit{
                 options.clear();
             }
 
-            if (!isNewGridType) {
+            if(isNewGridType){
+                if(rows.length===0) rows.push(this.fb.control('Row 1'));
+                if (columns.length === 0) columns.push(this.fb.control('Column 1'));
+            } else if (!isNewGridType) {
                 rows.clear();
                 columns.clear();
             }
@@ -554,6 +591,20 @@ export class FormHeroComponent implements OnInit{
 
         section.push(questionGroup);
         this.cdr.detectChanges();
+
+        // --scroll to new question everytime added
+        if(section.controls.length>1){
+            const el = document.getElementById(`question-${sectionIndex}-${section.controls.length-1}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                el.classList.add('ring-2', 'ring-indigo-200');
+            
+                setTimeout(() => {
+                    el.classList.remove('ring-2', 'ring-indigo-200');
+                }, 1500);
+            }
+        }
     }
 
     duplicateQuestion(sectionIndex: number, questionIndex: number){
@@ -587,6 +638,20 @@ export class FormHeroComponent implements OnInit{
     removeQuestion(sectionIndex: number, questionIndex: number){
         const section = this.getSectionQuestions(sectionIndex);
         section.removeAt(questionIndex);
+
+        // --scroll to previous question
+        if(questionIndex>0){
+            const el = document.getElementById(`question-${sectionIndex}-${section.controls.length-1}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                el.classList.add('ring-2', 'ring-indigo-200');
+            
+                setTimeout(() => {
+                    el.classList.remove('ring-2', 'ring-indigo-200');
+                }, 1500);
+            }
+        }
     }
 
     getOptions(question: any): FormArray{
@@ -638,7 +703,11 @@ export class FormHeroComponent implements OnInit{
         options.removeAt(optionIndex);
     }
 
-    drop(event: CdkDragDrop<string[]>, sectionIndex: number){
+    dropSection(event: CdkDragDrop<string[]>){
+        moveItemInArray(this.sections.controls, event.previousIndex, event.currentIndex);
+    }
+
+    dropQuestion(event: CdkDragDrop<string[]>, sectionIndex: number){
         const questionsArray = this.getSectionQuestions(sectionIndex);
         moveItemInArray(questionsArray.controls, event.previousIndex, event.currentIndex);
         questionsArray.updateValueAndValidity();
@@ -664,7 +733,7 @@ export class FormHeroComponent implements OnInit{
             question.addControl('rows', rows);
         }
         
-        rows.push(this.fb.control(''));
+        rows.push(this.fb.control(`Row ${rows.length+1}`));
     }
       
     addGridColumn(sectionIndex: number, questionIndex: number) {
@@ -676,7 +745,7 @@ export class FormHeroComponent implements OnInit{
             question.addControl('columns', columns);
         }
         
-        columns.push(this.fb.control(''));
+        columns.push(this.fb.control(`Column ${columns.length+1}`));
     }
 
     getNonEmptyGridItems(items: FormArray): number {
