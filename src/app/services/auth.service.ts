@@ -126,8 +126,8 @@ export class AuthService {
       'Authorization': `Bearer ${this.getToken()}`
     });
   
-    return this.http.get<boolean>(`h  ttp://localhost:8080/users/search`, {
-      params: new HttpParams().set('email', email),
+    return this.http.get<boolean>(`${environment.apiUrl}/users/search`, {
+            params: new HttpParams().set('email', email),
       headers: headers
     }).pipe(
       catchError(error => {
