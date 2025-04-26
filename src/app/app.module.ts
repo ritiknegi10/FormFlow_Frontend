@@ -31,6 +31,7 @@ import { FormModule } from "./components/form/form.module";
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
 import { CommonModule } from '@angular/common';
 import {AdminDashboardComponent} from './components/admin-dashboard/admin-dashboard.component'
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -95,7 +96,8 @@ import { ProfileComponent } from './components/profile/profile.component';
     RecaptchaModule,
     FormModule,
     NgxChartsModule,
-    CommonModule
+    CommonModule,
+    BrowserAnimationsModule
 ],
     
 

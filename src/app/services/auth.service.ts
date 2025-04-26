@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Injector } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -18,11 +19,14 @@ export class AuthService {
   isLoggedIn$ = this.loggedIn.asObservable();
   currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient, private injector: Injector) {
     this.loggedIn.next(!!this.getToken());
     if (this.getToken()) {
-      this.loadCurrentUser();
+      setTimeout(() => this.loadCurrentUser(), 0);
     }
+  }
+  private get _router(): Router {
+    return this.injector.get(Router);
   }
 
   setRedirectUrl(url: string) {
@@ -86,7 +90,7 @@ export class AuthService {
     localStorage.removeItem('userEmail');
     this.loggedIn.next(false);
     this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
+    this._router.navigate(['/login']);
   }
 
   getCurrentUserEmail(): string | null {
@@ -186,7 +190,7 @@ export class AuthService {
         this.loggedIn.next(false);
         localStorage.removeItem('jwt');
         localStorage.removeItem('userEmail');
-        this.router.navigate(['/login']);
+        this._router.navigate(['/login']);
       }
     });
   }
