@@ -39,6 +39,11 @@
 
                         <p class="text-gray-600 text-sm mb-4 truncate">{{ form.description || 'No description provided'
                             }}</p>
+                        
+                        <p>Version - {{ form.version }}</p>
+                        <span class="flex">
+                            Created at - <p class="text-red-600">{{ form.createdAt.slice(0, 10) }}</p>
+                        </span>
 
                         <div class="flex justify-between items-center mt-4">
                             <button (click)="openForm(form.id)"
@@ -87,6 +92,11 @@
 
                         <p class="text-gray-600 text-sm mb-4 truncate">{{ form.description || 'No description provided'
                             }}</p>
+
+                        <p>Version - {{ form.version }}</p>
+                        <span class="flex">
+                            Created at - <p class="text-red-600">{{ form.createdAt.slice(0, 10) }}</p>
+                        </span>
 
                         <div class="mt-4">
                             <button (click)="viewAllResponses(form.id)"
