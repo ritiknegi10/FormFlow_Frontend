@@ -39,6 +39,7 @@ export class FormNavbarComponent implements OnInit {
         Swal.fire({
             title: 'Do you want to save your changes?',
             text: 'If you leave now, your unsaved changes will be lost.',
+            customClass: { popup: 'my-swal-z-index'},
             icon: 'warning',
             showDenyButton: true,
             showCancelButton: true,
@@ -97,7 +98,7 @@ export class FormNavbarComponent implements OnInit {
 
     // drawer function
     toggleDrawer(){
-        this.isDrawerOpen=!this.isDrawerOpen;
+        this.isDrawerOpen = !this.isDrawerOpen;
     }
 
     // profile menu function

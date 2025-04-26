@@ -111,6 +111,13 @@ getTemplates(): Observable<any[]> {
     return this.http.post(`http://localhost:8080/upload`, formData, { responseType: 'text' });
   }
 
+  updateDeadline(formId: number, deadline: string): Observable<any> {
+    const url = `${this.apiUrl}/${formId}/update-deadline`;
+    const params = new HttpParams().set('deadline', deadline);
+  
+    return this.http.put(url, null, { params: params });
+  }
+
   deleteFile(fileUrl: string): Observable<any> {
     const params = new HttpParams().set('url', fileUrl);
     return this.http.delete(`http://localhost:8080/upload/delete`, { params, responseType: 'text' });

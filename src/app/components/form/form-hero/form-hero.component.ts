@@ -13,9 +13,6 @@ import { filter } from 'rxjs';
 
 export class FormHeroComponent implements OnInit{
 
-    formId: number | null = null;
-    formBuilder: FormGroup;
-
     // maintain order in questionTypes
     questionTypes = [
         { type: 'shortText', label: 'Short Text', icon: 'assets/question-type-icons/shortText.svg' },
@@ -43,7 +40,6 @@ export class FormHeroComponent implements OnInit{
     formFetched = false;
     submitClicked = false;
     submitSuccess = false;
-    singleOption = false;
     isQuestionInvalid = false;
     showFormNavigation = true;
     isDropdownOpen = false;
@@ -51,13 +47,15 @@ export class FormHeroComponent implements OnInit{
     
     // Mapping properties
     selectedTypes: { [sIdx: number]: { [qIdx: number]: any } } = {};
-    showOptionsMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     collapseQuestionMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     otherAddedMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     questionTypeDropdown: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     
+    
+    formId: number | null = null;
+    formBuilder: FormGroup;
 
     constructor(private fb: FormBuilder, 
                 private formService: FormService, 
@@ -70,7 +68,7 @@ export class FormHeroComponent implements OnInit{
             deadline: [null],
             sections: this.fb.array([])
         });
-
+        
         this.router.events
             .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe((event: any) => {
@@ -105,18 +103,29 @@ export class FormHeroComponent implements OnInit{
                         deadline: form.deadline
                     });
 
+                    if(form.deadline) {
+                        this.isDeadline = true;
+                        this.formBuilder.get('deadline')?.updateValueAndValidity();
+                    }
+                    this.updateDeadlineValidator();
+                    
                     // Send form title to navbar component
                     this.formTitleChange.emit(form.title);
 
                     const parsedSchema = JSON.parse(form.formSchema);
                     // console.log(JSON.stringify(parsedSchema));
-                    // console.log(form);
+                    console.log(form);
 
-                    const sectionsArray = (parsedSchema.sections || []).map((section:any) => {
-                        const questions = section.questions.map((field:any) =>{
+                    const sectionsArray = (parsedSchema.sections || []).map((section: any, sIdx: number) => {
+                        const questions = section.questions.map((field: any, qIdx: number) => {
+
+                            if(field.description) {
+                                this.showQuestionDescription[sIdx][qIdx] = true;
+                            }
+
                             return this.fb.group({
                                 questionText: field.questionText,
-                                questionDescription: '',
+                                questionDescription: field.questionDescription,
                                 type: field.type,
                                 required: field.required,
                                 sectionBasedonAnswer: field.sectionBasedonAnswer || false,
@@ -144,7 +153,6 @@ export class FormHeroComponent implements OnInit{
                         });
                     });
                     this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
-                    this.formFetched = true;
                     
                     // Initialise map properties
                     this.selectedTypes = parsedSchema.sections.map((section: any) => 
@@ -159,6 +167,8 @@ export class FormHeroComponent implements OnInit{
                     this.collapseQuestionMap = parsedSchema.sections.map((section: any) => 
                         section.questions.map(() => false)
                     );
+
+                    this.formFetched = true;
                     
                 });
 
@@ -229,8 +239,8 @@ export class FormHeroComponent implements OnInit{
                 // Initialise map properties
                 this.selectedTypes = parsedSchema.sections.map((section: any) => 
                     section.questions.map((question: any) => {
-                    const found = this.questionTypes.find(q => q.type === question.type);
-                    return { ...found };
+                        const found = this.questionTypes.find(q => q.type === question.type);
+                        return { ...found };
                     })
                 );
                 this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
@@ -257,17 +267,15 @@ export class FormHeroComponent implements OnInit{
     }
 
     updateDeadlineValidator() {
+        
         const deadlineControl = this.formBuilder.get('deadline');
-      
         if (this.isDeadline) {
-            console.log("deadline");
             deadlineControl?.setValidators([Validators.required, FormHeroComponent.futureDateValidator]);
         } else {
-            console.log("deadline clear validator")
             deadlineControl?.clearValidators();
             deadlineControl?.setValue(null); // optional: reset field
         }
-      
+        
         deadlineControl?.updateValueAndValidity();
     }
 
@@ -315,15 +323,15 @@ export class FormHeroComponent implements OnInit{
     }
 
     // navigate to question from form navigation
-    scrollToQuestion(sectionIndex: number, questionIndex: number): void {
-        const el = document.getElementById(`question-${sectionIndex}-${questionIndex}`);
+    scrollToTarget(targetId: string, color: string): void {
+        const el = document.getElementById(targetId);
         if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-            el.classList.add('ring-2', 'ring-indigo-200');
+            el.classList.add('ring-2', `ring-${color}-300`);
         
             setTimeout(() => {
-              el.classList.remove('ring-2', 'ring-indigo-200');
+              el.classList.remove('ring-2', `ring-${color}-300`);
             }, 1500);
         }
     }
@@ -368,6 +376,11 @@ export class FormHeroComponent implements OnInit{
         this.isDropdownOpen = true;
     }
 
+    toggleDeadline() {
+        this.isDeadline = !this.isDeadline;
+        this.updateDeadlineValidator();
+    }
+
     togglesectionBasedonAnswer(sectionIndex: number, questionIndex: number){
         const question = (this.sections.at(sectionIndex).get('questions') as FormArray).at(questionIndex) as FormGroup;
         
@@ -381,12 +394,6 @@ export class FormHeroComponent implements OnInit{
         if (!this.selectedTypes[sectionIndex]) this.selectedTypes[sectionIndex] = {};
         const isMenuOpen = this.showMenuMap[sectionIndex][questionIndex];
         this.showMenuMap[sectionIndex][questionIndex] = !isMenuOpen;
-    }
-
-    // --collapse or expand options
-    toggleOptions(sectionIndex: number, questionIndex: number) {
-        const isVisible = this.showOptionsMap[sectionIndex][questionIndex];
-        this.showOptionsMap[sectionIndex][questionIndex] = !isVisible;
     }
 
     toggleQuestionDescription(sectionIndex: number, questionIndex: number) {
@@ -436,7 +443,7 @@ export class FormHeroComponent implements OnInit{
         // --Making form title as 1st sections title
         this.sections.at(0).get('sectionTitle')?.setValue(this.getTitleControl()?.value || 'Untitled Section');
 
-        // --handling form title change and updating first secitons title
+        // --handling form title change and updating first sections title
         this.getTitleControl()?.valueChanges.subscribe(title => {
             this.sections.at(0).get('sectionTitle')?.setValue(title);
         });
@@ -498,15 +505,11 @@ export class FormHeroComponent implements OnInit{
         const rows = questionGroup.get('rows') as FormArray;
         const columns = questionGroup.get('columns') as FormArray;
 
-        const isOptionType = type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown';
-        const isGridType = type === 'multipleChoiceGrid' || type === 'checkboxGrid';
+        const isOptionType = (type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown');
+        const isGridType = (type === 'multipleChoiceGrid' || type === 'checkboxGrid');
 
         // --Handle option-based questions
         if (isOptionType) {
-            if (!this.showOptionsMap[sectionIndex]) {
-                this.showOptionsMap[sectionIndex] = {};
-            }
-            this.showOptionsMap[sectionIndex][section.length] = true;
 
             if (options.length === 0) {
                 options.push(this.fb.group({
@@ -623,19 +626,16 @@ export class FormHeroComponent implements OnInit{
             else
             options.push(newOption);
         }
-        this.singleOption = false;
     }
 
     removeOption(sectionIndex: number, questionIndex: number, optionIndex: number) {
         const questions = this.getSectionQuestions(sectionIndex).at(questionIndex);
-        const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
+        const options = this.getOptions(questions);
 
         if(options.at(optionIndex).get('label')?.value === 'Other') {
             this.otherAddedMap[sectionIndex][questionIndex] = false;
         }
         options.removeAt(optionIndex);
-        if(options.length==1)
-            this.singleOption=true
     }
 
     drop(event: CdkDragDrop<string[]>, sectionIndex: number){
@@ -712,82 +712,96 @@ export class FormHeroComponent implements OnInit{
   
 
 
-onSubmit(isTemplate: boolean = false) {
-    this.submitClicked = true;
-    this.isQuestionInvalid = false;
+    onSubmit(isTemplate: boolean = false) {
+        this.submitClicked = true;
+        this.isQuestionInvalid = false;
 
-    // Validating form fields
-    this.sections.controls.forEach(section => {
-        const questionsArray = (section.get('questions') as FormArray);
-        questionsArray.controls.forEach(control => {
-            if (control instanceof FormGroup) {
-                const ques = control;
+        // Validating form fields
 
-                if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
+        if((this.formBuilder.get('deadline')?.hasError('required') && !this.formBuilder.get('deadline')?.value )
+            || this.formBuilder.get('deadline')?.hasError('pastDate')) {
+            this.scrollToTarget('form-deadline', 'red');
+        }
 
-                const type = ques.get('type')?.value;
-                const rows = ques.get('rows') as FormArray;
-                const columns = ques.get('columns') as FormArray;
-                if ((type === 'checkboxGrid' || type === 'multipleChoiceGrid')) {
-                    const nonEmptyRows = rows?.controls.filter(rowCtrl => rowCtrl.value?.trim()) || [];
-                    const nonEmptyCols = columns?.controls.filter(colCtrl => colCtrl.value?.trim()) || [];
-                    if (nonEmptyRows.length === 0 || nonEmptyCols.length === 0) {
+        let sIdx = 0;
+        this.sections.controls.forEach(section => {
+            const questionsArray = (section.get('questions') as FormArray);
+            let qIdx = 0;
+            questionsArray.controls.forEach(control => {
+                if (control instanceof FormGroup) {
+                    const ques = control;
+
+                    if (!this.getQuestionTextControl(ques)?.value.trim()) {
                         this.isQuestionInvalid = true;
+                        this.scrollToTarget(`question-${sIdx}-${qIdx}`, 'red');
+                    }
+
+                    const type = ques.get('type')?.value;
+                    const rows = ques.get('rows') as FormArray;
+                    const columns = ques.get('columns') as FormArray;
+                    if ((type === 'checkboxGrid' || type === 'multipleChoiceGrid')) {
+                        const nonEmptyRows = rows?.controls.filter(rowCtrl => rowCtrl.value?.trim()) || [];
+                        const nonEmptyCols = columns?.controls.filter(colCtrl => colCtrl.value?.trim()) || [];
+                        if (nonEmptyRows.length === 0 || nonEmptyCols.length === 0) {
+                            this.isQuestionInvalid = true;
+                            this.scrollToTarget(`question-${sIdx}-${qIdx}`, 'red');
+                        }
                     }
                 }
-            }
-        });
-    });
-
-    if (this.isQuestionInvalid) return;
-
-    if (this.formBuilder.valid) {
-        const payload = {
-            title: this.formBuilder.value.title,
-            description: this.formBuilder.value.description,
-            deadline: this.formBuilder.value.deadline,
-            formSchema: {
-                sections: this.formBuilder.value.sections
-            }
-        };
-
-        console.log(payload);
-
-        if (isTemplate) {
-            this.formService.saveAsTemplate(payload).subscribe({
-                next: () => {
-                    this.showTemplateSuccess = true;
-                    setTimeout(() => {
-                        this.router.navigate(['/form-template']);
-                    }, 2000);
-                },
-                error: (error) => console.error(error)
+                qIdx++;
             });
-        } else {
-            if (this.formId) {
-                this.formService.updateForm(this.formId, payload).subscribe({
+            sIdx++;
+        });
+
+        if (this.isQuestionInvalid) return;
+
+        if (this.formBuilder.valid) {
+            const payload = {
+                title: this.formBuilder.value.title,
+                description: this.formBuilder.value.description,
+                deadline: this.formBuilder.value.deadline,
+                formSchema: {
+                    sections: this.formBuilder.value.sections
+                }
+            };
+
+            console.log(payload);
+
+            if (isTemplate) {
+                this.formService.saveAsTemplate(payload).subscribe({
                     next: () => {
-                        this.submitSuccess = true;
+                        this.showTemplateSuccess = true;
                         setTimeout(() => {
-                            this.submitSuccess = false;
-                            this.router.navigate(['/forms']);
-                        }, 3000);
+                            this.router.navigate(['/form-template']);
+                        }, 2000);
                     },
-                    error: (error) => {
-                        console.error("Error updating form", error);
-                    }
+                    error: (error) => console.error(error)
                 });
             } else {
-                this.formService.addForm(payload);
-                this.submitSuccess = true;
-                setTimeout(() => {
-                    this.submitSuccess = false;
-                    // this.router.navigate(['/forms']);
-                }, 3000);
-            }
-        } 
-    } else {  // Move this else inside the main if block
-        console.log("Form is invalid");
+                if (this.formId) {
+                    this.formService.updateForm(this.formId, payload).subscribe({
+                        next: () => {
+                            this.submitSuccess = true;
+                            setTimeout(() => {
+                                this.submitSuccess = false;
+                                this.router.navigate(['/forms']);
+                            }, 3000);
+                        },
+                        error: (error) => {
+                            console.error("Error updating form", error);
+                        }
+                    });
+                } else {
+                    this.formService.addForm(payload);
+                    this.submitSuccess = true;
+                    setTimeout(() => {
+                        this.submitSuccess = false;
+                        this.router.navigate(['/forms']);
+                    }, 3000);
+                }
+            } 
+        } else {  // Move this else inside the main if block
+            console.log("Form is invalid");
+        }
     }
-}
 }

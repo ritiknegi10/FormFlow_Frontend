@@ -17,6 +17,11 @@ export class FormVersionsComponent implements OnInit {
   versions: number[] = [];
   currentFormVersion!: any;
   ratingOptions: number[] = [3, 4, 5, 6, 7, 8, 9, 10];
+  isChangeDeadlinePopUp = true;
+  deadline: string = '';
+  minDateTime: string = '';
+  isDeadlineNull = false;
+  isDeadlinePast = false;
 
   constructor(private route: ActivatedRoute, 
               private fb: FormBuilder, 
@@ -31,13 +36,14 @@ export class FormVersionsComponent implements OnInit {
   
   ngOnInit() {
     window.scrollTo(0, 0);
+    this.setMinDateTime();
     this.route.paramMap.subscribe(params => {
 
       this.formIndex = Number(params.get("formId"));
       this.versionNumber = Number(params.get("formVersion"));
       this.loadVersions();
       
-    })
+    });
   }
 
   loadVersions() {
@@ -71,7 +77,8 @@ export class FormVersionsComponent implements OnInit {
 
         this.form.patchValue({
             title: versionData.title,
-            descriptio: versionData.description
+            description: versionData.description,
+            deadline: versionData.deadline
         });
 
         const formSchema = JSON.parse(versionData.formSchema);
@@ -85,6 +92,7 @@ export class FormVersionsComponent implements OnInit {
                     questionDescription: '',
                     type: field.type,
                     required: field.required,
+                    sectionBasedonAnswer: field.sectionBasedonAnswer || false,
                     options: this.fb.array(
                         (field.options || []).map((option: any) => 
                             this.fb.group({
@@ -99,7 +107,6 @@ export class FormVersionsComponent implements OnInit {
                     rows: this.fb.array(field.rows || []),         
                     columns: this.fb.array(field.columns || []),   
                     fileUrl: [field.fileUrl || ''], 
-                    sectionBasedonAnswer: field.sectionBasedonAnswer || false
                 });
             });
             return this.fb.group({
@@ -121,14 +128,19 @@ export class FormVersionsComponent implements OnInit {
         // });
 
         this.form.disable();
+        console.log(this.form);
         this.currentFormVersion = versionData;
         // console.log("current form version")
         // console.log(this.currentFormVersion);
     });
   }
 
-  get sections(): FormArray{
+  get sections(): FormArray {
     return this.form.get('sections') as FormArray;
+  }
+
+  get oldDeadline(): any {
+    return this.form.get('deadline');
   }
 
   getQuestionsControl(section: any): FormArray{
@@ -147,6 +159,36 @@ export class FormVersionsComponent implements OnInit {
     this.loadFormVersion(this.selectedVersion);
   }
 
+  setMinDateTime() {
+    const now = new Date();
+    // Convert to ISO and remove seconds + milliseconds
+    const isoString = now.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
+    this.minDateTime = isoString;
+  }
+  changeDeadlinePopUp() {
+    console.log(this.currentFormVersion);
+    this.isChangeDeadlinePopUp = true;
+    //document.body.classList.add('overflow-hidden');
+  }
+
+  updateDeadline() {
+
+    if(!this.deadline) {
+      this.isDeadlineNull = true;
+      return;
+    }
+    const inputDeadline = new Date(this.deadline);
+    const now = new Date();
+    if(now > inputDeadline) {
+      this.isDeadlinePast = true;
+    }
+
+    
+    this.formService.updateDeadline(this.currentFormVersion.id, this.deadline).subscribe({
+      next: (response) => console.log("Deadline updated successfully successfully", response),
+      error: (error) => console.error("Error updating deadline", error)
+    });
+  }
   cloneVersion() {
     this.router.navigate([`/edit/${this.currentFormVersion.id}`]);
   }
