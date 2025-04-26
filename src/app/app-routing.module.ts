@@ -70,6 +70,7 @@ const routes: Routes = [
   { path: 'faq', component: FaqComponent },
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard] },
   { path: 'submit/:title', component: SubmitPageComponent, canActivate: [AuthGuard] },
+  { path: 'error/:msg', component: ErrorPageComponent,canActivate: [AuthGuard]},  
   { path: 'admin', component: AdminDashboardComponent, canActivate: [AdminGuard] },
 
   

@@ -130,8 +130,8 @@ export class AuthService {
       'Authorization': `Bearer ${this.getToken()}`
     });
   
-    return this.http.get<boolean>(`h  ttp://localhost:8080/users/search`, {
-      params: new HttpParams().set('email', email),
+    return this.http.get<boolean>(`${environment.apiUrl}/users/search`, {
+            params: new HttpParams().set('email', email),
       headers: headers
     }).pipe(
       catchError(error => {
@@ -179,18 +179,27 @@ export class AuthService {
         this.currentUserSubject.next(user);
         this.loggedIn.next(true);
       },
+      // error: (err) => {
+      //   console.error('AuthService: Error loading current user:', {
+      //     status: err.status,
+      //     statusText: err.statusText,
+      //     message: err.message,
+      //     error: err.error
+      //   });
+      //   this.currentUserSubject.next(null);
+      //   this.loggedIn.next(false);
+      //   localStorage.removeItem('jwt');
+      //   localStorage.removeItem('userEmail');
+      //   this.router.navigate(['/login']);
+      // }.
+
       error: (err) => {
-        console.error('AuthService: Error loading current user:', {
-          status: err.status,
-          statusText: err.statusText,
-          message: err.message,
-          error: err.error
-        });
-        this.currentUserSubject.next(null);
-        this.loggedIn.next(false);
-        localStorage.removeItem('jwt');
-        localStorage.removeItem('userEmail');
-        this._router.navigate(['/login']);
+        console.error('AuthService: Error loading current user:', err);
+        if (err.status === 401) {
+          this.logout();
+        } else {
+          this.currentUserSubject.next(null);
+        }
       }
     });
   }
