@@ -12,6 +12,7 @@ export class FormService {
   forms$ = this.forms.asObservable();
   private formsSubject = new BehaviorSubject<any[]>([]);
 
+  timestamp:boolean=false;
   constructor(private http: HttpClient, private router: Router) {
     this.loadForms();
   }
@@ -208,19 +209,61 @@ getTemplates(): Observable<any[]> {
     );
   }
   
-  removeAssignedUsers(formId: number, emails: string[]): Observable<any> {
+  removeAssignedUsers(formId: number, emails: string[]): Observable<string> {
     return this.http.put(
-      `${this.apiUrl}/${formId}/remove-assigned-users`,
-      emails
+        `${this.apiUrl}/${formId}/remove-assigned-users`,
+        emails,
+        { responseType: 'text' }
+    );
+}
+
+assignViewersToForm(formId: number, viewerEmails: string[]): Observable<string> {
+  return this.http.put(
+      `${this.apiUrl}/${formId}/assign-viewers`,
+      viewerEmails,
+      { responseType: 'text' }
+  );
+}
+
+removeViewersFromForm(formId: number, emails: string[]): Observable<string> {
+  return this.http.put(
+      `${this.apiUrl}/${formId}/remove-viewers`,
+      emails,
+      { responseType: 'text' }
+  );
+}
+
+ 
+
+  getAssignedViewers(formId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${formId}/assigned-viewers`).pipe(
+      catchError(error => {
+        console.error('Error fetching assigned viewers:', error);
+        return of([]);
+      })
     );
   }
+
+  getViewableForms(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/viewer`).pipe(
+      catchError(error => {
+        console.error('Error fetching viewable forms:', error);
+        return of([]);
+      })
+    );
+  }
+
 
   checkUserSubmission(formId: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiUrl}/${formId}/submitted`);
   }
 
-  assignUsersToForm(formId: number, userEmails: string[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${formId}/assign`, userEmails);
+  assignUsersToForm(formId: number, userEmails: string[]): Observable<string> {
+    return this.http.post(
+      `${this.apiUrl}/${formId}/assign`,
+      userEmails,
+      { responseType: 'text' } 
+    );
   }
 
   updateVisibility(formId: number, isPublic: boolean): Observable<string> {

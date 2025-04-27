@@ -186,7 +186,7 @@
             Contact
           </a>
           <!-- Profile Dropdown -->
-          <div class="relative">
+          <!-- <div class="relative">
             <button (click)="toggleProfileMenu()"
               class="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:shadow-lg transition-all">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,7 +195,6 @@
               </svg>
             </button>
 
-            <!-- Dropdown Menu -->
             <div *ngIf="isProfileMenuOpen"
               class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100 z-50">
               <a routerLink="/user-forms" class="block px-4 py-2 text-gray-600 hover:bg-gray-50 transition-colors">
@@ -205,7 +204,21 @@
                 Sign Out
               </a>
             </div>
-          </div>
+          </div> -->
+
+          <!-- Replace the profile dropdown section with -->
+          <a routerLink="/profile" class="flex items-center space-x-2 group">
+            <div
+              class="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:shadow-lg transition-all">
+              <span class="text-sm font-medium">
+                {{ (authService.getCurrentUserEmail() | slice:0:1 | uppercase) || 'U' }}
+              </span>
+            </div>
+            <span class="hidden md:inline text-gray-600 group-hover:text-indigo-600 transition-colors">
+
+            </span>
+          </a>
+
         </ng-container>
 
         <ng-template #notLoggedIn>

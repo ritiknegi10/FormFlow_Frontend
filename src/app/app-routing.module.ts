@@ -25,10 +25,15 @@ import { FormParentComponent } from './components/form/form-parent/form-parent.c
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import {ResetPasswordComponent} from './components/reset-password/reset-password.component'
-import { AssignFormComponent } from './components/assign-form/assign-form.component';
-import { AssignedFormsComponent } from './components/assigned-forms/assigned-forms.component';
+import { AssignFormComponent } from './components/assigning/assign-form/assign-form.component';
+import { AssignedFormsComponent } from './components/assigning/assigned-forms/assigned-forms.component';
 import { FormTemplateComponent } from './components/form-template/form-template.component';
 import { AssignmentDetailsComponent } from './components/assignment-details/assignment-details.component';
+import { ErrorPageComponent } from './components/error-page/error-page.component';
+import { AssignViewersComponent } from './components/assigning/assign-viewers/assign-viewers.component';
+import { AssignedViewersComponent } from './components/assigning/assigned-viewers/assigned-viewers.component';
+import { AssigningComponent } from './components/assigning/assigning.component';
+import { ProfileComponent } from './components/profile/profile.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 
 const routes: Routes = [
@@ -40,9 +45,13 @@ const routes: Routes = [
   { path: 'forms', component: FormsListComponent, canActivate: [AuthGuard]  },
   { path: 'forms/:formId/versions/:formVersion', component: FormVersionsComponent },
   { path: 'form-analytics/:id', component: FormAnalyticsComponent, canActivate: [AuthGuard] },
+  { path: 'forms/:id/assigning', component: AssigningComponent, canActivate: [AuthGuard] },  
   { path: 'forms/:id/assign', component: AssignFormComponent, canActivate: [AuthGuard] }, 
   { path: 'assigned-forms', component: AssignedFormsComponent, canActivate: [AuthGuard] },  
+  { path: 'forms/:id/assign-viewers', component: AssignViewersComponent, canActivate: [AuthGuard] }, 
+  { path: 'assigned-viewers', component: AssignedViewersComponent, canActivate: [AuthGuard] },  
   { path: 'assignment-details/:id', component: AssignmentDetailsComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'signout', component: SignOutComponent, canActivate: [AuthGuard] },
   { path: 'register', component: RegisterComponent },
@@ -62,6 +71,7 @@ const routes: Routes = [
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard] },
   { path: 'submit/:title', component: SubmitPageComponent, canActivate: [AuthGuard] },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard] },
+
 
   
   { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
