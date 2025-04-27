@@ -59,7 +59,7 @@
                         <span>Form Details</span>
                       </label>
 
-                      <button (click)="toggleDeadline()"
+                      <button (click)="toggleDeadline()" type="button"
                         class="px-3 py-2 text-sm rounded-lg text-indigo-700 font-medium hover:bg-indigo-100 transition-colors">
                         {{ (isDeadline ? 'Remove' : 'Add') + ' deadline'}} 
                       </button>
@@ -87,14 +87,14 @@
                         class="w-full sm:w-2/3 lg:w-1/3 px-3 py-2 text-gray-700 border-2 focus:outline-none focus:border-none border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-600 transition-all"/>
                         
                         <!-- validation text -->
-                        <div *ngIf="formBuilder.get('deadline')?.hasError('required') && !formBuilder.get('deadline')?.value && formBuilder.get('deadline')?.touched" 
+                        <div *ngIf="formBuilder.get('deadline')?.hasError('required') && !formBuilder.get('deadline')?.value && (submitClicked || formBuilder.get('deadline')?.touched)" 
                           class="flex items-center gap-1 text-red-500 text-sm mt-2">
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                           </svg>
                           Please enter a complete deadline (date and time)
                         </div>
-                        <div *ngIf="formBuilder.get('deadline')?.hasError('pastDate') && formBuilder.get('deadline')?.touched" 
+                        <div *ngIf="formBuilder.get('deadline')?.hasError('pastDate') && (submitClicked || formBuilder.get('deadline')?.touched)" 
                           class="flex items-center gap-1 text-red-500 text-sm mt-2">
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -240,7 +240,6 @@
                                     </div>
                                     
                                     <!-- QUESTION DESCRIPTION -->
-                                    here : 
                                     <div *ngIf="showQuestionDescription[sIdx][qIdx]">
                                         <input type="text" formControlName="questionDescription" placeholder="Description"
                                             class="mb-3 border-b-2 w-full px-3 py-1 h-12 border-gray-200 outline-none focus:bg-gray-100 focus:border-indigo-400"/>
@@ -299,26 +298,26 @@
                                         class="space-y-4">
                                         <!-- Rows -->
                                         <div>
-                                            <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                                            <div class="flex items-center gap-2 text-sm text-gray-700 mb-2">
                                                 <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                                                 </svg>
                                                 Rows
                                             </div>
                                         
                                             <div formArrayName="rows" class="space-y-2 ml-4">
                                                 <div *ngFor="let row of getRows(question).controls; let rowIdx = index" class="flex items-center gap-2">
-                                                <input type="text" [formControlName]="rowIdx" placeholder="Row name"
-                                                    (blur)="onRowColBlur($event.target, question)"
-                                                    #myInput (focus)="myInput.select()"
-                                                    focus
-                                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-500" />
-                                                <button *ngIf="getRows(question).length > 1 && rowIdx !== 0 " (click)="removeGridRow(sIdx, qIdx, rowIdx)" type="button"
-                                                    class="p-1 text-gray-400 hover:text-red-500 rounded-full">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
+                                                    <input type="text" [formControlName]="rowIdx" placeholder="Row name" 
+                                                        (blur)="onRowColBlur($event.target, question)"
+                                                        #myInput (focus)="myInput.select()"
+                                                        focus
+                                                        class="flex-1 px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-500" />
+                                                    <button *ngIf="getRows(question).length > 1" (click)="removeGridRow(sIdx, qIdx, rowIdx)" type="button"
+                                                        class="p-1 text-gray-400 hover:text-red-500 rounded-full">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
                                                 </div>
                                                 <div *ngIf="submitClicked && hasEmptyGridItem(getRows(question))"
                                                 class="text-red-500 text-sm flex items-center gap-1 ml-1">
@@ -341,25 +340,25 @@
                                       
                                         <!-- Columns -->
                                         <div>
-                                            <div class="flex items-center gap-2 text-sm text-gray-600 mt-4 mb-2">
+                                            <div class="flex items-center gap-2 text-sm text-gray-700 mt-4 mb-2">
                                                 <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4v16M12 4v16M18 4v16" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4v16M12 4v16M18 4v16" />
                                                 </svg>
                                                 Columns
                                             </div>
                                         
                                             <div formArrayName="columns" class="space-y-2 ml-4">
                                                 <div *ngFor="let col of getColumns(question).controls; let colIdx = index" class="flex items-center gap-2">
-                                                <input type="text" [formControlName]="colIdx" placeholder="Column name"
-                                                    (blur)="onRowColBlur($event.target, question)"
-                                                    #myInput (focus)="myInput.select()"
-                                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500" />
-                                                <button *ngIf="getColumns(question).length > 1 && colIdx !== 0 " (click)="removeGridColumn(sIdx, qIdx, colIdx)" type="button"
-                                                    class="p-1 text-gray-400 hover:text-red-500 rounded-full">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
+                                                    <input type="text" [formControlName]="colIdx" placeholder="Column name" 
+                                                        (blur)="onRowColBlur($event.target, question)"
+                                                        #myInput (focus)="myInput.select()"
+                                                        class="flex-1 px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500" />
+                                                    <button *ngIf="getColumns(question).length > 1" (click)="removeGridColumn(sIdx, qIdx, colIdx)" type="button"
+                                                        class="p-1 text-gray-400 hover:text-red-500 rounded-full">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
                                                 </div>
                                                 <div *ngIf="submitClicked && hasEmptyGridItem(getColumns(question))"
                                                 class="text-red-500 text-sm flex items-center gap-1 ml-1">
@@ -418,18 +417,20 @@
                                             class="space-y-2"
                                             cdkDropList [cdkDropListData]="getOptions(question).controls" 
                                             (cdkDropListDropped)="dropOption($event, sIdx, qIdx)">
+
                                             <div *ngFor="let option of getOptions(question).controls; let opIdx = index" [formGroupName]="opIdx"
-                                                class="relative flex items-center group" cdkDragLockAxis="y" cdkDrag>
+                                                cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]=" option.get('label')?.value === 'Other'"
+                                                class="relative flex items-center group">
                                               
                                                 <!-- option type symbol -->
                                                 <div *ngIf="question.get('type')?.value === 'multipleChoice'" 
                                                     class="w-5 h-5 ml-2 mr-1 rounded-full border-2 border-gray-400 peer">
                                                 </div>
                                                 <div *ngIf="question.get('type')?.value === 'checkboxes'" 
-                                                    class="w-5 h-5 rounded-sm border-2 border-gray-400">
+                                                    class="w-5 h-5 ml-2 mr-1 rounded-sm border-2 border-gray-400 peer">
                                                 </div>
                                                 <div *ngIf="question.get('type')?.value === 'dropdown'" 
-                                                    class="w-5 h-5 text-gray-800">
+                                                    class="w-5 h-5 ml-2 mr-1 mb-1 text-gray-800 peer">
                                                     {{opIdx + 1 + '.'}}
                                                 </div>
                                                 
@@ -437,12 +438,16 @@
                                                 <input type="text" formControlName="label" placeholder="Option text" 
                                                     class="flex-1 p-1 bg-transparent outline-none group-hover:border-b-2 group-hover:border-gray-400 focus:outline-none focus:border-b-2  
                                                     focus:border-indigo-600 transition-all"
-                                                    [ngClass]="{'text-gray-800': option.get('label')?.value !== 'Other','text-gray-500': option.get('label')?.value === 'Other'}"
+                                                    [ngClass]="{'text-gray-800': option.get('label')?.value !== 'Other',
+                                                        'text-gray-500': option.get('label')?.value === 'Other',
+                                                        'focus-none': option.get('label')?.value === 'Other',
+                                                    }"
                                                     #myInput (focus)="myInput.select()"
                                                     (blur)="setDefaultValueIfEmpty($event.target, question, opIdx)"/>
                                                 
                                                 <!-- option dragger -->
-                                                <div cdkDragHandle class="invisible relative right-full group-hover:visible flex cursor-grab justify-center py-1"
+                                                <div *ngIf="option.get('label')?.value !== 'Other'" cdkDragHandle 
+                                                    class="invisible relative right-full group-hover:visible flex cursor-grab justify-center py-1"
                                                     [ngClass]="{'right-full': getOptions(question).length == 1, 'right-[calc(100%-1.75rem)]': getOptions(question).length > 1}">
                                                     <svg width="14" height="20">
                                                         <circle cx="4" cy="4" r="1.4" fill="gray" />
@@ -492,25 +497,22 @@
                                             </div>
                                         </div>   
                                     </div> <!--QUESTION OPTIONS END -->
-                                </div> 
+                                </div> <!--QUESTION END -->
                                 
                                 <!-- QUESTION OTHER ACTIONS -->
-                                <div class="flex items-center justify-end relative z-[500] mt-4 mx-4 pt-3 pb-6 border-t px-6 border-gray-200">
+                                <div class="flex items-center justify-end relative z-[500] mt-4 mx-4 pt-3 pb-6 border-t px-1 border-gray-200">
                                     <!-- REQUIRED TOGGLE -->
                                     <label class="flex items-center gap-2 cursor-pointer px-3 text-gray-600 border-r-2 border-gray-200">
                                         <input type="checkbox" formControlName="required" class="sr-only peer">
-                                        <div class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-indigo-600 transition-colors duration-200 right-0.5">
-                                        </div>
-                                        <div class="relative right-12 w-4 h-4 bg-white rounded-full shadow-sm
-                                            transition-transform duration-200 peer-checked:translate-x-5">
-                                        </div>
+                                        <div class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-indigo-600 transition-colors duration-200 right-0.5"></div>
+                                        <div class="relative right-12 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 peer-checked:translate-x-5"></div>
 
                                         <!--if type is any grid, it will ask for each row else just required-->
                                         <span *ngIf="question.get('type')?.value==='multipleChoiceGrid' || 
                                                     question.get('type')?.value==='checkboxGrid';
                                             else otherType"
                                             class="text-sm -ml-6 font-medium">
-                                                Required response in each row
+                                                Required for each row
                                         </span>
                                         <ng-template #otherType>
                                             <span class="text-sm -ml-6 font-medium">Required</span>
@@ -556,13 +558,15 @@
                             <!-- ADD NEW QUESTION TO SECTION -->
                             <button (click)="addQuestionToSection(sIdx)" type="button"
                               class="h-8 w-8 -mt-8 flex items-center justify-center bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-lg font-bold border-2 border-indigo-300 rounded-full shadow-sm hover:shadow-md">
-                                <span>+</span>
+                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                              </svg>
                             </button>
                         </div>
                     </div> <!-- SECTION GROUP END -->
                     
                     <div *ngIf="sections.length > 1"
-                        class="px-2 py-4">
+                        class="px-2 py-4 text-gray-800">
                         After Section {{ sIdx + 1}}:
                         <select formControlName="nextSection"
                             class="p-2 ml-2 outline-none bg-transparent cursor-pointer focus:bg-gray-200">

@@ -328,6 +328,7 @@ export class FormHeroComponent implements OnInit{
 
     // navigate to question from form navigation
     scrollToTarget(targetId: string, color: string): void {
+
         const el = document.getElementById(targetId);
         if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -336,7 +337,7 @@ export class FormHeroComponent implements OnInit{
         
             setTimeout(() => {
               el.classList.remove('ring-2', `ring-${color}-300`);
-            }, 1500);
+            }, 2000);
         }
     }
 
@@ -381,6 +382,7 @@ export class FormHeroComponent implements OnInit{
     }
 
     toggleDeadline() {
+        this.submitClicked = false;
         this.isDeadline = !this.isDeadline;
         this.updateDeadlineValidator();
     }
@@ -658,7 +660,7 @@ export class FormHeroComponent implements OnInit{
         return question.get('options') as FormArray;
     }
 
-    addOption(sectionIndex: number, questionIndex: number, value: string = ''){
+    addOption(sectionIndex: number, questionIndex: number, value: string = '') {
         this.submitClicked = false;
 
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
@@ -673,9 +675,9 @@ export class FormHeroComponent implements OnInit{
                 label: ['Other'],
                 goToSection: [sectionIndex + 1]
             });
+            newOption.get('label')?.disable(); // Disable editing "Other"
             options.push(newOption);
-    
-            // newOption.get('label')?.disable(); // Disable editing "Other"
+             
         }
         else {
             const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
@@ -715,14 +717,17 @@ export class FormHeroComponent implements OnInit{
 
     dropOption(event: CdkDragDrop<any[]>, sIdx: number, qIdx: number) {
         const optionsArray = this.getOptions(this.getSectionQuestions(sIdx).at(qIdx));
+        
+        // Check if trying to drop on 'Other' option
+        const targetOption = optionsArray.at(event.currentIndex);
+        if (targetOption.get('label')?.value === 'Other') return;
+        
         moveItemInArray(optionsArray.controls, event.previousIndex, event.currentIndex);
       
         const updatedControls = optionsArray.controls.map(ctrl => ctrl);
         optionsArray.clear();
         updatedControls.forEach(ctrl => optionsArray.push(ctrl));
     }
-
-
 
     addGridRow(sectionIndex: number, questionIndex: number) {
         const question = this.getSectionQuestions(sectionIndex).at(questionIndex) as FormGroup;
@@ -760,7 +765,6 @@ export class FormHeroComponent implements OnInit{
         rows.removeAt(rowIndex);
     }
       
-  
     removeGridColumn(sectionIndex: number, questionIndex: number, colIndex: number) {
         const questions = this.getSectionQuestions(sectionIndex);
         const question = questions.at(questionIndex) as FormGroup;
@@ -780,16 +784,16 @@ export class FormHeroComponent implements OnInit{
     }
   
 
-
     onSubmit(isTemplate: boolean = false) {
         this.submitClicked = true;
-        this.isQuestionInvalid = false;
+        // this.isQuestionInvalid = false;
 
         // Validating form fields
-
+        console.log("onsubmit called");
         if((this.formBuilder.get('deadline')?.hasError('required') && !this.formBuilder.get('deadline')?.value )
             || this.formBuilder.get('deadline')?.hasError('pastDate')) {
             this.scrollToTarget('form-deadline', 'red');
+            return;
         }
 
         let sIdx = 0;
@@ -803,6 +807,7 @@ export class FormHeroComponent implements OnInit{
                     if (!this.getQuestionTextControl(ques)?.value.trim()) {
                         this.isQuestionInvalid = true;
                         this.scrollToTarget(`question-${sIdx}-${qIdx}`, 'red');
+                        
                     }
 
                     const type = ques.get('type')?.value;
@@ -836,6 +841,7 @@ export class FormHeroComponent implements OnInit{
 
             console.log(payload);
 
+            // For saving template
             if (isTemplate) {
                 this.formService.saveAsTemplate(payload).subscribe({
                     next: () => {
@@ -846,31 +852,37 @@ export class FormHeroComponent implements OnInit{
                     },
                     error: (error) => console.error(error)
                 });
-            } else {
-                if (this.formId) {
-                    this.formService.updateForm(this.formId, payload).subscribe({
-                        next: () => {
-                            this.submitSuccess = true;
-                            setTimeout(() => {
-                                this.submitSuccess = false;
-                                this.router.navigate(['/forms']);
-                            }, 3000);
-                        },
-                        error: (error) => {
-                            console.error("Error updating form", error);
-                        }
-                    });
-                } else {
-                    this.formService.addForm(payload);
-                    this.submitSuccess = true;
-                    setTimeout(() => {
-                        this.submitSuccess = false;
-                        this.router.navigate(['/forms']);
-                    }, 3000);
-                }
+            }
+
+            // For saving changes (edit-form)
+            else if (this.formId) {
+                this.formService.updateForm(this.formId, payload).subscribe({
+                    next: () => {
+                        this.submitSuccess = true;
+                        setTimeout(() => {
+                            this.submitSuccess = false;
+                            this.router.navigate(['/forms']);
+                        }, 3000);
+                    },
+                    error: (error) => {
+                        console.error("Error updating form", error);
+                    }
+                });
             } 
-        } else {  // Move this else inside the main if block
+            // For saving new form 
+            else {
+                this.formService.addForm(payload);
+                this.submitSuccess = true;
+                setTimeout(() => {
+                    this.submitSuccess = false;
+                    this.router.navigate(['/forms']);
+                }, 3000);
+            }
+             
+        } 
+        else {  // Move this else inside the main if block
             console.log("Form is invalid");
         }
     }
+
 }

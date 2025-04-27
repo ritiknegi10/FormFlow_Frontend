@@ -17,9 +17,28 @@ export class FormVersionsComponent implements OnInit {
   versions: number[] = [];
   currentFormVersion!: any;
   ratingOptions: number[] = [3, 4, 5, 6, 7, 8, 9, 10];
-  isChangeDeadlinePopUp = true;
   deadline: string = '';
   minDateTime: string = '';
+
+  // maintain order in questionTypes
+  questionTypes = [
+    { type: 'shortText', label: 'Short Text', icon: 'assets/question-type-icons/shortText.svg' },
+    { type: 'paragraph', label: 'Paragraph', icon: 'assets/question-type-icons/paragraph.svg'},
+    { type: 'multipleChoice', label: 'Multiple Choice', icon: 'assets/question-type-icons/multipleChoice.svg'},
+    { type: 'checkboxes', label: 'Checkboxes', icon: 'assets/question-type-icons/checkboxes.svg'},
+    { type: 'dropdown', label: 'Dropdown', icon: 'assets/question-type-icons/dropdown.svg'},
+    { type: 'date', label: 'Date', icon: 'assets/question-type-icons/date.svg'},
+    { type: 'time', label: 'Time', icon: 'assets/question-type-icons/time.svg'},
+    { type: 'linearScale', label: 'Linear Scale', icon: 'assets/question-type-icons/linearScale.svg'},
+    { type: 'multipleChoiceGrid', label: 'Multiple Choice Grid', icon: 'assets/question-type-icons/multipleChoiceGrid.svg'},
+    { type: 'checkboxGrid', label: 'Checkbox Grid', icon: 'assets/question-type-icons/checkboxGrid.svg'},
+    { type: 'rating', label: 'Rating', icon: 'assets/question-type-icons/rating.svg'},
+    { type: 'file', label: 'File Upload', icon: 'assets/question-type-icons/file.svg'},
+  ];  
+  selectedTypes: { [sIdx: number]: { [qIdx: number]: any } } = {};
+  isChangeDeadlinePopUp = false;
+  isChangeButtonClicked = false;
+  isDeadlineRemoved = false;
   isDeadlineNull = false;
   isDeadlinePast = false;
 
@@ -30,6 +49,7 @@ export class FormVersionsComponent implements OnInit {
       this.form = this.fb.group({
         title: '',
         description: '',
+        deadline: '',
         sections: this.fb.array([])
       });
   }
@@ -55,7 +75,6 @@ export class FormVersionsComponent implements OnInit {
         return;
       }
       const versionsList: any = formVersions; 
-      // console.log(versionsList);
 
       // initialise and sort array of version numbers 
       this.versions = versionsList.map((vers: any) => vers.version).sort((a: number, b: number) => b-a); 
@@ -73,8 +92,6 @@ export class FormVersionsComponent implements OnInit {
             return;
         }
 
-        //console.log(questions);
-
         this.form.patchValue({
             title: versionData.title,
             description: versionData.description,
@@ -89,7 +106,7 @@ export class FormVersionsComponent implements OnInit {
             const questions = section.questions.map((field:any) =>{
                 return this.fb.group({
                     questionText: field.questionText,
-                    questionDescription: '',
+                    questionDescription: field.questionDescription,
                     type: field.type,
                     required: field.required,
                     sectionBasedonAnswer: field.sectionBasedonAnswer || false,
@@ -118,7 +135,12 @@ export class FormVersionsComponent implements OnInit {
         });
 
         this.form.setControl('sections', this.fb.array(sectionsArray));
-        
+        this.selectedTypes = formSchema.sections.map((section: any) => 
+          section.questions.map((question: any) => {
+          const found = this.questionTypes.find(q => q.type === question.type);
+          return { ...found };
+          })
+      );
         // this.form = this.fb.group({
         //   title: new FormControl(versionData.title || ''),
         //   description: new FormControl(versionData.description || ''),
@@ -128,10 +150,8 @@ export class FormVersionsComponent implements OnInit {
         // });
 
         this.form.disable();
-        console.log(this.form);
         this.currentFormVersion = versionData;
-        // console.log("current form version")
-        // console.log(this.currentFormVersion);
+        console.log(this.currentFormVersion);
     });
   }
 
@@ -165,30 +185,56 @@ export class FormVersionsComponent implements OnInit {
     const isoString = now.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
     this.minDateTime = isoString;
   }
-  changeDeadlinePopUp() {
+
+  openChangeDeadlinePopUp() {
     console.log(this.currentFormVersion);
     this.isChangeDeadlinePopUp = true;
-    //document.body.classList.add('overflow-hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeChangeDeadlinePopUp() {
+    this.isChangeDeadlinePopUp = false;
+    document.body.style.overflow = 'auto';
+  }
+
+  onDeadlineInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const inputValue = input.value;
+
+      if(inputValue) {
+        this.isDeadlineNull = false;
+        const inputDeadline = new Date(inputValue);
+        const now = new Date();
+
+        if (now < inputDeadline) {
+          this.isDeadlinePast = false;
+        }
+      }
   }
 
   updateDeadline() {
 
-    if(!this.deadline) {
+    // Validate deadline
+    if(!this.deadline && !this.isDeadlineRemoved) {
       this.isDeadlineNull = true;
       return;
     }
     const inputDeadline = new Date(this.deadline);
     const now = new Date();
-    if(now > inputDeadline) {
+    if((now > inputDeadline) && !this.isDeadlineRemoved) {
       this.isDeadlinePast = true;
+      return;
     }
 
-    
     this.formService.updateDeadline(this.currentFormVersion.id, this.deadline).subscribe({
       next: (response) => console.log("Deadline updated successfully successfully", response),
       error: (error) => console.error("Error updating deadline", error)
     });
+
+    this.closeChangeDeadlinePopUp();
+
   }
+
   cloneVersion() {
     this.router.navigate([`/edit/${this.currentFormVersion.id}`]);
   }
