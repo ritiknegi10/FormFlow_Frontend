@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnInit, Input, Output, EventEmitter, ElementRef, HostListener, ViewChildren, QueryList } from '@angular/core';
+import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl, Validators, ValidationErrors, FormArrayName } from '@angular/forms';
 import { FormService } from 'src/app/services/form.service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -10,42 +10,65 @@ import { filter } from 'rxjs';
   templateUrl: './form-hero.component.html',
   styleUrls: ['./form-hero.component.scss']
 })
+
 export class FormHeroComponent implements OnInit{
+
+    // maintain order in questionTypes
+    questionTypes = [
+        { type: 'shortText', label: 'Short Text', icon: 'assets/question-type-icons/shortText.svg' },
+        { type: 'paragraph', label: 'Paragraph', icon: 'assets/question-type-icons/paragraph.svg'},
+        { type: 'multipleChoice', label: 'Multiple Choice', icon: 'assets/question-type-icons/multipleChoice.svg'},
+        { type: 'checkboxes', label: 'Checkboxes', icon: 'assets/question-type-icons/checkboxes.svg'},
+        { type: 'dropdown', label: 'Dropdown', icon: 'assets/question-type-icons/dropdown.svg'},
+        { type: 'date', label: 'Date', icon: 'assets/question-type-icons/date.svg'},
+        { type: 'time', label: 'Time', icon: 'assets/question-type-icons/time.svg'},
+        { type: 'linearScale', label: 'Linear Scale', icon: 'assets/question-type-icons/linearScale.svg'},
+        { type: 'multipleChoiceGrid', label: 'Multiple Choice Grid', icon: 'assets/question-type-icons/multipleChoiceGrid.svg'},
+        { type: 'checkboxGrid', label: 'Checkbox Grid', icon: 'assets/question-type-icons/checkboxGrid.svg'},
+        { type: 'rating', label: 'Rating', icon: 'assets/question-type-icons/rating.svg'},
+        { type: 'file', label: 'File Upload', icon: 'assets/question-type-icons/file.svg'},
+    ];
+
+    ratingOptions = Array.from({ length: 8 }, (_, i) => i + 3);
+    scalingOptions = Array.from({ length: 6 }, (_, i) => i + 5);
+    minDateTime!: string;
+    currentUrl!: String;
+
+    // Flags
     showTemplateSuccess = false;
     isTemplateMode = false;
-
-    formId: number | null = null;
-    formBuilder: FormGroup;
-    ratingOptions = Array.from({ length: 10 }, (_, i) => i + 1);
-    scalingOptions=Array.from({ length: 6 }, (_, i) => i + 5);
-    currentUrl!: String
+    formFetched = false;
     submitClicked = false;
     submitSuccess = false;
-    singleOption = false;
-    formFetched = false;
-    isQuestionInvalid: boolean = false;
-    showOptionsMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
+    isQuestionInvalid = false;
+    showFormNavigation = true;
+    isDropdownOpen = false;
+    isDeadline = false;
+    
+    // Mapping properties
+    selectedTypes: { [sIdx: number]: { [qIdx: number]: any } } = {};
     showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
+    collapseQuestionMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     otherAddedMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
+    questionTypeDropdown: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
+    
+    
+    formId: number | null = null;
+    formBuilder: FormGroup;
 
     constructor(private fb: FormBuilder, 
                 private formService: FormService, 
                 private router: Router, 
                 private cdr: ChangeDetectorRef,
-            private route: ActivatedRoute) {
+                private route: ActivatedRoute) {
         this.formBuilder = this.fb.group({
             title: 'Untitled Form',
             description: '',
+            deadline: [null],
             sections: this.fb.array([])
         });
-
-        this.router.events
-            .pipe(filter(event => event instanceof NavigationEnd))
-        .subscribe((event: any) => {
-            this.currentUrl = event.url;
-        });
-
+        
         this.router.events
             .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe((event: any) => {
@@ -54,144 +77,241 @@ export class FormHeroComponent implements OnInit{
     }
 
     ngOnInit() {
+
+        // deadline validation functions
+        this.updateDeadlineValidator();
+        this.setMinDateTime();
+
         // if you're editing an existing form, fetch data
         const urlParts = this.router.url.split('/');
         this.route.queryParams.subscribe(params => {
+
+            // for template form
             const templateId = params['templateId'];
             if (templateId) {
               this.loadTemplate(templateId);
             }
+
+            // for non-template form
             else if (urlParts[1] === 'edit' && urlParts[2]) {
-            this.formId = parseInt(urlParts[2]);
-            this.formService.getFormById(this.formId).subscribe(form => {
+                this.formId = parseInt(urlParts[2]);
+                this.formService.getFormById(this.formId).subscribe(form => {
 
-                this.formBuilder.patchValue({
-                    title: form.title,
-                    description: form.description,
-                });
+                    this.formBuilder.patchValue({
+                        title: form.title,
+                        description: form.description,
+                        deadline: form.deadline
+                    });
 
-                const parsedSchema = JSON.parse(form.formSchema);
-                // console.log(JSON.stringify(parsedSchema));
+                    if(form.deadline) {
+                        this.isDeadline = true;
+                        this.formBuilder.get('deadline')?.updateValueAndValidity();
+                    }
+                    this.updateDeadlineValidator();
+                    
+                    // Send form title to navbar component
+                    this.formTitleChange.emit(form.title);
 
-                const sectionsArray = (parsedSchema.sections || []).map((section:any) =>{
-                    const questions = section.questions.map((field:any) =>{
+                    // console.log(form);
+                    const parsedSchema = JSON.parse(form.formSchema);
+                    // console.log(JSON.stringify(parsedSchema));
+                    console.log(form);
+
+                    const sectionsArray = (parsedSchema.sections || []).map((section: any, sIdx: number) => {
+                        const questions = section.questions.map((field: any, qIdx: number) => {
+
+                            if(field.description) {
+                                this.showQuestionDescription[sIdx][qIdx] = true;
+                            }
+
+                            return this.fb.group({
+                                questionText: field.questionText,
+                                questionDescription: field.questionDescription,
+                                type: field.type,
+                                required: field.required,
+                                sectionBasedonAnswer: field.sectionBasedonAnswer || false,
+                                options: this.fb.array(
+                                    (field.options || []).map((option: any) => 
+                                        this.fb.group({
+                                            label: option.label,
+                                            goToSection: option.goToSection || null
+                                        })
+                                    )
+                                ),
+                                rating: field.rating || 5,
+                                startValue: [field.startValue ?? 0],
+                                endValue: [field.endValue ?? 5],
+                                rows: this.fb.array(field.rows || []),         
+                                columns: this.fb.array(field.columns || []),   
+                                fileUrl: [field.fileUrl || ''], 
+                            });
+                        });
+                        if (!this.showQuestionDescription[sIdx]) this.showQuestionDescription[sIdx] = {};
+                        if (!this.questionTypeDropdown[sIdx]) this.questionTypeDropdown[sIdx] = {};
+                        if (!this.collapseQuestionMap[sIdx]) this.collapseQuestionMap[sIdx] = {};
                         return this.fb.group({
-                            questionText: field.questionText,
-                            questionDescription: '',
-                            type: field.type,
-                            required: field.required,
-                            options: this.fb.array(
-                                (field.options || []).map((option: any) => 
-                                    this.fb.group({
-                                        label: option.label,
-                                        goToSection: option.goToSection || null
-                                    })
-                                )
-                            ),
-                            rating: field.rating || 5,
-                            startValue: [field.startValue ?? 0],
-                            endValue: [field.endValue ?? 5],
-                            rows: this.fb.array(field.rows || []),         
-                            columns: this.fb.array(field.columns || []),   
-                            fileUrl: [field.fileUrl || ''], 
-                            sectionBasedonAnswer: field.sectionBasedonAnswer || false
+                            sectionTitle: section.sectionTitle,
+                            sectionDescription: section.sectionDescription,
+                            nextSection: section.nextSection,
+                            questions: this.fb.array(questions)
                         });
                     });
-                    return this.fb.group({
+                    this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
+                    
+                    // Initialise map properties
+                    this.selectedTypes = parsedSchema.sections.map((section: any) => 
+                        section.questions.map((question: any) => {
+                        const found = this.questionTypes.find(q => q.type === question.type);
+                        return { ...found };
+                        })
+                    );
+                    this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
+                        section.questions.map(() => false)
+                    );
+                    this.collapseQuestionMap = parsedSchema.sections.map((section: any) => 
+                        section.questions.map(() => false)
+                    );
+
+                    this.formFetched = true;
+                    
+                });
+
+            } 
+            else {
+                this.addSection(); // Start with one section by default
+            }
+        });
+    }
+
+    private loadTemplate(templateId: number) {
+        this.formService.getFormById(templateId).subscribe({
+            next: (form) => {
+                // Clear existing form
+                while (this.sections.length !== 0) {
+                    this.sections.removeAt(0);
+                }
+        
+                // Parse form schema
+                const parsedSchema = typeof form.formSchema === 'string' ? JSON.parse(form.formSchema) : form.formSchema;
+        
+                // Rebuild sections
+                parsedSchema.sections.forEach((section: any) => {
+                    const newSection = this.fb.group({
                         sectionTitle: section.sectionTitle,
                         sectionDescription: section.sectionDescription,
                         nextSection: section.nextSection,
-                        questions: this.fb.array(questions)
+                        questions: this.fb.array([])
                     });
+        
+                    section.questions.forEach((question: any) => {
+                        const questionGroup = this.fb.group({
+                        questionText: question.questionText,
+                        questionDescription: question.questionDescription,
+                        type: question.type,
+                        required: question.required,
+                        sectionBasedonAnswer: question.sectionBasedonAnswer,
+                        options: this.fb.array(
+                            (question.options || []).map((opt: any) =>
+                            this.fb.group({
+                                label: opt.label,
+                                goToSection: opt.goToSection
+                            })
+                            )
+                        ),
+                        rating: question.rating || 5,
+                        startValue: [question.startValue ?? 0],
+                        endValue: [question.endValue ?? 5],
+                        rows: this.fb.array(question.rows || []),         
+                        columns: this.fb.array(question.columns || []),   
+                        fileUrl: [question.fileUrl || ''], 
+                    
                 });
-                this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
-                this.formFetched=true;
+                    
+                (newSection.get('questions') as FormArray).push(questionGroup);
             });
-        } 
-        else {
-            this.addSection(); // Start with one section by default
-        }
-    });
-}
-
-private loadTemplate(templateId: number) {
-    this.formService.getFormById(templateId).subscribe({
-      next: (form) => {
-        // Clear existing form
-        while (this.sections.length !== 0) {
-          this.sections.removeAt(0);
-        }
-  
-        // Parse form schema
-        const parsedSchema = typeof form.formSchema === 'string' ? 
-                           JSON.parse(form.formSchema) : 
-                           form.formSchema;
-  
-        // Rebuild sections
-        parsedSchema.sections.forEach((section: any) => {
-          const newSection = this.fb.group({
-            sectionTitle: section.sectionTitle,
-            sectionDescription: section.sectionDescription,
-            nextSection: section.nextSection,
-            questions: this.fb.array([])
-          });
-  
-          section.questions.forEach((question: any) => {
-            const questionGroup = this.fb.group({
-              questionText: question.questionText,
-              questionDescription: question.questionDescription,
-              type: question.type,
-              options: this.fb.array(
-                (question.options || []).map((opt: any) =>
-                  this.fb.group({
-                    label: opt.label,
-                    goToSection: opt.goToSection
-                  })
-                )
-              ),
-              rating: question.rating || 5,
-              required: question.required,
-              sectionBasedonAnswer: question.sectionBasedonAnswer
-            });
-            
-            (newSection.get('questions') as FormArray).push(questionGroup);
-          });
-  
-          this.sections.push(newSection);
-        });
-  
-        this.formBuilder.patchValue({
-          title: form.title + ' (Copy)',
-          description: form.description
+        
+                this.sections.push(newSection);
         });
         
-        this.formFetched = true;
-      },
-      error: (err) => {
-        console.error('Error loading template:', err);
-        this.router.navigate(['/form-template']);
-      }
-    });
-  }
-  
+                this.formBuilder.patchValue({
+                    title: form.title + ' (Copy)',
+                    description: form.description,
+                    deadline: form.deadline
+                });
+                this.formFetched = true;
 
-
-
-  ngAfterViewInit() {
-    if (this.formFetched && !this.sections.length) {
-      this.router.navigate(['/form-template'], {
-        queryParams: { error: 'invalid-template' }
-      });
+                // Initialise map properties
+                this.selectedTypes = parsedSchema.sections.map((section: any) => 
+                    section.questions.map((question: any) => {
+                        const found = this.questionTypes.find(q => q.type === question.type);
+                        return { ...found };
+                    })
+                );
+                this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
+                    section.questions.map(() => false)
+                );
+                this.collapseQuestionMap = parsedSchema.sections.map((section: any) => 
+                    section.questions.map(() => false)
+                );
+                
+            },
+            error: (err) => {
+                console.error('Error loading template:', err);
+                this.router.navigate(['/form-template']);
+            }
+        });
     }
-  }
-    //* Getting Form title in navbar
-    @Input() formTitle: string = '';
-    @Output() formTitleChange = new EventEmitter<string>();
+  
+    ngAfterViewInit() {
+        if (this.formFetched && !this.sections.length) {
+        this.router.navigate(['/form-template'], {
+            queryParams: { error: 'invalid-template' }
+        });
+        }
+    }
 
-    //* Getting Form data to preview
+    updateDeadlineValidator() {
+        
+        const deadlineControl = this.formBuilder.get('deadline');
+        if (this.isDeadline) {
+            deadlineControl?.setValidators([Validators.required, FormHeroComponent.futureDateValidator]);
+        } else {
+            deadlineControl?.clearValidators();
+            deadlineControl?.setValue(null); // optional: reset field
+        }
+        
+        deadlineControl?.updateValueAndValidity();
+    }
+
+    setMinDateTime() {
+        const now = new Date();
+        // Convert to ISO and remove seconds + milliseconds
+        const isoString = now.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
+        this.minDateTime = isoString;
+    }
+
+    static futureDateValidator(control: AbstractControl): ValidationErrors | null {
+        if (!control.value) return null;
+      
+        const selectedDate = new Date(control.value);
+        const now = new Date();
+        
+        // console.log("future validator", selectedDate);
+        return selectedDate > now ? null : { pastDate: true };
+    }
+
+    //* --Getting Form data to preview
     getFormData(){
         return this.formBuilder.value;
     }
+
+    getStarsArray(count: number): number[] {
+        return Array.from({ length: count }, (_, i) => i + 1);
+    }
+
+    //* Getting Form title in navbar
+    @Input() formTitle: string = '';
+    @Output() formTitleChange = new EventEmitter<string>();
 
     onTitleChange(event: Event) {
         const input = event.target as HTMLInputElement;
@@ -206,38 +326,85 @@ private loadTemplate(templateId: number) {
         }
     }
 
+    // navigate to question from form navigation
+    scrollToTarget(targetId: string, color: string): void {
+
+        const el = document.getElementById(targetId);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            el.classList.add('ring-2', `ring-${color}-300`);
+        
+            setTimeout(() => {
+              el.classList.remove('ring-2', `ring-${color}-300`);
+            }, 2000);
+        }
+    }
+
+    selectType(sIdx: number, qIdx: number, type: string) {
+        const question = (this.sections.at(sIdx).get('questions') as FormArray).at(qIdx) as FormGroup;
+        question.get('type')?.setValue(type);
+
+        const selected = this.questionTypes.find(opt => opt.type === type);
+        if (!this.selectedTypes[sIdx]) this.selectedTypes[sIdx] = {};
+        this.selectedTypes[sIdx][qIdx] = selected;
+
+        // Close dropdown
+        this.questionTypeDropdown[sIdx][qIdx] = false; 
+        this.isDropdownOpen = false;
+    }
+    
+    @ViewChildren('dropdownBox') dropdownBoxes!: QueryList<ElementRef>;
+    @HostListener('document:click', ['$event.target'])
+    onClickOutside(target: HTMLElement) {
+        const clickedInsideAny = this.dropdownBoxes.some(dropdown =>
+            dropdown.nativeElement.contains(target)
+        );
+
+        if (!clickedInsideAny) {
+            this.isDropdownOpen = false;
+
+            // Optionally close all dropdowns
+            for (let sIdx in this.questionTypeDropdown) {
+            for (let qIdx in this.questionTypeDropdown[sIdx]) {
+                this.questionTypeDropdown[sIdx][qIdx] = false;
+            }
+            }
+        }
+    }
+
+    showQuestionTypeDropdown(sectionIndex: number, questionIndex: number) {
+        if (!this.questionTypeDropdown[sectionIndex]) {
+            this.questionTypeDropdown[sectionIndex] = {};
+        }
+        this.questionTypeDropdown[sectionIndex][questionIndex] = true;
+        this.isDropdownOpen = true;
+    }
+
+    toggleDeadline() {
+        this.submitClicked = false;
+        this.isDeadline = !this.isDeadline;
+        this.updateDeadlineValidator();
+    }
+
     togglesectionBasedonAnswer(sectionIndex: number, questionIndex: number){
         const question = (this.sections.at(sectionIndex).get('questions') as FormArray).at(questionIndex) as FormGroup;
         
         const currentVal = question.get('sectionBasedonAnswer')?.value || false;
         question.get('sectionBasedonAnswer')?.setValue(!currentVal);
     }
-    
-
+  
     // other options menu toggle
     toggleOtherOptionsMenu(sectionIndex: number, questionIndex: number) {
-        if (!this.showMenuMap[sectionIndex]) {
-            this.showMenuMap[sectionIndex] = {};
-        }
+        if (!this.showMenuMap[sectionIndex]) this.showMenuMap[sectionIndex] = {};
+        if (!this.selectedTypes[sectionIndex]) this.selectedTypes[sectionIndex] = {};
         const isMenuOpen = this.showMenuMap[sectionIndex][questionIndex];
         this.showMenuMap[sectionIndex][questionIndex] = !isMenuOpen;
-    }
-
-    // collapse or explan options
-    toggleOptions(sectionIndex: number, questionIndex: number) {
-        const isVisible = this.showOptionsMap[sectionIndex][questionIndex];
-        this.showOptionsMap[sectionIndex][questionIndex] = !isVisible;
     }
 
     toggleQuestionDescription(sectionIndex: number, questionIndex: number) {
         const isVisible = this.showQuestionDescription[sectionIndex][questionIndex];
         this.showQuestionDescription[sectionIndex][questionIndex] = !isVisible;
-    }
-
-    //selects all text when focused on option input field
-    selectAllText(eventTarget: EventTarget | null){
-        if(eventTarget instanceof HTMLInputElement)
-            eventTarget.select();
     }
 
     setDefaultValueIfEmpty(inputElement: EventTarget | null, question: any, opIdx: number){
@@ -252,37 +419,67 @@ private loadTemplate(templateId: number) {
         }
     }
 
+    onRowColBlur(inputElement: EventTarget | null, question: any){
+        const rows = this.getRows(question);
+        rows.controls.forEach((row, index) => {
+            if(row.value.trim()==='')
+                row.setValue(`Row ${index+1}`)
+        });
+
+        const columns = this.getColumns(question);
+        columns.controls.forEach((column, index) => {
+            if(column.value.trim()==='')
+                column.setValue(`Column ${index+1}`);
+        });
+    }
+
     get sections(): FormArray{
         return this.formBuilder.get('sections') as FormArray;
     }
 
-    addSection() {
+    addSection(sIdx: number = -1) {
         const sectionGroup = this.fb.group({
             sectionTitle: [this.sections.length==0? this.getTitleControl()?.value : 'Untitled Section'],
             sectionDescription: [''],
             nextSection: [this.sections.length + 1],
             questions: this.fb.array([]),
         });
-        // handling form title change and updating first secitons title
+        // --handling form title change and updating first secitons title
         this.getTitleControl()?.valueChanges.subscribe(title => {
             this.sections.at(0).get('sectionTitle')?.setValue(title);
         });
         this.sections.push(sectionGroup);
         
-        // Add 1 question by default to new section 
+        // --Add 1 question by default to new section 
         this.addQuestionToSection(this.sections.length - 1);
         this.cdr.detectChanges();
+
+        // --scroll to new section added
+        if(sIdx !== -1){
+            const el = document.getElementById(`section-${sIdx}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
     }
 
-    removeSection(index: number){
-        this.sections.removeAt(index);
+    removeSection(sIdx: number){
+        this.sections.removeAt(sIdx);
+
+        // --scroll to previous section
+        if(sIdx !== -1){
+            const el = document.getElementById(`section-${sIdx-1}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
     }
 
     getSectionTitleControl(section: any){
-        // Making form title as 1st sections title
+        // --Making form title as 1st sections title
         this.sections.at(0).get('sectionTitle')?.setValue(this.getTitleControl()?.value || 'Untitled Section');
 
-        // handling form title change and updating first secitons title
+        // --handling form title change and updating first sections title
         this.getTitleControl()?.valueChanges.subscribe(title => {
             this.sections.at(0).get('sectionTitle')?.setValue(title);
         });
@@ -326,58 +523,90 @@ private loadTemplate(templateId: number) {
             sectionBasedonAnswer: false, 
         });
 
-        if (!this.showQuestionDescription[sectionIndex]) {
-            this.showQuestionDescription[sectionIndex] = {};
-        }
+        if (!this.showQuestionDescription[sectionIndex]) this.showQuestionDescription[sectionIndex] = {};
+        if (!this.questionTypeDropdown[sectionIndex]) this.questionTypeDropdown[sectionIndex] = {};
+        if (!this.collapseQuestionMap[sectionIndex]) this.collapseQuestionMap[sectionIndex] = {};
         
+        // set default question type as multipleChoice
+        const defaultType = 'multipleChoice'; 
+        const defaultOption = this.questionTypes.find(option => option.type === defaultType);
+        const qIdx = this.getSectionQuestions(sectionIndex).controls.length;
+
+        if (!this.selectedTypes[sectionIndex]) this.selectedTypes[sectionIndex] = {};
+        this.selectedTypes[sectionIndex][qIdx] = defaultOption;
+        
+        // add default option if question type is mcq, checkbox, or dropdown
         const type = questionGroup.get('type')?.value;
-        if(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown') {
+        const options = questionGroup.get('options') as FormArray;
+        const rows = questionGroup.get('rows') as FormArray;
+        const columns = questionGroup.get('columns') as FormArray;
 
-            if (!this.showOptionsMap[sectionIndex]) {
-                this.showOptionsMap[sectionIndex] = {};
-            }
-            this.showOptionsMap[sectionIndex][section.length] = true;
+        const isOptionType = (type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown');
+        const isGridType = (type === 'multipleChoiceGrid' || type === 'checkboxGrid');
 
-            const options = questionGroup.get('options') as FormArray;
-            if(options.length === 0) {
-                const newOption = this.fb.group({
-                    label: [`Option 1`],
+        // --Handle option-based questions
+        if (isOptionType) {
+
+            if (options.length === 0) {
+                options.push(this.fb.group({
+                    label: ['Option 1'],
                     goToSection: [sectionIndex + 1]
-                });
-                options.push(newOption);
+                }));
             }
-                
         }
 
-        if (type === 'multipleChoiceGrid' || type === 'checkboxGrid') {
-            const rows = questionGroup.get('rows') as FormArray;
-            const columns = questionGroup.get('columns') as FormArray;
-        
+        // --Handle grid-based questions
+        if (isGridType) {
             if (rows.length === 0) rows.push(this.fb.control('Row 1'));
             if (columns.length === 0) columns.push(this.fb.control('Column 1'));
         }
-        
-       
-        //Removing default option added when the type is not from the 3
-        questionGroup.get('type')?.valueChanges.subscribe(type => {
-            const rows = questionGroup.get('rows') as FormArray;
-            const columns = questionGroup.get('columns') as FormArray;    
-            if(!(type === 'multipleChoice' || type === 'checkboxes' || type === 'dropdown')){
-                const options = questionGroup.get('options') as FormArray;
+
+        // --Subscribe to type changes
+        questionGroup.get('type')?.valueChanges.subscribe(updatedType => {
+            if (typeof updatedType !== 'string') return; 
+            const isNewOptionType = ['multipleChoice', 'checkboxes', 'dropdown'].includes(updatedType);
+            const isNewGridType = ['multipleChoiceGrid', 'checkboxGrid'].includes(updatedType);
+
+            if (isNewOptionType && options.length === 0) {
+                options.push(this.fb.group({
+                    label: ['Option 1'],
+                    goToSection: [sectionIndex + 1]
+                }));
+            } else if (!isNewOptionType) {
                 options.clear();
             }
-            if (!(type === 'multipleChoiceGrid' || type === 'checkboxGrid')) {
+
+            if(isNewGridType){
+                if(rows.length===0) rows.push(this.fb.control('Row 1'));
+                if (columns.length === 0) columns.push(this.fb.control('Column 1'));
+            } else if (!isNewGridType) {
                 rows.clear();
                 columns.clear();
             }
-            if (type !== 'linearScale') {
+
+            if (updatedType !== 'linearScale') {
                 questionGroup.patchValue({ startValue: 0, endValue: 5 });
             }
-          
+
             this.submitClicked = false;
         });
+
         section.push(questionGroup);
         this.cdr.detectChanges();
+
+        // --scroll to new question everytime added
+        if(section.controls.length>1){
+            const el = document.getElementById(`question-${sectionIndex}-${section.controls.length-1}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                el.classList.add('ring-2', 'ring-indigo-200');
+            
+                setTimeout(() => {
+                    el.classList.remove('ring-2', 'ring-indigo-200');
+                }, 1500);
+            }
+        }
     }
 
     duplicateQuestion(sectionIndex: number, questionIndex: number){
@@ -411,19 +640,33 @@ private loadTemplate(templateId: number) {
     removeQuestion(sectionIndex: number, questionIndex: number){
         const section = this.getSectionQuestions(sectionIndex);
         section.removeAt(questionIndex);
+
+        // --scroll to previous question
+        if(questionIndex>0){
+            const el = document.getElementById(`question-${sectionIndex}-${section.controls.length-1}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                el.classList.add('ring-2', 'ring-indigo-200');
+            
+                setTimeout(() => {
+                    el.classList.remove('ring-2', 'ring-indigo-200');
+                }, 1500);
+            }
+        }
     }
 
     getOptions(question: any): FormArray{
         return question.get('options') as FormArray;
     }
 
-    addOption(sectionIndex: number, questionIndex: number, value: string = ''){
+    addOption(sectionIndex: number, questionIndex: number, value: string = '') {
         this.submitClicked = false;
 
         const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
         const index = options.length;
 
-        //* Checking for option - 'Other' added
+        //* --Checking for option - 'Other' added
         if (value === 'Other') {
             if (!this.otherAddedMap[sectionIndex])
                 this.otherAddedMap[sectionIndex] = {};
@@ -432,125 +675,140 @@ private loadTemplate(templateId: number) {
                 label: ['Other'],
                 goToSection: [sectionIndex + 1]
             });
+            newOption.get('label')?.disable(); // Disable editing "Other"
             options.push(newOption);
-    
-            // newOption.get('label')?.disable(); // Disable editing "Other"
+             
         }
-        else{
+        else {
             const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
             const otherIndex = options.controls.findIndex(opt => opt.value.label === 'Other');
             const newOption = this.fb.group({
                 label: [`Option ${index + (otherAdded? 0:1)}`],
                 goToSection: [sectionIndex + 1]
             });
+            
+            // -- keeping 'Other' option always below normal options
+            if(otherIndex != -1)
+                options.insert(otherIndex, newOption)
+            else
             options.push(newOption);
         }
-        // if(value!=''){
-        //     if(!this.otherAddedMap[sectionIndex])
-        //         this.otherAddedMap[sectionIndex]={};
-        //     this.otherAddedMap[sectionIndex][questionIndex]=true;
-        //     options.push(new FormControl(value));
-        //     options.at(index).disable() // Can't edit option - 'Other'
-        // }
-        // else{
-        //     const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
-        //     options.push(new FormControl(`Option ${index + (otherAdded? 0:1)}`));
-        // }
-        this.singleOption = false;
     }
 
-    removeOption(sectionIndex: number, questionIndex: number, optionIndex: number){
+    removeOption(sectionIndex: number, questionIndex: number, optionIndex: number) {
         const questions = this.getSectionQuestions(sectionIndex).at(questionIndex);
-        const options = this.getOptions(this.getSectionQuestions(sectionIndex).at(questionIndex));
+        const options = this.getOptions(questions);
 
-        if(options.at(optionIndex).get('label')?.value==='Other'){
-            this.otherAddedMap[sectionIndex][questionIndex]=false;
+        if(options.at(optionIndex).get('label')?.value === 'Other') {
+            this.otherAddedMap[sectionIndex][questionIndex] = false;
         }
         options.removeAt(optionIndex);
-        if(options.length==1)
-            this.singleOption=true
     }
 
-    drop(event: CdkDragDrop<string[]>, sectionIndex: number){
+    dropSection(event: CdkDragDrop<string[]>){
+        moveItemInArray(this.sections.controls, event.previousIndex, event.currentIndex);
+    }
+
+    dropQuestion(event: CdkDragDrop<string[]>, sectionIndex: number){
         const questionsArray = this.getSectionQuestions(sectionIndex);
         moveItemInArray(questionsArray.controls, event.previousIndex, event.currentIndex);
         questionsArray.updateValueAndValidity();
     }
 
-
+    dropOption(event: CdkDragDrop<any[]>, sIdx: number, qIdx: number) {
+        const optionsArray = this.getOptions(this.getSectionQuestions(sIdx).at(qIdx));
+        
+        // Check if trying to drop on 'Other' option
+        const targetOption = optionsArray.at(event.currentIndex);
+        if (targetOption.get('label')?.value === 'Other') return;
+        
+        moveItemInArray(optionsArray.controls, event.previousIndex, event.currentIndex);
+      
+        const updatedControls = optionsArray.controls.map(ctrl => ctrl);
+        optionsArray.clear();
+        updatedControls.forEach(ctrl => optionsArray.push(ctrl));
+    }
 
     addGridRow(sectionIndex: number, questionIndex: number) {
         const question = this.getSectionQuestions(sectionIndex).at(questionIndex) as FormGroup;
-      
+        
         let rows = question.get('rows') as FormArray;
         if (!rows) {
-          rows = this.fb.array([]);
-          question.addControl('rows', rows);
+            rows = this.fb.array([]);
+            question.addControl('rows', rows);
         }
+        
+        rows.push(this.fb.control(`Row ${rows.length+1}`));
+    }
       
-        rows.push(this.fb.control(''));
-      }
-      
-      addGridColumn(sectionIndex: number, questionIndex: number) {
+    addGridColumn(sectionIndex: number, questionIndex: number) {
         const question = this.getSectionQuestions(sectionIndex).at(questionIndex) as FormGroup;
-      
+        
         let columns = question.get('columns') as FormArray;
         if (!columns) {
-          columns = this.fb.array([]);
-          question.addControl('columns', columns);
+            columns = this.fb.array([]);
+            question.addControl('columns', columns);
         }
-      
-        columns.push(this.fb.control(''));
-      }
-      getNonEmptyGridItems(items: FormArray): number {
+        
+        columns.push(this.fb.control(`Column ${columns.length+1}`));
+    }
+
+    getNonEmptyGridItems(items: FormArray): number {
         return items.controls.filter(control => {
-          return control.value && control.value.trim() !== '';
+            return control.value && control.value.trim() !== '';
         }).length;
-      }      
+    }      
       
-      removeGridRow(sectionIndex: number, questionIndex: number, rowIndex: number) {
+    removeGridRow(sectionIndex: number, questionIndex: number, rowIndex: number) {
         const question = this.getSectionQuestions(sectionIndex).at(questionIndex);
         const rows = this.getRows(question);
         rows.removeAt(rowIndex);
-      }
+    }
       
-  
-      removeGridColumn(sectionIndex: number, questionIndex: number, colIndex: number) {
+    removeGridColumn(sectionIndex: number, questionIndex: number, colIndex: number) {
         const questions = this.getSectionQuestions(sectionIndex);
         const question = questions.at(questionIndex) as FormGroup;
         const columns = this.getColumns(question);
         columns.removeAt(colIndex);
-      }      
+    }      
   
-  getRows(question: AbstractControl): FormArray {
-    return question.get('rows') as FormArray;
-  }
+    getRows(question: AbstractControl): FormArray {
+        return question.get('rows') as FormArray;
+    }
+
+    getColumns(question: AbstractControl): FormArray {
+        return question.get('columns') as FormArray;
+    }
+    hasEmptyGridItem(array: FormArray): boolean {
+        return array.controls.some(control => !control.value?.trim());
+    }
   
-  getColumns(question: AbstractControl): FormArray {
-    return question.get('columns') as FormArray;
-  }
-  hasEmptyGridItem(array: FormArray): boolean {
-    return array.controls.some(control => !control.value?.trim());
-  }
-  
 
+    onSubmit(isTemplate: boolean = false) {
+        this.submitClicked = true;
+        // this.isQuestionInvalid = false;
 
-onSubmit(isTemplate: boolean = false) {
-    this.submitClicked = true;
-    if (!this.getTitleControl()?.value.trim()) return;
+        // Validating form fields
+        console.log("onsubmit called");
+        if((this.formBuilder.get('deadline')?.hasError('required') && !this.formBuilder.get('deadline')?.value )
+            || this.formBuilder.get('deadline')?.hasError('pastDate')) {
+            this.scrollToTarget('form-deadline', 'red');
+            return;
+        }
 
-    this.isQuestionInvalid = false;
-    this.singleOption = false;
-    let isOptionInvalid = false;
+        let sIdx = 0;
+        this.sections.controls.forEach(section => {
+            const questionsArray = (section.get('questions') as FormArray);
+            let qIdx = 0;
+            questionsArray.controls.forEach(control => {
+                if (control instanceof FormGroup) {
+                    const ques = control;
 
-    this.sections.controls.forEach(section => {
-        const questionsArray = (section.get('questions') as FormArray);
-        questionsArray.controls.forEach(control => {
-            if (control instanceof FormGroup) {
-                const ques = control;
-                const optionsArray = this.getOptions(ques);
-
-                    if (!this.getQuestionTextControl(ques)?.value.trim()) this.isQuestionInvalid = true;
+                    if (!this.getQuestionTextControl(ques)?.value.trim()) {
+                        this.isQuestionInvalid = true;
+                        this.scrollToTarget(`question-${sIdx}-${qIdx}`, 'red');
+                        
+                    }
 
                     const type = ques.get('type')?.value;
                     const rows = ques.get('rows') as FormArray;
@@ -560,41 +818,44 @@ onSubmit(isTemplate: boolean = false) {
                         const nonEmptyCols = columns?.controls.filter(colCtrl => colCtrl.value?.trim()) || [];
                         if (nonEmptyRows.length === 0 || nonEmptyCols.length === 0) {
                             this.isQuestionInvalid = true;
+                            this.scrollToTarget(`question-${sIdx}-${qIdx}`, 'red');
                         }
                     }
-                    // optionsArray.controls.forEach(optionControl => {
-                    //     if (((ques.get('type')?.value === "multipleChoice") || (ques.get('type')?.value === "dropdown"))
-                    //         &&
-                    //         (optionsArray.length < 2))
-                    //         this.singleOption = true;
-                    // });
                 }
+                qIdx++;
             });
+            sIdx++;
         });
 
-    if (this.isQuestionInvalid || isOptionInvalid || this.singleOption) return;
+        if (this.isQuestionInvalid) return;
 
-    if (this.formBuilder.valid) {
-        const payload = {
-            title: this.formBuilder.value.title,
-            description: this.formBuilder.value.description,
-            formSchema: {
-                sections: this.formBuilder.value.sections
+        if (this.formBuilder.valid) {
+            const payload = {
+                title: this.formBuilder.value.title,
+                description: this.formBuilder.value.description,
+                deadline: this.formBuilder.value.deadline,
+                formSchema: {
+                    sections: this.formBuilder.value.sections
+                }
+            };
+
+            console.log(payload);
+
+            // For saving template
+            if (isTemplate) {
+                this.formService.saveAsTemplate(payload).subscribe({
+                    next: () => {
+                        this.showTemplateSuccess = true;
+                        setTimeout(() => {
+                            this.router.navigate(['/form-template']);
+                        }, 2000);
+                    },
+                    error: (error) => console.error(error)
+                });
             }
-        };
 
-        if (isTemplate) {
-            this.formService.saveAsTemplate(payload).subscribe({
-                next: () => {
-                    this.showTemplateSuccess = true;
-                    setTimeout(() => {
-                        this.router.navigate(['/form-template']);
-                    }, 2000);
-                },
-                error: (error) => console.error(error)
-            });
-        } else {
-            if (this.formId) {
+            // For saving changes (edit-form)
+            else if (this.formId) {
                 this.formService.updateForm(this.formId, payload).subscribe({
                     next: () => {
                         this.submitSuccess = true;
@@ -607,7 +868,9 @@ onSubmit(isTemplate: boolean = false) {
                         console.error("Error updating form", error);
                     }
                 });
-            } else {
+            } 
+            // For saving new form 
+            else {
                 this.formService.addForm(payload);
                 this.submitSuccess = true;
                 setTimeout(() => {
@@ -615,8 +878,11 @@ onSubmit(isTemplate: boolean = false) {
                     this.router.navigate(['/forms']);
                 }, 3000);
             }
-        } }else {  // Move this else inside the main if block
-        console.log("Form is invalid");
+             
+        } 
+        else {  // Move this else inside the main if block
+            console.log("Form is invalid");
+        }
     }
-}
+
 }

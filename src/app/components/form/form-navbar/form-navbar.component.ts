@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-form-navbar',
@@ -11,12 +12,12 @@ export class FormNavbarComponent implements OnInit {
     @Output() saveAsTemplateClicked = new EventEmitter<void>();
 
     currentUrl!: string;
-    //* ******side drawer******
+    // side drawer
     isDrawerOpen: boolean = false;
     firstRender: boolean = true;
-
-    //* *****Profile Menu******
-    isProfileMenuOpen = false;
+    
+    isProfileMenuOpen: boolean = false;
+    isSaveMenuOpen = false;
 
     ngOnInit() {
         // using firstRender to remove side drawer from DOM until page is ready
@@ -34,6 +35,30 @@ export class FormNavbarComponent implements OnInit {
         });
     }
 
+    confirmNavigateAway(targetRoute: string) {
+        Swal.fire({
+            title: 'Do you want to save your changes?',
+            text: 'If you leave now, your unsaved changes will be lost.',
+            customClass: { popup: 'my-swal-z-index'},
+            icon: 'warning',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Save and Exit',
+            denyButtonText: `Don't Save`,
+            cancelButtonText: 'Go Back',
+            confirmButtonColor: '#3085d6',
+            denyButtonColor: '#d33',
+            cancelButtonColor: '#aaa'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.onSaveClick();  // save form
+                this.router.navigate([targetRoute]);
+            } else if (result.isDenied) {
+                this.router.navigate([targetRoute]);
+            }
+            // if canceled, do nothing
+        });
+    }
     //* Handling Form Title change
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
@@ -52,13 +77,13 @@ export class FormNavbarComponent implements OnInit {
         const input = event.target as HTMLInputElement;
         if (!input.value.trim()) {
             input.value = 'Untitled Form';
-            this.formTitleChange.emit('Untitled Form');
+            this.formTitleChange.emit(input.value);
         }
     }
     
     //* Handling publish button click
     @Output() publishClicked = new EventEmitter<void>();
-    onPublishClick(){
+    onSaveClick(){
         this.publishClicked.emit();
     }
 
@@ -73,11 +98,16 @@ export class FormNavbarComponent implements OnInit {
 
     // drawer function
     toggleDrawer(){
-        this.isDrawerOpen=!this.isDrawerOpen;
+        this.isDrawerOpen = !this.isDrawerOpen;
     }
 
     // profile menu function
     toggleProfileMenu() {
         this.isProfileMenuOpen = !this.isProfileMenuOpen;
+    }
+
+    // save menu function
+    toggleSaveMenu() {
+        this.isSaveMenuOpen = !this.isSaveMenuOpen;
     }
 }
