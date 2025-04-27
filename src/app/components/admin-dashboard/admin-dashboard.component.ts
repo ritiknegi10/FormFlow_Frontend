@@ -4,6 +4,8 @@ import { Component, OnInit } from '@angular/core';
      import { Form } from '../../models/form.model';
      import { Router } from '@angular/router';
      import { ScaleType } from '@swimlane/ngx-charts';
+     import { forkJoin } from 'rxjs';
+   import Swal from 'sweetalert2';
 
      @Component({
        selector: 'app-admin-dashboard',
@@ -23,6 +25,9 @@ import { Component, OnInit } from '@angular/core';
        fileCount: number = 0;
        adminError: string = '';
        isLoading: boolean = false;
+       allUsers: { email: string; isAdmin: boolean }[] = [];
+     loading = { stats: false, users: false };
+     errorMessage = '';
 
        // Chart data
        userPieData: any[] = [];
@@ -45,6 +50,7 @@ import { Component, OnInit } from '@angular/core';
 
        ngOnInit(): void {
          this.loadAllData();
+         this.loadUsers();
        }
 
        loadAllData(): void {
@@ -158,6 +164,93 @@ import { Component, OnInit } from '@angular/core';
            this.router.navigate(['/login']);
          }
        }
+
+       loadUsers(): void {
+        this.loading.users = true;
+        this.adminService.getAllUsers().subscribe({
+          next: (users) => {
+            this.allUsers = users;
+            this.loading.users = false;
+          },
+          error: (err) => {
+            this.errorMessage = err.message || 'Failed to load users';
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: this.errorMessage
+            });
+            this.loading.users = false;
+          }
+        });
+      }
+ 
+      makeAdmin(email: string): void {
+        Swal.fire({
+          title: 'Confirm Action',
+          text: `Make ${email} an admin?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Yes',
+          cancelButtonText: 'No'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.adminService.makeAdmin(email).subscribe({
+              next: (message) => {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Success',
+                  text: message
+                });
+                this.allUsers = this.allUsers.map(user =>
+                  user.email === email ? { ...user, isAdmin: true } : user
+                );
+              },
+              error: (err) => {
+                this.errorMessage = err.message || 'Failed to make admin';
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: this.errorMessage
+                });
+              }
+            });
+          }
+        });
+      }
+ 
+      removeAdmin(email: string): void {
+        Swal.fire({
+          title: 'Confirm Action',
+          text: `Remove admin status from ${email}?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Yes',
+          cancelButtonText: 'No'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.adminService.removeAdmin(email).subscribe({
+              next: (message) => {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Success',
+                  text: message
+                });
+                this.allUsers = this.allUsers.map(user =>
+                  user.email === email ? { ...user, isAdmin: false } : user
+                );
+              },
+              error: (err) => {
+                this.errorMessage = err.message || 'Failed to remove admin';
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: this.errorMessage
+                });
+              }
+            });
+          }
+        });
+      }
 
        private checkLoading(): void {
          this.isLoading = false;

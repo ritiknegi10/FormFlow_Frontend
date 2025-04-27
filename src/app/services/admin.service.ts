@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -125,5 +125,43 @@ export class AdminService {
         return throwError(() => new Error('Failed to fetch file count'));
       })
     );
+  }
+
+  getAllUsers(): Observable<{ email: string; isAdmin: boolean }[]> {
+    return this.http.get<{ email: string; isAdmin: boolean }[]>(`${this.apiUrl}/admin/all-users`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  makeAdmin(email: string): Observable<string> {
+    return this.http.put<string>(`${this.apiUrl}/admin/make-admin`, null, {
+      params: { email },
+      responseType: 'text' as 'json'
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  removeAdmin(email: string): Observable<string> {
+    return this.http.put<string>(`${this.apiUrl}/admin/remove-admin`, null, {
+      params: { email },
+      responseType: 'text' as 'json'
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'An error occurred';
+    if (error.status === 401) {
+      errorMessage = 'Unauthorized: Please log in again';
+    } else if (error.status === 403) {
+      errorMessage = error.error || 'Forbidden: Only admins can perform this action';
+    } else if (error.status === 404) {
+      errorMessage = error.error || 'User not found';
+    } else {
+      errorMessage = error.error || 'Server error';
+    }
+    return throwError(() => new Error(errorMessage));
   }
 }
