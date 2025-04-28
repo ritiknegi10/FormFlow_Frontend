@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
    import { FormService } from '../../services/form.service';
    import { ResponseService } from '../../services/response.service';
    import { ScaleType } from '@swimlane/ngx-charts';
+import Swal from 'sweetalert2';
 
    @Component({
      selector: 'app-assignment-details',
@@ -11,7 +12,7 @@ import { Component, OnInit } from '@angular/core';
    })
    export class AssignmentDetailsComponent implements OnInit {
      formId: number | null = null;
-     assignedUsers: { email: string; hasSubmitted: boolean; assignedAt?: string }[] = [];
+     assignedUsers: { email: string; hasSubmitted: boolean; assignedAt?: string; isSending?: boolean }[] = [];
      assignmentTrend: any[] = [];
      loading = { users: false, chart: false };
      errorMessage = '';
@@ -132,4 +133,36 @@ import { Component, OnInit } from '@angular/core';
      cancel(): void {
        this.router.navigate(['/forms']);
      }
+     // Add to component class
+sendUserReminder(userEmail: string): void {
+  if (!this.formId) return;
+
+  const user = this.assignedUsers.find(u => u.email === userEmail);
+  if (!user) return;
+
+  user.isSending = true;
+
+  this.formService.sendReminder(this.formId).subscribe({
+    next: (response) => {
+      user.isSending = false;
+      Swal.fire({
+        icon: 'success',
+        title: 'Reminder Sent!',
+        text: `Reminder email sent to ${userEmail}`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    error: (err) => {
+      user.isSending = false;
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to Send',
+        text: `Could not send reminder to ${userEmail}`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }
+  });
+}
    }
