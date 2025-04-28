@@ -3,6 +3,7 @@ import { FormService } from '../../../services/form.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { forkJoin } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-assigned-forms',
@@ -58,5 +59,35 @@ export class AssignedFormsComponent implements OnInit {
 
   viewAllResponses(formId: number): void {
     this.router.navigate([`/view-responses/${formId}`]);
+  }
+
+  sendReminder(formId: number) {
+    const form = this.forms.find(f => f.id === formId);
+    if (!form) return;
+  
+    form.isSendingReminder = true;
+    
+    this.formService.sendReminder(formId).subscribe({
+      next: (response) => {
+        form.isSendingReminder = false;
+        Swal.fire({
+          icon: 'success',
+          title: 'Reminders Sent',
+          text: response,
+          timer: 2000,
+          showConfirmButton: false
+        });
+      },
+      error: (err: any) => {
+        form.isSendingReminder = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to Send',
+          text: 'Could not send reminders. Please try again later.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+    });
   }
 }

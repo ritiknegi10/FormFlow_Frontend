@@ -304,4 +304,11 @@ removeViewersFromForm(formId: number, emails: string[]): Observable<string> {
     };
     return typeMapping[type] || "shortText";
   }
+
+  sendReminder(formId: number): Observable<string> {
+    return this.http.post<string>(
+      `${this.apiUrl}/${formId}/send-reminders`, 
+      null
+    );
+  }
 }
