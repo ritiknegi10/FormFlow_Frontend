@@ -675,7 +675,6 @@ export class FormHeroComponent implements OnInit{
                 label: ['Other'],
                 goToSection: [sectionIndex + 1]
             });
-            newOption.get('label')?.disable(); // Disable editing "Other"
             options.push(newOption);
              
         }
