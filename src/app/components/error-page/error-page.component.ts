@@ -27,7 +27,7 @@ export class ErrorPageComponent {
       }
       else if(this.ermsg==409){
         this.formTitle="Already Subimtted";
-        this.description="You can submit form once only."
+        this.description="You can only submit form once."
       }
       else{
         this.formTitle="Unexpected Error";
