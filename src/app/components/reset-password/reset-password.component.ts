@@ -10,7 +10,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class ResetPasswordComponent {
   resetForm: FormGroup;
-  token: string = ''; 
+  token: string = '';
+  isLoading: boolean = false;
+  submitClicked: boolean = false;
+  message: string = '';
+  error: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -35,27 +39,34 @@ export class ResetPasswordComponent {
   }
 
   onSubmit() {
+    this.submitClicked = true;
+    
     if (this.resetForm.valid) {
+      this.isLoading = true;
       const newPassword = this.resetForm.get('newPassword')?.value;
       const headers = new HttpHeaders().set('Reset-Token', this.token);
 
       this.http.post('http://localhost:8080/auth/reset-password', 
         { newPassword: newPassword }, 
-        { headers: headers, responseType: 'text' } 
+        { headers: headers, responseType: 'text' }
       ).subscribe({
         next: (response) => {
-          alert('Password reset successful!');
-          this.router.navigate(['/auth/login']);
+          this.message = response || 'Password reset successfully!';
+          this.error = '';
+          setTimeout(() => this.router.navigate(['/auth/login']), 2000);
         },
         error: (err) => {
-          // Handle cases where the backend responds with 200 but no body
-          if (err.status === 200) {
-            alert('Password reset successful!');
-            this.router.navigate(['/auth/login']);
-          } else {
-            console.error(err);
-            alert('Error resetting password: ' + (err.error?.message || 'Please try again'));
+          this.message = '';
+          this.error = err.error?.message || 'Error resetting password. Please try again.';
+          
+          if (err.status === 200) { // Handle empty response
+            this.message = 'Password reset successfully!';
+            setTimeout(() => this.router.navigate(['/auth/login']), 2000);
           }
+        },
+        complete: () => {
+          this.isLoading = false;
+          this.resetForm.reset();
         }
       });
     }
