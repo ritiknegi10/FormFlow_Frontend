@@ -133,8 +133,8 @@ import Swal from 'sweetalert2';
      cancel(): void {
        this.router.navigate(['/forms']);
      }
-     // Add to component class
-sendUserReminder(userEmail: string): void {
+
+     sendUserReminder(userEmail: string): void {
   if (!this.formId) return;
 
   const user = this.assignedUsers.find(u => u.email === userEmail);

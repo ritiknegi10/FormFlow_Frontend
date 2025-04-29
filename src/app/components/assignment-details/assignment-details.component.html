@@ -1,6 +1,5 @@
 <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
   <div class="max-w-5xl mx-auto">
-    <!-- Header -->
     <div class="text-center mb-12">
       <div class="mb-6 animate-bounce">
         <svg class="w-16 h-16 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,16 +13,12 @@
       <p class="text-lg text-gray-600 mt-3">View assignment trends and assigned users</p>
     </div>
 
-    <!-- Single Box Container -->
     <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-8">
-      <!-- Error Message -->
       <div *ngIf="errorMessage" class="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
         {{ errorMessage }}
       </div>
 
-      <!-- Flexbox for Line Chart and Assignment Details -->
       <div class="flex flex-col gap-6">
-        <!-- Line Chart Container -->
         <div class="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
           <h3 class="text-2xl font-semibold text-gray-800 mb-4">Assignment Trends</h3>
           <div *ngIf="loading.chart" class="text-center py-4">
@@ -38,7 +33,6 @@
           </div>
         </div>
 
-        <!-- Assignment Details Container -->
         <div class="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
@@ -53,8 +47,7 @@
             </span>
           </div>
 
-          <!-- User List -->
-          <!-- User List -->
+
           <div *ngIf="assignedUsers.length > 0; else noUsers" class="space-y-4">
             <div *ngFor="let user of assignedUsers"
               class="group p-6 bg-white border-2 border-gray-100 rounded-xl hover:border-indigo-100 transition-all shadow-sm hover:shadow-md">
@@ -68,7 +61,6 @@
                     Assigned: {{ user.assignedAt | date:'medium' }}
                   </p>
                 </div>
-                <!-- Add bell icon here -->
                 <button (click)="sendUserReminder(user.email)" [disabled]="user.isSending || user.hasSubmitted"
                   class="p-2 text-gray-400 hover:text-indigo-600 ml-4" title="Send reminder to this user">
                   <svg *ngIf="!user.isSending" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +79,6 @@
             </div>
           </div>
 
-          <!-- Empty State for No Users -->
           <ng-template #noUsers>
             <div class="text-center py-12">
               <div class="mb-4 text-gray-400">
@@ -102,7 +93,6 @@
         </div>
       </div>
 
-      <!-- Cancel Button -->
       <div class="mt-6 text-center">
         <button (click)="cancel()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
           Back to Forms
