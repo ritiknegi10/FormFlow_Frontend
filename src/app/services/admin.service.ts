@@ -127,14 +127,17 @@ export class AdminService {
     );
   }
 
-  getAllUsers(): Observable<{ email: string; isAdmin: boolean }[]> {
-    return this.http.get<{ email: string; isAdmin: boolean }[]>(`${this.apiUrl}/admin/all-users`).pipe(
+  getAllUsers(): Observable<{ email: string; isAdmin: boolean; username: string }[]> {
+    const headers = this.getHeaders();
+    return this.http.get<{ email: string; isAdmin: boolean; username: string }[]>(`${this.apiUrl}/admin/all-users`, { headers }).pipe(
       catchError(this.handleError)
     );
   }
 
   makeAdmin(email: string): Observable<string> {
+    const headers = this.getHeaders();
     return this.http.put<string>(`${this.apiUrl}/admin/make-admin`, null, {
+      headers,
       params: { email },
       responseType: 'text' as 'json'
     }).pipe(
@@ -143,7 +146,9 @@ export class AdminService {
   }
 
   removeAdmin(email: string): Observable<string> {
+    const headers = this.getHeaders();
     return this.http.put<string>(`${this.apiUrl}/admin/remove-admin`, null, {
+      headers,
       params: { email },
       responseType: 'text' as 'json'
     }).pipe(
