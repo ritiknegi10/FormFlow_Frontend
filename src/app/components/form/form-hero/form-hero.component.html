@@ -1,47 +1,50 @@
 <div class="select-none min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
 
+    <!-- FORM NAVIGATION -->
+
     <!-- show/hide button -->
     <div class="flex items-center justify-end fixed z-[90] right-0 top-16 w-72 max-h-screen">
-      <button (click)="showFormNavigation = !showFormNavigation"
-        class="py-1.5 px-2 bg-gray-100 w-full relative flex items-center border border-gray-300"
-        [ngClass]="{'rounded-b-lg': !showFormNavigation, 'shadow-sm': !showFormNavigation }">
-        <div *ngIf="showFormNavigation">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7 14l5-5 5 5H7z" />
-          </svg>
-        </div>
-        <div *ngIf="!showFormNavigation">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7 10l5 5 5-5H7z" />
-          </svg>
-        </div>
-        <span class="font-semibold text-gray-700">Form Navigation</span> 
-      </button>
+        <button (click)="showFormNavigation = !showFormNavigation"
+            class="py-1.5 px-2 bg-gray-100 w-full relative flex items-center border border-gray-300"
+            [ngClass]="{'rounded-b-lg': !showFormNavigation, 'shadow-sm': !showFormNavigation }">
+            <div *ngIf="showFormNavigation">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 14l5-5 5 5H7z" />
+                </svg>
+            </div>
+            <div *ngIf="!showFormNavigation">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 10l5 5 5-5H7z" />
+                </svg>
+            </div>
+            <span class="font-semibold text-gray-700">Form Navigation</span> 
+        </button>
     </div>
+
     <!-- navigation div -->
     <div class="fixed z-[80] -mt-1 w-72 right-0 overflow-auto max-h-[calc(100vh-6rem)] p-6 bg-white border border-gray-200 rounded-bl-2xl shadow-xl transform transition-transform duration-500"
-    [ngClass]="{ 'translate-y-0': showFormNavigation, '-translate-y-full': !showFormNavigation}">
-    <div cdkDropList class="space-y-2" (cdkDropListDropped)="dropSection($event)">
-        <div *ngFor="let section of sections.controls; let sIdx = index" cdkDrag cdkDragLockAxis="y">
-          <div cdkDragHandle class="font-medium text-indigo-700 mb-2 truncate max-w-[160px]">
-            {{ (sIdx + 1) + '. ' + (sIdx===0 ? formTitle : (getSectionTitleControl(section)?.value || '')) }}
-          </div>
-          <!-- questions -->
-          <div *ngFor="let question of getQuestionsControl(section).controls; let i = index"
-              (click)="scrollToTarget('question-' + sIdx + '-' + i, 'indigo')"
-              class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-100 p-2 rounded-lg">
-              <span class="w-5 h-5 bg-indigo-100 text-indigo-600 font-semibold rounded-full flex items-center justify-center text-xs">
-                {{ i + 1 }}
-              </span>
-              <span class="text-gray-600 truncate max-w-[160px]">
-                {{ getQuestionTextControl(question)?.value || 'New Question' }}
-              </span>
-          </div>
+        [ngClass]="{ 'translate-y-0': showFormNavigation, '-translate-y-full': !showFormNavigation}">
+        <div cdkDropList class="space-y-2" (cdkDropListDropped)="dropSection($event)">
+            <div *ngFor="let section of sections.controls; let sIdx = index" cdkDrag cdkDragLockAxis="y">
+                <div cdkDragHandle class="font-medium text-indigo-700 mb-2 truncate max-w-[160px]">
+                    {{ (sIdx + 1) + '. ' + (sIdx===0 ? formTitle : (getSectionTitleControl(section)?.value || '')) }}
+                </div>
+                <!-- questions -->
+                <div *ngFor="let question of getQuestionsControl(section).controls; let i = index"
+                    (click)="scrollToTarget('question-' + sIdx + '-' + i, 'indigo')"
+                    class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-100 p-2 rounded-lg">
+                    <span class="w-5 h-5 bg-indigo-100 text-indigo-600 font-semibold rounded-full flex items-center justify-center text-xs">
+                        {{ i + 1 }}
+                    </span>
+                    <span class="text-gray-600 truncate max-w-[160px]">
+                        {{ getQuestionTextControl(question)?.value || 'New Question' }}
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
-  </div>
 
-
+    <!-- FORM CONTAINER -->
     <div class="max-w-[52rem] mx-auto">
 
         <!-- FORM START -->
@@ -539,7 +542,7 @@
                                                         class="text-gray-500 font-semibold">✔</span>
                                                     Question description
                                                 </li>
-                                                <li (click)="togglesectionBasedonAnswer(sIdx, qIdx)"
+                                                <li (click)="toggleSectionBasedonAnswer(sIdx, qIdx)"
                                                     *ngIf="question.get('type')?.value==='multipleChoice' || question.get('type')?.value==='dropdown'"
                                                     class="px-4 py-2 cursor-pointer hover:bg-gray-200"
                                                     [ngClass]="{'bg-slate-200': question.get('sectionBasedonAnswer')?.value}">

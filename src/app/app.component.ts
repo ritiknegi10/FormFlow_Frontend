@@ -25,7 +25,7 @@ export class AppComponent {
         .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe((event: any) => {
             // hide app component on /create
-            this.formCreatorOrEditor = (event.url === '/create' || event.url?.startsWith('/edit'));
+            this.formCreatorOrEditor = (event.url?.startsWith('/create') || event.url?.startsWith('/edit'));
         });
   }
 

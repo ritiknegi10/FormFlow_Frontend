@@ -32,7 +32,7 @@ export class FormHeroComponent implements OnInit{
     ratingOptions = Array.from({ length: 8 }, (_, i) => i + 3);
     scalingOptions = Array.from({ length: 6 }, (_, i) => i + 5);
     minDateTime!: string;
-    currentUrl!: String;
+    currentUrl!: string;
 
     // Flags
     showTemplateSuccess = false;
@@ -82,7 +82,7 @@ export class FormHeroComponent implements OnInit{
         this.updateDeadlineValidator();
         this.setMinDateTime();
 
-        // if you're editing an existing form, fetch data
+        // if you're editing an existing form/template, fetch data
         const urlParts = this.router.url.split('/');
         this.route.queryParams.subscribe(params => {
 
@@ -103,6 +103,7 @@ export class FormHeroComponent implements OnInit{
                         deadline: form.deadline
                     });
 
+                    // Show deadline if present
                     if(form.deadline) {
                         this.isDeadline = true;
                         this.formBuilder.get('deadline')?.updateValueAndValidity();
@@ -112,15 +113,12 @@ export class FormHeroComponent implements OnInit{
                     // Send form title to navbar component
                     this.formTitleChange.emit(form.title);
 
-                    // console.log(form);
                     const parsedSchema = JSON.parse(form.formSchema);
-                    // console.log(JSON.stringify(parsedSchema));
-                    console.log(form);
 
                     const sectionsArray = (parsedSchema.sections || []).map((section: any, sIdx: number) => {
                         const questions = section.questions.map((field: any, qIdx: number) => {
 
-                            if(field.description) {
+                            if(field.questionDescription) {
                                 this.showQuestionDescription[sIdx][qIdx] = true;
                             }
 
@@ -146,9 +144,7 @@ export class FormHeroComponent implements OnInit{
                                 fileUrl: [field.fileUrl || ''], 
                             });
                         });
-                        if (!this.showQuestionDescription[sIdx]) this.showQuestionDescription[sIdx] = {};
-                        if (!this.questionTypeDropdown[sIdx]) this.questionTypeDropdown[sIdx] = {};
-                        if (!this.collapseQuestionMap[sIdx]) this.collapseQuestionMap[sIdx] = {};
+                        
                         return this.fb.group({
                             sectionTitle: section.sectionTitle,
                             sectionDescription: section.sectionDescription,
@@ -158,7 +154,7 @@ export class FormHeroComponent implements OnInit{
                     });
                     this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
                     
-                    // Initialise map properties
+                    // Initialise mapping properties
                     this.selectedTypes = parsedSchema.sections.map((section: any) => 
                         section.questions.map((question: any) => {
                         const found = this.questionTypes.find(q => q.type === question.type);
@@ -166,6 +162,9 @@ export class FormHeroComponent implements OnInit{
                         })
                     );
                     this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
+                        section.questions.map(() => false)
+                    );
+                    this.showQuestionDescription = parsedSchema.sections.map((section: any) => 
                         section.questions.map(() => false)
                     );
                     this.collapseQuestionMap = parsedSchema.sections.map((section: any) => 
@@ -195,7 +194,7 @@ export class FormHeroComponent implements OnInit{
                 const parsedSchema = typeof form.formSchema === 'string' ? JSON.parse(form.formSchema) : form.formSchema;
         
                 // Rebuild sections
-                parsedSchema.sections.forEach((section: any) => {
+                parsedSchema.sections.forEach((section: any, sIdx: number) => {
                     const newSection = this.fb.group({
                         sectionTitle: section.sectionTitle,
                         sectionDescription: section.sectionDescription,
@@ -203,44 +202,57 @@ export class FormHeroComponent implements OnInit{
                         questions: this.fb.array([])
                     });
         
-                    section.questions.forEach((question: any) => {
+                    section.questions.forEach((question: any, qIdx: number) => {
                         const questionGroup = this.fb.group({
-                        questionText: question.questionText,
-                        questionDescription: question.questionDescription,
-                        type: question.type,
-                        required: question.required,
-                        sectionBasedonAnswer: question.sectionBasedonAnswer,
-                        options: this.fb.array(
-                            (question.options || []).map((opt: any) =>
-                            this.fb.group({
-                                label: opt.label,
-                                goToSection: opt.goToSection
-                            })
-                            )
-                        ),
-                        rating: question.rating || 5,
-                        startValue: [question.startValue ?? 0],
-                        endValue: [question.endValue ?? 5],
-                        rows: this.fb.array(question.rows || []),         
-                        columns: this.fb.array(question.columns || []),   
-                        fileUrl: [question.fileUrl || ''], 
+                            questionText: question.questionText,
+                            questionDescription: question.questionDescription,
+                            type: question.type,
+                            required: question.required,
+                            sectionBasedonAnswer: question.sectionBasedonAnswer,
+                            options: this.fb.array(
+                                (question.options || []).map((opt: any) =>
+                                this.fb.group({
+                                    label: opt.label,
+                                    goToSection: opt.goToSection
+                                })
+                                )
+                            ),
+                            rating: question.rating || 5,
+                            startValue: [question.startValue ?? 0],
+                            endValue: [question.endValue ?? 5],
+                            rows: this.fb.array(question.rows || []),         
+                            columns: this.fb.array(question.columns || []),   
+                            fileUrl: [question.fileUrl || ''], 
                     
-                });
-                    
-                (newSection.get('questions') as FormArray).push(questionGroup);
-            });
+                        });
+
+                        if(question.questionDescription) {
+                            this.showQuestionDescription[sIdx][qIdx] = true;
+                        }
+                        
+                        (newSection.get('questions') as FormArray).push(questionGroup);
+                    });
         
-                this.sections.push(newSection);
-        });
+                    this.sections.push(newSection);
+                });
         
                 this.formBuilder.patchValue({
                     title: form.title + ' (Copy)',
                     description: form.description,
                     deadline: form.deadline
                 });
-                this.formFetched = true;
 
-                // Initialise map properties
+                // Send form title to navbar
+                this.formTitleChange.emit(form.title + ' (Copy)');
+
+                // Show deadline if present
+                if(form.deadline) {
+                    this.isDeadline = true;
+                    this.formBuilder.get('deadline')?.updateValueAndValidity();
+                }
+                this.updateDeadlineValidator();
+
+                // Initialise mapping properties
                 this.selectedTypes = parsedSchema.sections.map((section: any) => 
                     section.questions.map((question: any) => {
                         const found = this.questionTypes.find(q => q.type === question.type);
@@ -250,9 +262,14 @@ export class FormHeroComponent implements OnInit{
                 this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
                     section.questions.map(() => false)
                 );
+                this.showQuestionDescription = parsedSchema.sections.map((section: any) => 
+                    section.questions.map(() => false)
+                );
                 this.collapseQuestionMap = parsedSchema.sections.map((section: any) => 
                     section.questions.map(() => false)
                 );
+
+                this.formFetched = true;
                 
             },
             error: (err) => {
@@ -292,11 +309,9 @@ export class FormHeroComponent implements OnInit{
 
     static futureDateValidator(control: AbstractControl): ValidationErrors | null {
         if (!control.value) return null;
-      
         const selectedDate = new Date(control.value);
         const now = new Date();
-        
-        // console.log("future validator", selectedDate);
+
         return selectedDate > now ? null : { pastDate: true };
     }
 
@@ -326,7 +341,6 @@ export class FormHeroComponent implements OnInit{
         }
     }
 
-    // navigate to question from form navigation
     scrollToTarget(targetId: string, color: string): void {
 
         const el = document.getElementById(targetId);
@@ -387,7 +401,7 @@ export class FormHeroComponent implements OnInit{
         this.updateDeadlineValidator();
     }
 
-    togglesectionBasedonAnswer(sectionIndex: number, questionIndex: number){
+    toggleSectionBasedonAnswer(sectionIndex: number, questionIndex: number) {
         const question = (this.sections.at(sectionIndex).get('questions') as FormArray).at(questionIndex) as FormGroup;
         
         const currentVal = question.get('sectionBasedonAnswer')?.value || false;
