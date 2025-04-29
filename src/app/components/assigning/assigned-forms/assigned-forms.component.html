@@ -29,39 +29,14 @@
                 <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <div *ngFor="let form of forms"
                         class="bg-white border-2 border-gray-100 rounded-xl p-6 hover:border-indigo-100 transition-all shadow-sm hover:shadow-md">
-                        <!-- <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-start justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-800 truncate">{{ form.title }}</h3>
                             <div class="flex items-center gap-2">
                                 <span *ngIf="form.hasSubmitted"
                                     class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">Submitted</span>
                             </div>
-                        </div> -->
-                        <div class="flex items-start justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-gray-800 truncate">{{ form.title }}</h3>
-                            <div class="flex items-center gap-2">
-                                <button (click)="sendReminder(form.id)"
-                                    class="p-1 text-gray-400 hover:text-indigo-600 relative"
-                                    [disabled]="form.isSendingReminder" title="Send reminder to assigned users">
-                                    <svg *ngIf="!form.isSendingReminder" class="w-5 h-5" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                    </svg>
-                                    <svg *ngIf="form.isSendingReminder" class="animate-spin h-5 w-5 text-indigo-600"
-                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                            stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                        </path>
-                                    </svg>
-                                </button>
-                                <span *ngIf="form.hasSubmitted"
-                                    class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
-                                    Submitted
-                                </span>
-                            </div>
                         </div>
+
                         <p class="text-gray-600 text-sm mb-4 truncate">{{ form.description || 'No description provided'
                             }}</p>
 
