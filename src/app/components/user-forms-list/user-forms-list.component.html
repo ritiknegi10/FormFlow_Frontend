@@ -10,56 +10,69 @@
             <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 My Submissions
             </h2>
-            <p class="text-lg text-gray-600 mt-3">Review your submitted forms and responses</p>
+            <p class="text-lg text-indigo-500/90 mt-3">Review your submitted forms and responses</p>
         </div>
 
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-8">
-            <div *ngIf="noSubmissions" class="text-center py-12">
-                <div class="mb-6 text-indigo-400">
-                    <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/70 p-8">
+            <div *ngIf="noSubmissions" class="text-center py-12 space-y-6">
+                <div class="text-indigo-400/70 mx-auto w-32 h-32">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
                     </svg>
                 </div>
-                <p class="text-gray-600 mb-4">No submissions found</p>
-                <a routerLink="/available-forms" class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg 
-                          transition-transform transform hover:-translate-y-0.5 shadow-sm hover:shadow-md">
+                <div class="space-y-2">
+                    <p class="text-gray-600 font-medium">No submissions found</p>
+                    <p class="text-sm text-gray-500 max-w-md mx-auto">Forms you submit will appear here with response
+                        details and history.</p>
+                </div>
+                <a routerLink="/available-forms" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg 
+                          hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
                     </svg>
-                    Browse Forms
+                    Browse Available Forms
                 </a>
             </div>
 
             <div *ngIf="!noSubmissions" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div *ngFor="let submission of submittedForms" class="group bg-white border-2 border-gray-100 rounded-xl hover:border-indigo-100 
-                            transition-all shadow-sm hover:shadow-md p-6">
+                <div *ngFor="let submission of submittedForms"
+                    class="group bg-white border-2 border-gray-100 rounded-xl p-6 hover:border-indigo-100 transition-all duration-300 shadow-sm hover:shadow-md">
                     <div class="flex items-start justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800 truncate">{{ submission.formTitle }}</h3>
-                        <span class="bg-purple-100 text-purple-600 px-2 py-1 rounded-full text-xs">
-                            {{ submission.submissionDate | date:'shortDate' }}
-                        </span>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-800 truncate flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                {{ submission.formTitle }}
+                            </h3>
+                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="font-medium">Submitted:</span>
+                                <span class="ml-1 text-purple-600">{{ submission.submissionDate | date:'mediumDate'
+                                    }}</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-                        <div class="flex gap-2">
-                            <button (click)="viewResponse(submission.formId)"
-                                class="p-2 hover:bg-gray-100 rounded-lg text-indigo-600 tooltip">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                                <span class="tooltip-text">View Response</span>
-                            </button>
-                        </div>
+                    <div class="mt-6 pt-4 border-t border-gray-100">
+                        <button (click)="viewResponse(submission.formId)" class="w-full px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg 
+                                       hover:shadow-lg transition-all duration-300 flex items-center justify-center">
+                            View Full Response
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-
-
     </div>
 </div>
