@@ -16,10 +16,11 @@ export class AssigningComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    window.scrollTo(0, 0);
     this.formId = +this.route.snapshot.paramMap.get('id')!;
   }
 
   navigateBack(): void {
-    this.router.navigate(['/forms', this.formId]);
+    this.router.navigate(['/forms']);
   }
 }
