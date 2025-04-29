@@ -14,6 +14,7 @@ export class LoginComponent {
   submitClicked: boolean = false;
   captchaVerified: boolean = false;
   captchaErrorMessage: string = '';
+  showPassword: boolean = false;
 
   constructor(
     public authService: AuthService,
@@ -26,6 +27,11 @@ export class LoginComponent {
     
   }
 
+  togglePasswordView(state: boolean, event: Event) {
+    event.preventDefault();
+    this.showPassword = state;
+  }
+  
   onSubmit() {
     this.submitClicked = true;
     if (!this.captchaVerified) {

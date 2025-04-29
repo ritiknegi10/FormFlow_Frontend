@@ -1,3 +1,6 @@
+<!-- CHANGE DEADLINE POPUP -->
+
+<!-- Page Overlay -->
 <div *ngIf="isChangeDeadlinePopUp" (click)="closeChangeDeadlinePopUp()"
     class="fixed inset-0 bg-black/60 z-[900] transition-opacity duration-300" 
     [ngClass]="{
@@ -6,6 +9,7 @@
     }">
 </div>
 
+<!-- PopUp -->
 <div *ngIf="isChangeDeadlinePopUp" class="px-8 py-6 w-[75vw] sm:w-[30rem] fixed top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 rounded-2xl bg-white shadow-lg z-[1000]">
     <div class="flex items-center justify-between pb-3 mb-6 border-b border-gray-300">
         
@@ -71,8 +75,10 @@
             rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">Update</button>
     </div>
 </div>
+
+<!-- BACK TO MY FORMS BUTTON -->
 <div class="absolute top-20 left-4 bg-transparent">
-    <button class="px-3 py-2 font-medium rounded-full bg-violet-200 hover:bg-violet-300 text-purple-800">
+    <button class="px-3 py-2 font-medium rounded-full bg-violet-100 hover:bg-violet-200 text-purple-800">
         <a routerLink="/forms" class="flex">
             <svg class="w-6 h-6 text-purple-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
@@ -82,6 +88,8 @@
         
     </button>
 </div>
+
+<!-- MAIN CONTENT -->
 <div class="select-none min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
     <div class="max-w-5xl mx-auto">
 
