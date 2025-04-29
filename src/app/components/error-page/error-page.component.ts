@@ -26,8 +26,8 @@ export class ErrorPageComponent {
         this.description="This form is currently not available"
       }
       else if(this.ermsg==409){
-        this.formTitle="Subimtted";
-        this.description="You have already submitted this form"
+        this.formTitle="Already Subimtted";
+        this.description="You can submit form once only."
       }
       else{
         this.formTitle="Unexpected Error";
