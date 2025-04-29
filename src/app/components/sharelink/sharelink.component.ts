@@ -52,7 +52,7 @@ export class SharelinkComponent implements OnInit {
                     else if (error.status === 403)
                         this.router.navigate(['/error', 403]);
                     else if (error.status === 409)
-                        this.router.navigate(['/submit', this.loadedForm.get('title')]); //!---***---
+                        this.router.navigate(['/error', 409]); //!---***---
                 }
             });
 
@@ -134,7 +134,6 @@ export class SharelinkComponent implements OnInit {
             this.currentSectionIndex--;
             window.scroll(0,0);
         }
-
     }
 
     getratingRange(question: any): number[]{
@@ -201,8 +200,6 @@ export class SharelinkComponent implements OnInit {
     }
 
     onSubmit(){
-        // console.log("responses", this.responses)
-        // console.log("submit button clicked");
 
         const mappedResponse = this.sections.map((section: any, sIdx: number) => {
             const questions = section.questions.map((question: any, qidx: number) => {
@@ -218,12 +215,14 @@ export class SharelinkComponent implements OnInit {
             };
         });
         this.responseService.submitResponse(this.formId, JSON.stringify(mappedResponse)).subscribe({
-            next: (res) => console.log('Response submitted successfully', res),
-            error: (err) => console.error('Submission error:', err)
+            next: (res) => {
+                console.log('Response submitted successfully', res);
+                this.router.navigate(['/submit', this.loadedForm.get('title')?.value], { replaceUrl: true });
+            },
+            error: (err) => {
+                console.error('Submission error:', err)
+                this.router.navigate(['/error', err.status]);
+            }
         });
-        this.router.navigate(['/submit',this.loadedForm.get('title')?.value], { replaceUrl: true });
-        // console.log("Submit button clicked2");
-        // console.log("mapped response");
-        // console.log(mappedResponse);
     }
 }
