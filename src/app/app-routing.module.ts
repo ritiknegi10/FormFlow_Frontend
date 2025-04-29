@@ -70,14 +70,14 @@ const routes: Routes = [
   { path: 'faq', component: FaqComponent },
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard] },
   { path: 'submit/:title', component: SubmitPageComponent, canActivate: [AuthGuard] },
-  { path: 'error/:msg', component: ErrorPageComponent,canActivate: [AuthGuard]},  
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [AdminGuard] },
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard] },
+
 
   
   { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
   { path: 'form-template', component: FormTemplateComponent, canActivate: [AuthGuard] },
   { path: 'form-preview', component: FormPreviewComponent },
-  { path: '**', redirectTo: '' } // make sure this line is always at last else it wont allow routing to new paths
+  { path: '**', redirectTo: '' } 
 ];
 
 @NgModule({
