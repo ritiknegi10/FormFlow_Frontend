@@ -17,6 +17,7 @@ import { FaqComponent } from './components/faq/faq.component';
 import { SharelinkComponent } from './components/sharelink/sharelink.component';
 import { SubmitPageComponent } from './components/submit-page/submit-page.component';
 import { AuthGuard } from './guards/auth.guard';
+import { AdminGuard } from './guards/admin.guard';
 import { SignOutComponent } from './components/sign-out/sign-out.component';
 import { UserFormsListComponent } from './components/user-forms-list/user-forms-list.component';
 import { OtpComponent } from './components/otp/otp.component';
@@ -33,6 +34,7 @@ import { AssignViewersComponent } from './components/assigning/assign-viewers/as
 import { AssignedViewersComponent } from './components/assigning/assigned-viewers/assigned-viewers.component';
 import { AssigningComponent } from './components/assigning/assigning.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -67,8 +69,11 @@ const routes: Routes = [
   { path: 'about', component: AboutUsComponent },
   { path: 'faq', component: FaqComponent },
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard] },
-  { path: 'submit/:title', component: SubmitPageComponent },
-  { path: 'error/:msg', component: ErrorPageComponent},  
+  { path: 'submit/:title', component: SubmitPageComponent, canActivate: [AuthGuard] },
+  { path: 'error/:msg', component: ErrorPageComponent,canActivate: [AuthGuard]},  
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [AdminGuard] },
+
+  
   { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },
   { path: 'form-template', component: FormTemplateComponent, canActivate: [AuthGuard] },
   { path: 'form-preview', component: FormPreviewComponent },

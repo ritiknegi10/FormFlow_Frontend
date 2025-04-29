@@ -29,6 +29,9 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RecaptchaModule } from 'ng-recaptcha';
 import { FormModule } from "./components/form/form.module";
 import { FormPreviewComponent } from './components/form-preview/form-preview.component';
+import { CommonModule } from '@angular/common';
+import {AdminDashboardComponent} from './components/admin-dashboard/admin-dashboard.component'
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -76,6 +79,7 @@ import { ProfileComponent } from './components/profile/profile.component';
     FormTemplateComponent,
     AnalyticsChartsComponent,
     AssignmentDetailsComponent,
+    AdminDashboardComponent,
     ErrorPageComponent,
     AssignedViewersComponent,
     AssignViewersComponent,
@@ -91,7 +95,9 @@ import { ProfileComponent } from './components/profile/profile.component';
     DragDropModule,
     RecaptchaModule,
     FormModule,
-    NgxChartsModule
+    NgxChartsModule,
+    CommonModule,
+    BrowserAnimationsModule
 ],
     
 
