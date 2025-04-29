@@ -1,1 +1,13 @@
+// .stars i {
+//     font-size: 36px;
+//     color: rgb(204, 204, 204);
+//     cursor: pointer;
+//     transition: color 0.2s;
+// }
+.stars i.fill{
+    color: #d1d5db;
+}
 
+.stars i.filled{
+    color: #f4c150
+}

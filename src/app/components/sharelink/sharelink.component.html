@@ -252,7 +252,255 @@
 
   </div>
 </div> -->
-<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 py-6 px-6 sm:px-12 lg:px-20">
+
+<div *ngIf="isFormLoaded" class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 py-6 px-6 sm:px-12 lg:px-20">
+    <form  #formRef="ngForm" (ngSubmit)="onSubmit()">
+        <div class="max-w-3xl mx-auto rounded-lg bg-white shadow-2xl border-2 border-indigo-100">
+            <div class="bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-800 p-6 mb-4 rounded-t-lg">
+                <h1 class="text-white text-3xl font-medium tracking-wide">{{ loadedForm.get('title')?.value }}</h1>
+                <h4 class="text-white text-md" [ngClass]="{'pt-4': loadedForm.get('description')?.value}">{{ loadedForm.get('description')?.value }}</h4>
+            </div>
+
+            <div class="p-4">
+                <div *ngIf="currentSectionIndex != 0"
+                    class="p-4 mb-5 text-purple-800 border-l-8 border-l-purple-800 shadow-md shadow-purple-200">
+                    <h2 class="text-2xl font-medium ">{{ sections[currentSectionIndex].sectionTitle }}</h2>
+                    <h4 class="text-md text-purple-700" [ngClass]="{'pt-2': sections[currentSectionIndex].sectionDescription}">
+                        {{ sections[currentSectionIndex].sectionDescription }}
+                    </h4>
+                </div>
+
+                <div *ngFor="let question of sections[currentSectionIndex].questions; let qIdx=index">
+                    <div class="shadow-md border border-gray-200 p-6 mb-3" >
+                        <div class="text-lg font-medium mb-5">
+                            <span>{{ question.questionText }}</span>
+                            <span *ngIf="question.required" class="text-red-600 ml-1">*</span>
+                            <p class="text-sm pt-2 font-mono">{{ question.questionDescription }}</p>
+                        </div>
+                        <div>
+
+                        </div>
+                        <div [ngSwitch]="question.type">
+                            <div *ngSwitchCase="'shortText'">
+                                <input type="text" placeholder="Your answer"
+                                [(ngModel)]="responses[currentSectionIndex][qIdx]"
+                                name="shortText {{currentSectionIndex}}{{qIdx}}"
+                                class="w-1/2 p-1 bg-transparent border-b-2 border-gray-300 focus:outline-none focus:border-purple-700">
+                            </div>
+                            <div *ngSwitchCase="'paragraph'">
+                                <textarea #textArea rows="1" placeholder="Your answer"
+                                    (input)="textArea.style.height = 'auto'; textArea.style.height = textArea.scrollHeight + 'px';"
+                                    (focus)="textArea.setSelectionRange(0, 0)"
+                                    [(ngModel)]="responses[currentSectionIndex][qIdx]"
+                                    name="paragraph {{currentSectionIndex}}{{qIdx}}"
+                                    class="w-full p-1 bg-transparent border-b-2 border-gray-300 focus:outline-none focus:border-purple-700 resize-none overflow-hidden"
+                                ></textarea>
+                            </div>
+                            <div *ngSwitchCase="'multipleChoice'" class="space-y-3">
+                                <div *ngFor="let option of question.options">
+                                <label class="flex items-center gap-2 cursor-pointer relative">
+                                    <input type="radio" [value]="option.label" 
+                                        [(ngModel)]="responses[currentSectionIndex][qIdx]" 
+                                        name="multipleChoice {{currentSectionIndex}}{{qIdx}}"
+                                        (change)="onAnswerSelected(option, question)"
+                                        class="cursor-pointer peer hidden">
+                                    <div class="w-5 h-5 rounded-full border-2 border-gray-400 peer-checked:border-purple-600 flex items-center justify-center"></div>
+                                    <div class="w-3 h-3 absolute left-1 bg-purple-700 rounded-full opacity-0 scale-0 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-200 ease-out"></div>
+                                    <span>{{ option.label }}</span>
+                                </label>
+                                </div>
+                            </div>
+                            <div *ngSwitchCase="'checkboxes'" class="space-y-3">
+                                <div *ngFor="let option of question.options; let opIdx=index">
+                                    <label class="flex items-center gap-2 cursor-pointer relative">
+                                        <input type="checkbox" [value]="option.label"
+                                            name="checkbox {{currentSectionIndex}}{{qIdx}}"
+                                            [(ngModel)]="responses[currentSectionIndex][qIdx][option.label]"
+                                            class="cursor-pointer peer hidden">
+                                        <div class="w-5 h-5 rounded-sm border-2 border-gray-400 peer-checked:border-purple-700 bg-transparent peer-checked:bg-purple-700 transition-all duration-300 flex items-center justify-center"></div>
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"
+                                            class="absolute w-5 h-5 text-white scale-x-0 peer-checked:scale-x-100 transition-transform duration-400" >
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>{{ option.label }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div *ngSwitchCase="'dropdown'">
+                                <select [(ngModel)]="responses[currentSectionIndex][qIdx]" [ngModelOptions]="{standalone: true}">
+                                    <option value="" disabled selected>Choose</option>
+                                    <option *ngFor="let option of question.options" [value]="option.label">{{ option.label }}</option>
+                                </select>
+                            </div>
+                            <div *ngSwitchCase="'rating'">
+                                <div class="stars flex justify-center space-x-3">
+                                    <span *ngFor="let i of getratingRange(question)"
+                                        (click)="setRating(i, qIdx)"
+                                        (mouseenter)="hoverRating=i"
+                                        (mouseleave)="hoverRating=0">
+                                        <i class="text-gray-200 text-4xl cursor-pointer material-icons" 
+                                            [ngClass]="{'fill': (hoverRating >= i), 'filled': responses[currentSectionIndex][qIdx] >= i}">
+                                            star
+                                        </i>
+                                    </span>
+                                </div>
+                                <div class="flex justify-center gap-10">
+                                    <span *ngFor="let i of getratingRange(question)">
+                                        {{ i }}
+                                    </span>
+                                </div>
+                                <div class="clear text-sm underline cursor-pointer mt-2.5 text-gray-700 justify-self-end" (click)="clearRating(qIdx)">Clear selection</div>
+                            </div>
+                            <div *ngSwitchCase="'date'">
+                                <input type="date"
+                                [(ngModel)]="responses[currentSectionIndex][qIdx]"
+                                name="date {{currentSectionIndex}}{{qIdx}}"
+                                class="w-56 p-1 bg-transparent border-b-2 border-gray-300 focus:outline-none focus:border-purple-700">
+                            </div>
+                            <div *ngSwitchCase="'time'">
+                                <input type="time"
+                                    [(ngModel)]="responses[currentSectionIndex][qIdx]"
+                                    name="time {{currentSectionIndex}}{{qIdx}}"
+                                    class="w-56 p-1 bg-transparent border-b-2 border-gray-300 focus:outline-none focus:border-purple-700">
+                            </div>
+                            <div *ngSwitchCase="'linearscale'" class="flex space-x-4">
+                                <label *ngFor="let i of getScaleRange(question)" 
+                                    (click)="setLinearScale(i, qIdx)"
+                                    class="flex flex-col items-center space-y-1">
+                                    <label>{{ i }}</label>
+                                    <input 
+                                        type="radio"
+                                        name="linearscale {{currentSectionIndex}}{{qIdx}}"
+                                    >
+                                </label>
+                            </div>
+                            <div *ngSwitchCase="'multipleChoiceGrid'">
+                                <table class="w-full border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="border border-gray-300 py-2 px-4 text-left font-semibold text-gray-700"></th>
+                                        <th *ngFor="let column of question.columns"
+                                        class="border border-gray-300 py-2 px-4 font-semibold text-gray-700">
+                                            {{ column }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let row of question.rows; let rowIdx=index">
+                                        <th class="border border-gray-300 py-2 px-4 text-left text-gray-600">
+                                            {{row}}
+                                        </th>
+                                        <td *ngFor="let column of question.columns"
+                                            class="border border-gray-300 py-2 px-4 text-center">
+                                            <input 
+                                                type="radio" 
+                                                name="multipleChoiceGrid {{currentSectionIndex}}{{qIdx}}{{rowIdx}}"
+                                                [value]="column"
+                                                (change)="setMultiplechoiceGridResponse(row, column, qIdx)"
+                                                [checked]="responses[currentSectionIndex][qIdx]?.[row] === column"
+                                                class="h-4 w-4"
+                                            >
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+                            <div *ngSwitchCase="'checkboxGrid'">
+                                <table class="w-full border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="border border-gray-300 py-2 px-4 text-left font-semibold text-gray-700"></th>
+                                        <th *ngFor="let column of question.columns"
+                                        class="border border-gray-300 py-2 px-4 font-semibold text-gray-700">
+                                            {{ column }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let row of question.rows; let rowIdx=index">
+                                        <th class="border border-gray-300 py-2 px-4 text-left text-gray-600">{{row}}</th>
+                                        <td *ngFor="let column of question.columns" class="border border-gray-300 py-2 px-4 text-center">
+                                            <input 
+                                                type="checkbox"
+                                                name="multipleChoiceGrid {{currentSectionIndex}}{{qIdx}}{{rowIdx}}"
+                                                [(ngModel)]="responses[currentSectionIndex][qIdx][row][column]"
+                                                class="h-4 w-4"
+                                            >
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+                            <div *ngSwitchCase="'file'">
+                                <input type="file" name="file {{currentSectionIndex}}{{qIdx}}">
+                            </div>
+                            <div *ngSwitchDefault>output2</div>
+                        </div> <!--SWITCH CASE-->
+                    </div>
+                </div> <!--QUESTIONS FOR LOOP-->
+            </div>
+        </div>
+
+        <!--FORM ACTION BUTTONS-->
+        <div class="max-w-3xl mx-auto flex justify-between py-6 text-base">
+            <div class="bg-gradient-to-tr rounded-md from-purple-600 to-indigo-600 p-0.5">
+                <button (click)="confirmClearForm(formRef)"
+                    class="px-6 py-2 text-purple-700 font-medium rounded-md bg-white hover:bg-indigo-50">
+                    Clear form
+                </button>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" (click)="gotoPreviousSection()"
+                    *ngIf="currentSectionIndex > 0"
+                    class="pr-6 pl-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium flex items-center
+                    rounded-md hover:shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration:300 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="-ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span>Back</span> 
+                </button>
+                <button type="button" (click)="gotoNextSection()"
+                    *ngIf="sections.length>1 
+                    && sections[currentSectionIndex].nextSection < sections.length 
+                    && sections[currentSectionIndex].nextSection != -1;
+                    else dosubmit"
+                    class="pl-6 pr-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium flex items-center
+                    rounded-md hover:shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration:300 shadow-sm">
+                    <span>Next</span>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="-ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                    </svg>   
+                </button>
+
+                <ng-template #dosubmit>
+                    <div class="flex flex-col items-center relative">
+                        <button 
+                            type="button"
+                            (click)="onSubmit()"
+                            class="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-md">
+                            Submit
+                        </button>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div *ngIf="!isFormLoaded">
+  Loading...
+</div>
+
+
+<!-- <div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 py-6 px-6 sm:px-12 lg:px-20">
     <form  #formRef="ngForm">
         <div class="max-w-3xl mx-auto rounded-lg bg-white shadow-2xl border-2 border-indigo-100">
             <div class="bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-800 p-6 mb-4 rounded-t-lg">
@@ -268,11 +516,11 @@
                         {{ formPreviewData.sections[currentSectionIndex].sectionDescription }}
                     </h4>
                 </div>
-                <!-- RATING QUESTION TYPE IS LEFT -->
+                RATING QUESTION TYPE IS LEFT
 
 
                 <div *ngFor="let question of sections[currentSectionIndex].questions; let qIdx=index">
-                    <!-- =>{{ sections[currentSectionIndex].questions[qIdx].sectionBasedonAnswer }} -->
+                    =>{{ sections[currentSectionIndex].questions[qIdx].sectionBasedonAnswer }}
                     <div class="shadow-md border border-gray-200 p-6 mb-3" >
                         <div class="text-lg font-medium mb-5">
                             <span>{{ question.questionText }}</span>
@@ -323,21 +571,21 @@
                                 </div>
                             </div>
                             <div *ngSwitchCase="'dropdown'">
-                                <!-- <select (change)="onAnswerSelected($event, question)">
+                                <select (change)="onAnswerSelected($event, question)">
                                 <div *ngFor="let option of question.options">
                                 <option [value]="option.label">{{ option.label }}</option>
                                 </div>
-                                </select> -->
+                                </select>
                                 <ng-container *ngIf="true">
                                     <div class="relative w-56" #dropdownBox>
-                                        <!-- Selected Value -->
+                                        Selected Value
                                         <div (click)="dropdownOpen = !dropdownOpen"
                                             class="flex justify-between items-center bg-transparent border-2 border-gray-300 px-3 py-2 shadow-sm rounded cursor-pointer">
                                             <span [ngClass]="{'text-gray-400': !question.answer[qIdx]}">{{ question.answer[qIdx] || 'Select an option' }}</span> 
                                             <span class="text-gray-500 text-xl">⏷</span>
                                         </div>
 
-                                        <!-- Dropdown Menu -->
+                                        Dropdown Menu
                                         <div *ngIf="dropdownOpen"
                                             class="absolute left-0 top-full w-full rounded shadow-md bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50 border">
                                             <ul class="flex flex-col text-gray-800">
@@ -446,7 +694,7 @@
             </div>   
         </div>
 
-        <!-- FORM ACTION BUTTONS -->
+        FORM ACTION BUTTONS
         <div class="max-w-3xl mx-auto flex justify-between py-6 text-base">
             <div class="bg-gradient-to-tr rounded-md from-purple-600 to-indigo-600 p-0.5">
                 <button (click)="confirmClearForm(formRef)"
@@ -497,4 +745,4 @@
             </div>
         </div>
     </form>
-</div>
+</div> -->
