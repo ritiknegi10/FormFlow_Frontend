@@ -92,6 +92,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormService } from '../../services/form.service';
 import { ResponseService } from 'src/app/services/response.service';
 
+
 @Component({
   selector: 'app-view-response',
   templateUrl: './view-response.component.html',
@@ -148,6 +149,8 @@ export class ViewResponseComponent implements OnInit {
     }
   }
 
+  
+
   getQuestions(response: any): any[] {
     try {
       const parsed = JSON.parse(response.responseData);
@@ -178,7 +181,17 @@ export class ViewResponseComponent implements OnInit {
   
     return response.toString();
   }
-  
+  searchQuery: string = '';
+
+filteredResponses() {
+  if (!this.searchQuery) return this.responses;
+
+  const query = this.searchQuery.toLowerCase();
+  return this.responses.filter(response =>
+    (response.respondentUsername || '').toLowerCase().includes(query) ||
+    (response.respondentEmail || '').toLowerCase().includes(query)
+  );
+}
 }
 
 
