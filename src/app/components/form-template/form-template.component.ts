@@ -14,13 +14,16 @@ export class FormTemplateComponent {
 
   constructor(private formService: FormService, private router: Router) {
     this.loadTemplates();
+   
   }
+
 
   loadTemplates() {
     this.formService.getTemplates().subscribe({
       next: (templates) => {
         this.templates = templates;
         this.isLoading = false;
+        console.log('Templates loaded:', this.templates);
       },
       error: (err) => {
         console.error('Error loading templates:', err);
