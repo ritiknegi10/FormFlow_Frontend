@@ -14,7 +14,7 @@ import Swal from 'sweetalert2';
      formId: number | null = null;
      assignedUsers: { email: string; hasSubmitted: boolean; assignedAt?: string; isSending?: boolean }[] = [];
      assignmentTrend: any[] = [];
-     loading = { users: false, chart: false };
+     loading = { users: false,   chart: false,reminders: false };
      errorMessage = '';
      chartColorScheme = {
        name: 'cool',
@@ -162,6 +162,35 @@ import Swal from 'sweetalert2';
         timer: 2000,
         showConfirmButton: false
       });
+    }
+  });
+}
+
+sendReminders(): void {
+  if (!this.formId) return;
+
+  this.loading.reminders = true;
+  
+  this.formService.sendReminder(this.formId).subscribe({
+    next: (response) => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Reminders Sent!',
+        text: response,
+        timer: 3000,
+        showConfirmButton: false
+      });
+      this.loading.reminders = false;
+    },
+    error: (err) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to Send',
+        text: 'Could not send reminders. Please try again later.',
+        timer: 3000,
+        showConfirmButton: false
+      });
+      this.loading.reminders = false;
     }
   });
 }
