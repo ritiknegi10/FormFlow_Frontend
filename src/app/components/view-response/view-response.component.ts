@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormService } from '../../services/form.service';
 import { ResponseService } from 'src/app/services/response.service';
 
+
 @Component({
   selector: 'app-view-response',
   templateUrl: './view-response.component.html',
@@ -64,10 +65,23 @@ export class ViewResponseComponent implements OnInit {
   
   getValue(response: any, key: string): string {
     try {
-      return JSON.parse(response.responseData)[key] || "N/A";
+      const value = JSON.parse(response.responseData)[key];
+  
+      if (value === null || value === undefined || value === '') return '–';
+  
+      if (Array.isArray(value)) {
+        return `[ ${value.map(v => `"${v}"`).join(', ')} ]`;
+      }
+  
+      if (typeof value === 'object') {
+        return JSON.stringify(value, null, 2); // or customize further
+      }
+  
+      return value.toString();
     } catch (error) {
       console.error("Error parsing responseData:", error);
-      return "N/A";
+      return '-';
     }
   }
+  
 }

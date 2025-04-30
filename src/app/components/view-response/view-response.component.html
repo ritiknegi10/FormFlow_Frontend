@@ -45,9 +45,11 @@
                       </svg>
                       {{ key }}
                     </div>
-                    <p class="text-gray-800 break-words">
-                      {{ getValue(response, key) || '–' }}
-                    </p>
+                    <div *ngFor="let key of getKeys(response)" class="mb-4">
+                      <div class="text-sm font-semibold text-gray-700">{{ key }}</div>
+                      <div class="text-gray-900 whitespace-pre-wrap">{{ getValue(response, key) }}</div>
+                    </div>
+                    
                   </div>
                 </div>
               </div>
