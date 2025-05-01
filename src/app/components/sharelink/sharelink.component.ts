@@ -16,12 +16,18 @@ export class SharelinkComponent implements OnInit {
     formId!:number;
     currentSectionIndex: number = 0;
     loadedForm: FormGroup;
+    uploadedFiles: boolean[][] = [];
+    uploadedFileNames: string[][] = [];
     formSchema: any;
     sections: any[] = [];
+    invalidtype:boolean[][]=[];
+    invalidsize:boolean[][]=[];
     nextSectionData: { [key: number]: number } = {};
     isFormLoaded: boolean = false;
     responses: { [sectionIndex: number]: { [questionIndex: number]: any } } = {};
     hoverRating: number = 0;
+    submitClicked:boolean=false;
+    
 
     constructor(
         private fb: FormBuilder,
@@ -55,7 +61,6 @@ export class SharelinkComponent implements OnInit {
                         this.router.navigate(['/error', 409]); //!---***---
                 }
             });
-
             this.formService.getFormById(this.formId).subscribe({
                 next: (form) => {
                     this.loadedForm.patchValue({
@@ -73,6 +78,18 @@ export class SharelinkComponent implements OnInit {
                     // console.log("form schema: ", this.formSchema);
                     // console.log("sections: ", this.sections);
 
+                    this.uploadedFiles = this.sections.map(section =>
+                      section.questions.map(() => false)
+                    );
+                    this.uploadedFileNames = this.sections.map(section =>
+                      section.questions.map(() => '')
+                    );
+                    this.invalidsize = this.sections.map(section =>
+                      section.questions.map(() => false)
+                    );
+                    this.invalidtype = this.sections.map(section =>
+                      section.questions.map(() => false)
+                    );
                     this.sections.forEach((section, sIdx) => {
                         this.nextSectionData[sIdx] = section.nextSection;
                         // console.log("Section questions", section.questions);
@@ -113,6 +130,63 @@ export class SharelinkComponent implements OnInit {
             console.log("no form id found in route")
         }
     }
+    onFileSelected(event: Event, sectionIndex: number, qIdx: number): void {
+      const input = event.target as HTMLInputElement;
+      if (!input.files || input.files.length === 0) return;
+    
+      const file = input.files[0];
+      const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+    
+      if (!allowedTypes.includes(file.type)) {
+        this.invalidtype[sectionIndex][qIdx] = true;
+        input.value = '';
+        return;
+      }
+    
+      if (file.size > maxSize) {
+        this.invalidsize[sectionIndex][qIdx] = true;
+        input.value = '';
+        return;
+      }
+    
+      this.invalidtype[sectionIndex][qIdx] = false;
+      this.invalidsize[sectionIndex][qIdx] = false;
+    
+      this.uploadedFileNames[sectionIndex][qIdx] = file.name;
+      this.uploadedFiles[sectionIndex][qIdx] = true;
+    
+      this.formService.uploadFile(file).subscribe({
+        next: (fileUrl: string) => {
+          console.log('File uploaded, URL:', fileUrl);
+          this.responses[sectionIndex][qIdx] = fileUrl;
+        },
+        error: (err) => {
+          console.error('File upload failed:', err);
+          this.uploadedFiles[sectionIndex][qIdx] = false;
+          alert('Failed to upload file.');
+        }
+      });
+    }
+    onDeleteFile(sectionIndex: number, qIdx: number): void {
+      const fileUrl = this.responses?.[sectionIndex]?.[qIdx];
+      this.uploadedFiles[sectionIndex][qIdx] = false;
+      this.uploadedFileNames[sectionIndex][qIdx] = '';
+      if (this.responses?.[sectionIndex]) {
+        this.responses[sectionIndex][qIdx] = '';
+      }
+      if (fileUrl) {
+        this.formService.deleteFile(fileUrl).subscribe({
+          next: () => {
+            console.log('File deleted from backend');
+          },
+          error: (err) => {
+            console.error('Error deleting file:', err);
+          }
+        });
+      }
+    }
+    
 
     gotoNextSection(sIdx: number = this.currentSectionIndex) {
 
@@ -203,7 +277,7 @@ export class SharelinkComponent implements OnInit {
     onSubmit(){
         // console.log("responses", this.responses)
         // console.log("submit button clicked");
-
+        this.submitClicked=true;
         const mappedResponse = this.sections.map((section: any, sIdx: number) => {
             const questions = section.questions.map((question: any, qidx: number) => {
                 return{
