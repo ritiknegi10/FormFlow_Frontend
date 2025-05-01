@@ -18,6 +18,11 @@ export class SharelinkComponent implements OnInit {
     loadedForm: FormGroup;
     formSchema: any;
     sections: any[] = [];
+    uploadedFiles: boolean[][] = [];
+    uploadedFileNames: string[][] = [];
+    invalidtype:boolean[][]=[];
+    invalidsize:boolean[][]=[];
+    submitClicked:boolean=false;
     nextSectionData: { [key: number]: number } = {};
     isFormLoaded: boolean = false;
     responses: { [sectionIndex: number]: { [questionIndex: number]: any } } = {};
@@ -68,6 +73,18 @@ export class SharelinkComponent implements OnInit {
                                     ? JSON.parse(form.formSchema)
                                     : form.formSchema;
                     this.sections = this.formSchema.sections;
+                    this.uploadedFiles = this.sections.map(section =>
+                      section.questions.map(() => false)
+                    );
+                    this.uploadedFileNames = this.sections.map(section =>
+                      section.questions.map(() => '')
+                    );
+                    this.invalidsize = this.sections.map(section =>
+                      section.questions.map(() => false)
+                    );
+                    this.invalidtype = this.sections.map(section =>
+                      section.questions.map(() => false)
+                    );
 
                     // console.log("loaded form: ", this.loadedForm);
                     // console.log("form schema: ", this.formSchema);
@@ -127,6 +144,62 @@ export class SharelinkComponent implements OnInit {
 
         this.currentSectionIndex = this.nextSectionData[this.currentSectionIndex];
         window.scroll(0,0);
+    }
+    onFileSelected(event: Event, sectionIndex: number, qIdx: number): void {
+      const input = event.target as HTMLInputElement;
+      if (!input.files || input.files.length === 0) return;
+    
+      const file = input.files[0];
+      const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+    
+      if (!allowedTypes.includes(file.type)) {
+        this.invalidtype[sectionIndex][qIdx] = true;
+        input.value = '';
+        return;
+      }
+    
+      if (file.size > maxSize) {
+        this.invalidsize[sectionIndex][qIdx] = true;
+        input.value = '';
+        return;
+      }
+    
+      this.invalidtype[sectionIndex][qIdx] = false;
+      this.invalidsize[sectionIndex][qIdx] = false;
+    
+      this.uploadedFileNames[sectionIndex][qIdx] = file.name;
+      this.uploadedFiles[sectionIndex][qIdx] = true;
+    
+      this.formService.uploadFile(file).subscribe({
+        next: (fileUrl: string) => {
+          console.log('File uploaded, URL:', fileUrl);
+          this.responses[sectionIndex][qIdx] = fileUrl;
+        },
+        error: (err) => {
+          console.error('File upload failed:', err);
+          this.uploadedFiles[sectionIndex][qIdx] = false;
+          alert('Failed to upload file.');
+        }
+      });
+    }
+    onDeleteFile(sectionIndex: number, qIdx: number): void {
+      const fileUrl = this.responses?.[sectionIndex]?.[qIdx];
+      this.uploadedFiles[sectionIndex][qIdx] = false;
+      this.uploadedFileNames[sectionIndex][qIdx] = '';
+      if (this.responses?.[sectionIndex]) {
+        this.responses[sectionIndex][qIdx] = '';
+      }
+      if (fileUrl) {
+        this.formService.deleteFile(fileUrl).subscribe({
+          next: () => {
+            console.log('File deleted from backend');
+          },
+          error: (err) => {
+            console.error('Error deleting file:', err);
+          }
+        });
+      }
     }
 
     gotoPreviousSection() {
@@ -201,6 +274,7 @@ export class SharelinkComponent implements OnInit {
 
     onSubmit(){
 
+      this.submitClicked=true;
         const mappedResponse = this.sections.map((section: any, sIdx: number) => {
             const questions = section.questions.map((question: any, qidx: number) => {
                 return{

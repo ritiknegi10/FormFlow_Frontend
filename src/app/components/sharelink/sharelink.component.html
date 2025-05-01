@@ -432,9 +432,75 @@
                                 </tbody>
                                 </table>
                             </div>
-                            <div *ngSwitchCase="'file'">
-                                <input type="file" name="file {{currentSectionIndex}}{{qIdx}}">
-                            </div>
+                            <div class="relative" *ngSwitchCase="'file'">
+                                <!-- File input shown only when no file uploaded -->
+                                <input
+                                  *ngIf="!uploadedFiles[currentSectionIndex][qIdx]"
+                                  type="file"
+                                  (change)="onFileSelected($event, currentSectionIndex, qIdx)"
+                                  [ngClass]="{
+                                    'border-red-500':
+                                      (submitClicked) &&
+                                      question.required &&
+                                      !responses[currentSectionIndex][qIdx]
+                                  }"
+                                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all"
+                                />
+                              
+                                <!-- Upload icon aligned with other inputs -->
+                                <svg
+                                  *ngIf="!uploadedFiles[currentSectionIndex][qIdx]"
+                                  class="w-5 h-5 absolute right-4 top-4 text-gray-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 8l-4-4m4 4l4-4"
+                                  />
+                                </svg>
+                              
+                                <!-- Uploaded file display -->
+                                <div *ngIf="uploadedFiles[currentSectionIndex][qIdx]" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50">
+                                  <div class="flex items-center gap-3 mb-2">
+                                    <!-- File icon -->
+                                    <svg
+                                      class="w-8 h-8 text-indigo-500"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      stroke-width="2"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"
+                                      />
+                                    </svg>
+                                    <span class="text-sm text-gray-800 font-medium truncate">
+                                      {{ uploadedFileNames[currentSectionIndex][qIdx] }}
+                                    </span>
+                                  </div>
+                                  <button
+                                    (click)="onDeleteFile(currentSectionIndex, qIdx)"
+                                    type="button"
+                                    class="text-red-600 hover:text-red-800 text-sm underline"
+                                  >
+                                    Delete File
+                                  </button>
+                                </div>
+                              
+                                <!-- Validation errors -->
+                                <div *ngIf="invalidtype[currentSectionIndex][qIdx]" class="text-red-600 text-sm mt-1">
+                                  Invalid file type. Only PNG, JPEG, and PDF are allowed.
+                                </div>
+                                <div *ngIf="invalidsize[currentSectionIndex][qIdx]" class="text-red-600 text-sm mt-1">
+                                  File size exceeds the 5MB limit.
+                                </div>
+                              </div>
                             <div *ngSwitchDefault>output2</div>
                         </div> <!--SWITCH CASE-->
                     </div>
