@@ -63,6 +63,7 @@ const routes: Routes = [
   { path:'about',component:AboutUsComponent },
   { path: 'faq', component:FaqComponent },
   { path: 'submit/:title', component: SubmitPageComponent , canActivate: [AuthGuard] },
+  { path: 'error/:msg', component: ErrorPageComponent,canActivate: [AuthGuard]},  
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent},
   { path: 'about', component: AboutUsComponent },

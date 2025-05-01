@@ -29,6 +29,10 @@ export class ErrorPageComponent {
         this.formTitle="Already Subimtted";
         this.description="You can only submit form once."
       }
+      else if(this.ermsg==410){
+        this.formTitle="Timed Out!!"
+        this.description="Your form is submitted automatically."
+      }
       else{
         this.formTitle="Unexpected Error";
         this.description="An unexpected error occured. Please try again later. "
