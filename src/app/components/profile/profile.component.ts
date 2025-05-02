@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 interface UserDetails {
   username: string;
@@ -40,7 +41,21 @@ export class ProfileComponent implements OnInit {
   }
 
   logout() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want to log out?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, log out!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
     this.authService.logout();
     this.router.navigate(['/login']);
+    Swal.fire('Logged out!', 'You have been successfully logged out.', 'success');
+    }
+  });
   }
 }

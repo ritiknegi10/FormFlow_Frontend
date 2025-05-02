@@ -51,52 +51,14 @@ import Swal from 'sweetalert2';
 
        this.formService.getAssignedUsers(formId).subscribe({
          next: (users) => {
-           const userEmails = users.map(user => ({
+          this.assignedUsers = users.map(user => ({
              email: user.email,
-             assignedAt: user.assignedAt
+             assignedAt: user.assignedAt,
+             hasSubmitted: !!user.submitted
            }));
-
-           this.responseService.getResponsesByFormId(formId).subscribe({
-             next: (responses) => {
-               console.log('Responses:', JSON.stringify(responses, null, 2));
-               this.assignedUsers = userEmails.map(user => {
-                 const hasSubmitted = responses.some((r: any) => {
-                   const respondentEmail = (
-                     r.respondent?.email?.toLowerCase()?.trim() ||
-                     r.email?.toLowerCase()?.trim() ||
-                     r.user?.email?.toLowerCase()?.trim() ||
-                     ''
-                   );
-                   const userEmail = user.email.toLowerCase().trim();
-                   if (!respondentEmail) {
-                     console.warn(`No email found in response:`, r);
-                   }
-                   console.log(`Comparing: "${respondentEmail}" === "${userEmail}"`);
-                   return respondentEmail && respondentEmail === userEmail;
-                 });
-                 return {
-                   email: user.email,
-                   assignedAt: user.assignedAt,
-                   hasSubmitted
-                 };
-               });
-               this.processAssignmentTrend();
-               this.loading.users = false;
-               this.loading.chart = false;
-             },
-             error: (err) => {
-               console.error('Response Error:', err);
-               this.assignedUsers = userEmails.map(user => ({
-                 email: user.email,
-                 assignedAt: user.assignedAt,
-                 hasSubmitted: false
-               }));
-               this.processAssignmentTrend();
-               this.loading.users = false;
-               this.loading.chart = false;
-               this.errorMessage = 'Failed to load response data';
-             }
-           });
+           this.processAssignmentTrend();
+           this.loading.users = false;
+           this.loading.chart = false; 
          },
          error: (err) => {
            console.error('Users Error:', err);
