@@ -306,8 +306,10 @@ removeViewersFromForm(formId: number, emails: string[]): Observable<string> {
   }
 
   sendReminder(formId: number): Observable<string> {
+   
+  
     return this.http.post<string>(
-      `${this.apiUrl}/forms/${formId}/send-reminders`, 
+      `${this.apiUrl}/${formId}/send-reminders`, 
       null
     );
   }
