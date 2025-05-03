@@ -12,25 +12,31 @@ import { throwError } from 'rxjs';
   styleUrls: ['./sharelink.component.scss']
 })
 export class SharelinkComponent implements OnInit {
-    formId!:number;
-    answer: any[] = [];
-    submitClicked = false;
+
+    formId!: number;
+    loadedForm: any;
+    formData: any;
+    sections: any[] = [];
+    currentSectionIndex!: number;
+    sectionHistory: number[] = [];
+    nextSectionData: { [key: number]: number } = {};
+    answer: { [sectionIndex: number]: { [questionIndex: number]: any } } = {};
+    otherInputValues: { [sectionIndex: number]: { [questionIndex: number]: any } } = {};
+    validationErrors: { [sectionIndex: number]: { [questionIndex: number]: any } } = {};
+    selectedOption: string | null = null;
+
     touchedFields: boolean[] = [];
     uploadedFiles: boolean[] = [];
     uploadedFileNames: string[] = [];
     invalidtype: boolean[] = [];
     invalidsize: boolean[] = [];
     ratingValues: number[] = [];
-    isSubmitting = false;
-    sections: any[] = [];
-    formPreviewData: any;
-    nextSectionData: { [key: number]: number } = {};
-    nextClicked: boolean = false;
-    currentSectionIndex!: number;
-    dropdownOpen: boolean = false;
-    selectedOption: string | null = null;
-    loadedForm: any;
+    dropdownOpen: boolean[] = [];
 
+    submitClicked = false;
+    isSubmitting = false;
+    nextClicked= false;
+    
     constructor(
         private route: ActivatedRoute,
         private formService: FormService,
@@ -38,347 +44,608 @@ export class SharelinkComponent implements OnInit {
         private responseService: ResponseService
     ) {}
 
-ngOnInit() {
-    const formIdParam = this.route.snapshot.paramMap.get('id');
-    const formId = formIdParam ? Number(formIdParam) : null;
+    ngOnInit() {
+        const formIdParam = this.route.snapshot.paramMap.get('id');
+        const formId = formIdParam ? Number(formIdParam) : null;
 
-    if(formId !== null){this.formId=formId;}
-    this.formService.checkFormAccess(this.formId).subscribe({
-        next: (response: string) => {
-            if (response === "Access granted") {
-                console.log('Access granted! Proceeding with form submission.');
-            }
-        },
-        error: (error) => {  
-          if (error.status === 404) {
-            this.router.navigate(['/error', 404], { replaceUrl: true });
-          } 
-          else if (error.status === 403) {
-            this.router.navigate(['/error', 403], { replaceUrl: true });
-          } 
-          else if (error.status === 409) {
-            setTimeout(() => {
-              this.router.navigate(['/error', 409], { replaceUrl: true });
-            }, 0); 
-          }
-          else if (error.status === 410) {
-            setTimeout(() => {
-              this.formService.timestamp=true;
-              this.onSubmit();
-            }, 0); 
-          }
-        }
-    });
-    this.currentSectionIndex = 0;
-    //this.loadForm(this.formId);
-    console.log(formIdParam);
-    if (formId) {
-        this.formService.getFormById(formId).subscribe({
-            next: (form) => {
-                this.loadedForm=form;
-                const schema = typeof form.formSchema === 'string'
-                ? JSON.parse(form.formSchema)
-                : form.formSchema;
+        if(formId !== null) this.formId = formId;
 
-                this.formPreviewData = schema;
-                this.sections = schema.sections;
-                const title = form?.title || 'Untitled Form'
-                this.sections.forEach((section, index) => {
-                    this.nextSectionData[index] = section.nextSection;
-                });
+        this.formService.checkFormAccess(this.formId).subscribe({
+            next: (response: string) => {
+                if (response === "Access granted") {
+                    console.log('Access granted! Proceeding with form submission.');
+                }
             },
-            error: (err) => {
-                console.error('Failed to load form data:', err);
+            error: (error) => {  
+            if (error.status === 404) {
+                this.router.navigate(['/error', 404], { replaceUrl: true });
+            } 
+            else if (error.status === 403) {
+                this.router.navigate(['/error', 403], { replaceUrl: true });
+            } 
+            else if (error.status === 409) {
+                setTimeout(() => {
+                this.router.navigate(['/error', 409], { replaceUrl: true });
+                }, 0); 
+            }
+            else if (error.status === 410) {
+                setTimeout(() => {
+                this.formService.timestamp=true;
+                this.onSubmit();
+                }, 0); 
+            }
             }
         });
-    } 
-    else {
-        console.warn('No form ID found in route.');
-    }
-}
 
-// private loadForm(formId: number): void {
-//   this.formService.getFormById(formId).subscribe({
-//     next: (form) => {
-//       this.loadedForm = form;
-//       this.formId = formId;
-//       this.initializeFormData();
-//     },
-//     error: (error) => {
-//       console.error('Error loading form:', error);
-//     }
-//   });
-// }
+        this.currentSectionIndex = 0;
+        
+        if (formId) {
+            this.formService.getFormById(formId).subscribe({
+                next: (form) => {
+                    this.loadedForm = form;
+                    console.log(this.loadedForm);
+                    
+                    const formSchema = typeof form.formSchema === 'string' ? JSON.parse(form.formSchema) : form.formSchema;
+                    this.formData = formSchema;
+                    this.sections = formSchema.sections;
 
-// private initializeFormData(): void {
-//   try {
-//     this.loadedForm.formSchema = JSON.parse(this.loadedForm.formSchema);
-//     this.initializeAnswers();
-//     this.ratingValues = this.loadedForm.formSchema.fields
-//       .filter((f: any) => f.type === 'rating')
-//       .map(() => 0);
-//   } catch (error) {
-//     console.error('Error parsing form schema:', error);
-//   }
-// }
+                    this.sections.forEach((section: any, sIdx: number) => {
+                        this.nextSectionData[sIdx] = section.nextSection;
+                        this.answer[sIdx] = {};
+                        this.otherInputValues[sIdx] = {};
 
-// private initializeAnswers(): void {
-//   this.answer = this.loadedForm.formSchema.fields.map((field: any) => {
-//     if (field.type === 'multipleChoiceGrid') {
-//       return new Array(field.rows.length).fill(null);
-//     }
-//     if (field.type === 'checkboxGrid') {
-//       return new Array(field.rows.length).fill(null).map(() => []);
-//     }
-//     return null;
-//   });
-// }
-
-gotoNextSection() {
-    this.currentSectionIndex = this.nextSectionData[this.currentSectionIndex];
-    window.scroll(0,0);
-    this.nextClicked = true;
-}
-
-gotoPreviousSection() {
-    if(this.currentSectionIndex > 0) {
-        this.currentSectionIndex--;
-        window.scroll(0,0);
-    }
-}
-
-getratingRange(question: any): number[]{
-    const range: number[] = [];
-    for(let i=1; i<=question.rating; i++)
-        range.push(i)
-    return range;
-}
-
-getScaleRange(question: any): number[]{
-    const range: number[] = [];
-    for(let i=question.startValue; i<=question.endValue; i++)
-        range.push(i);
-    return range;
-}
-
-toggleCheckbox(label: string, question: any, index:number) {
-    const idx = question.answer.indexOf(label);
-    if (idx === -1)
-        question.answer.push(label);
-    else
-        question.answer.splice(idx, 1);
-}
-
-onAnswerSelected(option: any, question: any) {
-    if (!question.sectionBasedonAnswer) return;
-
-    const gotoSectionIndex = option.goToSection;
-    if (gotoSectionIndex !== undefined && gotoSectionIndex !== -1) {
-        this.nextSectionData[this.currentSectionIndex] = gotoSectionIndex;
-        console.log(`Setting next section to ${gotoSectionIndex} based on option ${option.label}`);
-    }
-    if(gotoSectionIndex === -1)
-        console.log("submit form section");
-}
-
-confirmClearForm(formRef: any) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: 'This will erase all answers from your form, and cannot be undone',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, clear form',
-    }).then((result) => {
-        if (result.isConfirmed)
-            this.clearForm(formRef);
-    });
-}
-
-clearForm(formRef: any) {
-    formRef.resetForm();
-}
-updateCheckbox(index: number, option: string, event: any) {
-    if (!this.answer[index])
-        this.answer[index] = [];
-
-    if (event.target.checked)
-        this.answer[index].push(option);
-    else
-        this.answer[index] = this.answer[index].filter((item: string) => item !== option);
-}
-
-isGridQuestionInvalid(i: number, question: any): boolean {
-    if (!question || !question.required || !Array.isArray(this.answer[i])) return false;
-    return (this.submitClicked || this.touchedFields[i]) && this.answer[i].some((val: any) => val === null);
-}
-
-isCheckboxGridInvalid(i: number, question: any): boolean {
-    if (!question || !question.required || !Array.isArray(this.answer[i])) return false;
-    return (this.submitClicked || this.touchedFields[i]) &&
-            this.answer[i].some((row: any) => !Array.isArray(row) || row.length === 0);
-}
-
-onFileSelected(event: Event, index: number): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const file = input.files[0];
-    const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf'];
-    const maxSize = 5 * 1024 * 1024;
-
-    if (!allowedTypes.includes(file.type)) {
-        this.invalidtype[index] = true;
-        input.value = '';
-        return;
-    }
-
-    if (file.size > maxSize) {
-        this.invalidsize[index] = true;
-        input.value = '';
-        return;
-    }
-
-    this.invalidsize[index] = false;
-    this.invalidtype[index] = false;
-
-    this.uploadedFileNames[index] = file.name;
-    this.uploadedFiles[index] = true;
-
-    this.formService.uploadFile(file).subscribe({
-        next: (fileUrl: string) => {
-            this.answer[index] = fileUrl;
+                        section.questions.forEach((question: any, qIdx: number) => {
+                            this.answer[sIdx][qIdx] = this.getAnswerValueType(question.type);
+                        });
+                        if (!this.validationErrors[sIdx]) this.validationErrors[sIdx] = {};
+                    });
+                },
+                error: (err) => {
+                    console.error('Failed to load form data:', err);
+                }
+            });
+        } 
+        else {
+            console.warn('No form ID found in route.');
         }
-    });
-}
+    }
 
-onDeleteFile(index: number): void {
-    this.uploadedFiles[index] = false;
-    this.uploadedFileNames[index] = '';
-    const fileUrl = this.answer[index];
-    this.answer[index] = '';
-    this.formService.deleteFile(fileUrl).subscribe({
-        next: () => {
-            console.log('File deleted from backend');
-        },
-        error: (err) => {
-            console.error('Error deleting file:', err);
+    getAnswerValueType(questionType: string) {
+        switch (questionType) {
+            case 'shortText':
+            case 'paragraph':
+            case 'multipleChoice':
+            case 'dropdown':
+            case 'date':
+            case 'time':
+              return ''; // empty string for text-like inputs
+            
+            case 'checkboxes':
+              return []; // array for multi-selections
+            
+            case 'multipleChoiceGrid':
+            case 'checkboxGrid':
+              return {}; // object where rows/columns selected can be saved
+            
+            case 'linearScale':
+            case 'rating':
+              return null; // number later
+            
+            case 'file':
+              return null; // file  
+            
+            default:
+              return null;
+          }
+    }
+
+    // private loadForm(formId: number): void {
+    //   this.formService.getFormById(formId).subscribe({
+    //     next: (form) => {
+    //       this.loadedForm = form;
+    //       this.formId = formId;
+    //       this.initializeFormData();
+    //     },
+    //     error: (error) => {
+    //       console.error('Error loading form:', error);
+    //     }
+    //   });
+    // }
+
+    // private initializeFormData(): void {
+    //   try {
+    //     this.loadedForm.formSchema = JSON.parse(this.loadedForm.formSchema);
+    //     this.initializeAnswers();
+    //     this.ratingValues = this.loadedForm.formSchema.fields
+    //       .filter((f: any) => f.type === 'rating')
+    //       .map(() => 0);
+    //   } catch (error) {
+    //     console.error('Error parsing form schema:', error);
+    //   }
+    // }
+
+    // private initializeAnswers(): void {
+    //   this.answer = this.loadedForm.formSchema.fields.map((field: any) => {
+    //     if (field.type === 'multipleChoiceGrid') {
+    //       return new Array(field.rows.length).fill(null);
+    //     }
+    //     if (field.type === 'checkboxGrid') {
+    //       return new Array(field.rows.length).fill(null).map(() => []);
+    //     }
+    //     return null;
+    //   });
+    // }
+
+    gotoNextSection() {
+        if(this.validateCurrentSection(this.currentSectionIndex)) {
+            this.sectionHistory.push(this.currentSectionIndex);
+            this.currentSectionIndex = this.nextSectionData[this.currentSectionIndex];
+            if (!this.validationErrors[this.currentSectionIndex]) this.validationErrors[this.currentSectionIndex] = {}; 
+            window.scroll(0,0);
+            this.nextClicked = true;
         }
-    });
-}
+        else {
+            const section = this.sections[this.currentSectionIndex];
+      
+            section.questions.forEach((question: any, questionIndex: number) => {
+                const ques = document.getElementById(`question-${this.currentSectionIndex}-${questionIndex}`);
+                if(ques && this.validationErrors[this.currentSectionIndex][questionIndex]) {
+                    ques.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+    }
 
-updateRatingValue(questionIndex: number, value: number) {
-    this.ratingValues[questionIndex] = value;
-    this.answer[questionIndex] = value;
-}
+    gotoPreviousSection() {
+        if (this.sectionHistory.length > 0) {
+            this.currentSectionIndex = this.sectionHistory.pop()!;
+            window.scroll(0, 0);
+        }
+    }
 
-ratingStars(n: number): number[] {
-    return Array(n).fill(0);
-}
+    getRatingRange(question: any): number[] {
+        const range: number[] = [];
+        for(let i = 1; i <= question.rating; i++) range.push(i);
+        return range;
+    }
 
-// async submitForm() {
-//   this.submitClicked = true;
-//   if (this.isFormInvalid()) return;
+    getScaleRange(question: any): number[] {
+        const range: number[] = [];
+        for(let i = question.startValue; i <= question.endValue; i++) range.push(i);
+        return range;
+    }
 
-//   this.isSubmitting = true;
-//   try {
-//     const response = await this.prepareAndSubmitResponse();
-//     this.handleSuccess(response);
-//   } catch (error) {
-//     this.handleError(error);
-//   } finally {
-//     this.isSubmitting = false;
-//   }
-// }
+    onCheckboxChange(event: any, sIdx: number, qIdx: number) {
+        const value = event.target.value;
+        if (event.target.checked) {
+            this.answer[sIdx][qIdx].push(value);
+        } else {
+            const index = this.answer[sIdx][qIdx].indexOf(value);
+            if (index !== -1) {
+                this.answer[sIdx][qIdx].splice(index, 1);
+            }
+        }
+    }
+    
+    onOtherInputChanged(event: any, sIdx: number, qIdx: number, checkInputId: string) {
 
-// private isFormInvalid(): boolean {
-//   return this.loadedForm.formSchema.fields.some((question: any, index: number) =>
-//     this.isQuestionInvalid(question, index)
-//   );
-// }
+        const inputText = (event.target as HTMLInputElement).value;
+        const checkInput = document.getElementById(checkInputId) as HTMLInputElement;
+        if (checkInput) checkInput.checked = true;
 
-// private isQuestionInvalid(question: any, index: number): boolean {
-//   if (!question.required) return false;
-//   const answer = this.answer[index];
-//   if (question.type === 'multipleChoiceGrid') {
-//     return answer.some((val: any) => val === null);
-//   }
-//   if (question.type === 'checkboxGrid') {
-//     return answer.some((row: any) => !Array.isArray(row) || row.length === 0);
-//   }
-//   return !answer && answer !== false;
-// }
+        if (!this.otherInputValues[sIdx]) this.otherInputValues[sIdx] = {};
+        this.otherInputValues[sIdx][qIdx] = inputText;
 
-// private async prepareAndSubmitResponse(): Promise<any> {
-//   const responseData = this.prepareResponseData();
-//   return this.responseService.submitResponse(this.formId, responseData).toPromise();
-// }
+        if (!this.answer[sIdx]) this.answer[sIdx] = {};
 
-// private prepareResponseData(): any {
-//   return this.loadedForm.formSchema.fields.reduce((acc: any, field: any, index: number) => {
-//     acc[field.label] = this.answer[index];
-//     return acc;
-//   }, {});
-// }
+        // for checkboxes
+        if (Array.isArray(this.answer[sIdx][qIdx])) {
+            if (!this.answer[sIdx][qIdx].includes('Other')) {
+                this.answer[sIdx][qIdx].push('Other');
+            }
+        }
 
-// private handleSuccess(response: any): void {
-//   Swal.fire({
-//     icon: 'success',
-//     title: 'Form Submitted!',
-//     text: 'Your responses have been recorded successfully.',
-//     confirmButtonColor: '#4CAF50',
-//   });
-//   this.router.navigate(['/assigned-forms'], {
-//     state: { formTitle: this.loadedForm.title }
-//   });
-// }
+        // for multipleChoice
+        else this.answer[sIdx][qIdx] = 'Other';
 
-// private handleError(error: any): void {
-//   console.error('Submission error:', error);
-//   Swal.fire({
-//     icon: 'error',
-//     title: 'Submission Failed',
-//     text: 'There was an error submitting your form. Please try again.',
-//     confirmButtonColor: '#d33',
-//   });
-// }
+        
+    }
 
-markAsTouched(index: number) {
-    this.touchedFields[index] = true;
-}
+    selectDropdownOption(option: any, sIdx: number, qIdx: number) {
+        this.answer[sIdx][qIdx] = option.label;
+        this.dropdownOpen[qIdx] = false;
+        this.onOptionSelected(option, this.sections[sIdx].questions[qIdx]);
+    }
 
-toggleCheckboxgrid(questionIndex: number, rowIndex: number, column: string) {
-    const current: string[] = this.answer[questionIndex][rowIndex] || [];
-    this.answer[questionIndex][rowIndex] = current.includes(column)
-    ? current.filter(item => item !== column)
-    : [...current, column];
-}
-onSubmit(){
-    console.log("Submit button clicked");
-    //this.submitForm();
+    onOptionSelected(option: any, question: any) {
+        if (!question.sectionBasedonAnswer) return;
 
-    const mappedResponse = this.sections.map((section: any, sectionIndex: number) => {
-        const responses = section.questions.map((question: any, questionIndex: number) => {
-            const answer = this.answer?.[sectionIndex]?.[questionIndex];
-            return {
-                question: question.label,
-                answer: answer !== undefined && answer !== null
-                ? Array.isArray(answer) ? answer : answer.toString()
-                : ''
-            };
+        // if (option.isOther) {
+        //     if (!this.otherInputValues[this.currentSectionIndex]) {
+        //       this.otherInputValues[this.currentSectionIndex] = {};
+        //     }
+        //     if (!this.otherInputValues[this.currentSectionIndex][this.qIdx]) {
+        //       this.otherInputValues[this.currentSectionIndex][this.qIdx] = '';
+        //     }
+        // }
+        const gotoSectionIndex = option.goToSection;
+        if (gotoSectionIndex !== undefined && gotoSectionIndex !== -1) {
+            this.nextSectionData[this.currentSectionIndex] = gotoSectionIndex;
+            console.log(`Setting next section to ${gotoSectionIndex} based on option ${option.label}`);
+        }
+        if(gotoSectionIndex === -1)
+            console.log("submit form section");
+    }
+
+    onCheckboxGridChange(event: any, sIdx: number, qIdx: number, row: string, column: string) {
+        const checkbox = event.target as HTMLInputElement;
+  
+        if (!this.answer[sIdx][qIdx]) {
+            this.answer[sIdx][qIdx] = {};
+        }
+        
+        if (!this.answer[sIdx][qIdx][row]) {
+            this.answer[sIdx][qIdx][row] = [];
+        }
+
+        if (checkbox.checked) {
+            this.answer[sIdx][qIdx][row].push(column);
+        } else {
+            this.answer[sIdx][qIdx][row] = this.answer[sIdx][qIdx][row].filter((col: string) => col !== column);
+        }
+    }
+
+    onAnswer(sectionIndex: number, questionIndex: number) {
+        if (this.validationErrors?.[sectionIndex]?.[questionIndex]) {
+            const question = this.sections[sectionIndex].questions[questionIndex];
+            let answer = this.answer?.[sectionIndex]?.[questionIndex];
+            const otherInput = this.otherInputValues?.[sectionIndex]?.[questionIndex];
+
+            let isAnswered = true;
+
+            if(question.type === 'multipleChoice') {
+                answer = answer?.toString() ?? '';
+                if (!answer.trim() || (answer === 'Other' && (!otherInput || !otherInput.trim()))) isAnswered = false;
+            }
+            
+            else if (question.type === 'checkboxes') {
+                const isArray = Array.isArray(answer);
+                
+                const hasValidSelection = isArray && answer.length > 0 && answer.some((opt: any) => opt.toString().trim() !== '');
+                const hasOtherValid = isArray && answer.includes('Other') ? (otherInput && otherInput.trim()) : true;
+        
+                if (!hasValidSelection || !hasOtherValid) isAnswered = false;
+            }
+
+            else if (question.type === 'multipleChoiceGrid' || question.type === 'checkboxGrid') {
+                const rows = question.rows || [];
+                const isAnswerObject = answer && typeof answer === 'object' && !Array.isArray(answer);
+        
+                const allRowsAnswered = isAnswerObject && rows.every((row: string) => {
+                    const val = answer[row];
+
+                    if (question.type === 'checkboxGrid') return Array.isArray(val) && val.length > 0;
+                    else return val !== undefined && val !== null && val.toString().trim() !== ''; 
+                });
+        
+                if (!allRowsAnswered) isAnswered = false;
+            }
+            else {
+                answer = answer?.toString() ?? '';
+                if (!answer.trim()) isAnswered = false;
+            }
+
+            if (isAnswered) this.validationErrors[sectionIndex][questionIndex] = false;
+            
+        }
+    }
+
+    showClearSelection(question: any, sIdx: number, qIdx: number) {
+        const ans = this.answer[sIdx]?.[qIdx];
+        if (!question || ans == null) return false;
+
+        if (question.type === 'multipleChoiceGrid' && typeof ans === 'object') {
+            return Object.values(ans).some(value => value);
+        }
+        if ((question.type === 'multipleChoice' ||
+            question.type === 'dropdown' ||
+            question.type === 'linearScale' ||
+            question.type === 'rating') && ans) {
+            return true;
+        }
+          
+        return false;
+    }
+
+    clearSelection(sIdx: number, qIdx: number, question: any) {
+        if (!this.answer[sIdx]) return;
+      
+        if (question.type === 'multipleChoiceGrid') {
+            this.answer[sIdx][qIdx] = {}; 
+        } else {
+            this.answer[sIdx][qIdx] = null;
+        }
+    }
+
+    confirmClearForm(formRef: any) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This will erase all answers from your form, and cannot be undone',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, clear form',
+        }).then((result) => {
+            if (result.isConfirmed)
+                this.clearForm(formRef);
         });
-        return {
-            section: section.title,
-            responses
-        };
-    });
-    console.log("previewdata", this.formPreviewData);
-    this.responseService.submitResponse(this.formId, JSON.stringify(mappedResponse)).subscribe({
-        next: (res) => console.log('Response submitted successfully', res),
-        error: (err) => console.error('Submission error:', err)
-    });
-    this.router.navigate(['/submit',this.loadedForm.title], { replaceUrl: true });
-    console.log("Submit button clicked2");
+    }
+
+    clearForm(formRef: any) {
+        formRef.resetForm();
+    }
+
+    // isGridQuestionInvalid(i: number, question: any): boolean {
+    //     if (!question || !question.required || !Array.isArray(this.answer[i])) return false;
+    //     return (this.submitClicked || this.touchedFields[i]) && this.answer[i].some((val: any) => val === null);
+    // }
+
+    // isCheckboxGridInvalid(i: number, question: any): boolean {
+    //     if (!question || !question.required || !Array.isArray(this.answer[i])) return false;
+    //     return (this.submitClicked || this.touchedFields[i]) &&
+    //             this.answer[i].some((row: any) => !Array.isArray(row) || row.length === 0);
+    // }
+
+    onFileSelected(event: Event, index: number): void {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) return;
+
+        const file = input.files[0];
+        const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+        const maxSize = 5 * 1024 * 1024;
+
+        if (!allowedTypes.includes(file.type)) {
+            this.invalidtype[index] = true;
+            input.value = '';
+            return;
+        }
+
+        if (file.size > maxSize) {
+            this.invalidsize[index] = true;
+            input.value = '';
+            return;
+        }
+
+        this.invalidsize[index] = false;
+        this.invalidtype[index] = false;
+
+        this.uploadedFileNames[index] = file.name;
+        this.uploadedFiles[index] = true;
+
+        this.formService.uploadFile(file).subscribe({
+            next: (fileUrl: string) => {
+                this.answer[index] = fileUrl;
+            }
+        });
+    }
+
+    // onDeleteFile(index: number): void {
+    //     this.uploadedFiles[index] = false;
+    //     this.uploadedFileNames[index] = '';
+    //     const fileUrl = this.answer[index];
+    //     this.answer[index] = '';
+    //     this.formService.deleteFile(fileUrl).subscribe({
+    //         next: () => {
+    //             console.log('File deleted from backend');
+    //         },
+    //         error: (err) => {
+    //             console.error('Error deleting file:', err);
+    //         }
+    //     });
+    // }
+
+    
+    markAsTouched(index: number) {
+        this.touchedFields[index] = true;
+    }
+
+    toggleCheckboxgrid(questionIndex: number, rowIndex: number, column: string) {
+        const current: string[] = this.answer[questionIndex][rowIndex] || [];
+        this.answer[questionIndex][rowIndex] = current.includes(column)
+        ? current.filter(item => item !== column)
+        : [...current, column];
+    }
+
+    // async submitForm() {
+    //   this.submitClicked = true;
+    //   if (this.isFormInvalid()) return;
+
+    //   this.isSubmitting = true;
+    //   try {
+    //     const response = await this.prepareAndSubmitResponse();
+    //     this.handleSuccess(response);
+    //   } catch (error) {
+    //     this.handleError(error);
+    //   } finally {
+    //     this.isSubmitting = false;
+    //   }
+    // }
+
+    // private isFormInvalid(): boolean {
+    //   return this.loadedForm.formSchema.fields.some((question: any, index: number) =>
+    //     this.isQuestionInvalid(question, index)
+    //   );
+    // }
+
+    // private isQuestionInvalid(question: any, index: number): boolean {
+    //   if (!question.required) return false;
+    //   const answer = this.answer[index];
+    //   if (question.type === 'multipleChoiceGrid') {
+    //     return answer.some((val: any) => val === null);
+    //   }
+    //   if (question.type === 'checkboxGrid') {
+    //     return answer.some((row: any) => !Array.isArray(row) || row.length === 0);
+    //   }
+    //   return !answer && answer !== false;
+    // }
+
+    // private async prepareAndSubmitResponse(): Promise<any> {
+    //   const responseData = this.prepareResponseData();
+    //   return this.responseService.submitResponse(this.formId, responseData).toPromise();
+    // }
+
+    // private prepareResponseData(): any {
+    //   return this.loadedForm.formSchema.fields.reduce((acc: any, field: any, index: number) => {
+    //     acc[field.label] = this.answer[index];
+    //     return acc;
+    //   }, {});
+    // }
+
+    // private handleSuccess(response: any): void {
+    //   Swal.fire({
+    //     icon: 'success',
+    //     title: 'Form Submitted!',
+    //     text: 'Your responses have been recorded successfully.',
+    //     confirmButtonColor: '#4CAF50',
+    //   });
+    //   this.router.navigate(['/assigned-forms'], {
+    //     state: { formTitle: this.loadedForm.title }
+    //   });
+    // }
+
+    // private handleError(error: any): void {
+    //   console.error('Submission error:', error);
+    //   Swal.fire({
+    //     icon: 'error',
+    //     title: 'Submission Failed',
+    //     text: 'There was an error submitting your form. Please try again.',
+    //     confirmButtonColor: '#d33',
+    //   });
+    // }
+
+    validateCurrentSection(sectionIndex: number): boolean {
+        let isValid = true;
+        this.validationErrors = {}; 
+      
+        const section = this.sections[sectionIndex];
+      
+        section.questions.forEach((question: any, questionIndex: number) => {
+            if (question.required) {
+                if (!this.validationErrors[sectionIndex]) this.validationErrors[sectionIndex] = {};
+                let answer = this.answer?.[sectionIndex]?.[questionIndex];
+                const otherInput = this.otherInputValues?.[sectionIndex]?.[questionIndex];
+                
+                if(question.type === 'multipleChoice') {
+                    answer = answer?.toString() ?? '';
+
+                    if (!answer.trim() || (answer === 'Other' && (!otherInput || !otherInput.trim()))) {
+                        isValid = false;
+                        this.validationErrors[sectionIndex][questionIndex] = true;
+                    }
+                    else this.validationErrors[sectionIndex][questionIndex] = false;
+                }
+                
+                else if (question.type === 'checkboxes') {
+                    const isArray = Array.isArray(answer);
+                    
+                    const hasValidSelection = isArray && answer.length > 0 && answer.some((opt: any) => opt.toString().trim() !== '');
+                    const hasOtherValid = isArray && answer.includes('Other') ? (otherInput && otherInput.trim()) : true;
+            
+                    if (!hasValidSelection || !hasOtherValid) {
+                        isValid = false;
+                        this.validationErrors[sectionIndex][questionIndex] = true;
+                    }
+                    else this.validationErrors[sectionIndex][questionIndex] = false;
+                }
+
+                else if (question.type === 'multipleChoiceGrid' || question.type === 'checkboxGrid') {
+                    const rows = question.rows || [];
+                    const isAnswerObject = answer && typeof answer === 'object' && !Array.isArray(answer);
+            
+                    const allRowsAnswered = isAnswerObject && rows.every((row: string) => {
+                        const val = answer[row];
+
+                        if (question.type === 'checkboxGrid') return Array.isArray(val) && val.length > 0;
+                        else return val !== undefined && val !== null && val.toString().trim() !== ''; 
+                    });
+            
+                    if (!allRowsAnswered) {
+                        isValid = false;
+                        this.validationErrors[sectionIndex][questionIndex] = true;
+                    } else {
+                        this.validationErrors[sectionIndex][questionIndex] = false;
+                    }
+                }
+                else {
+                    answer = answer?.toString() ?? '';
+
+                    if (!answer.trim()) {
+                        isValid = false;
+                        this.validationErrors[sectionIndex][questionIndex] = true;
+                    }
+                    else this.validationErrors[sectionIndex][questionIndex] = false;
+                }
+                
+            }
+        });
+      
+        return isValid;
+    }
+      
+    onSubmit() {
+        console.log("Submit button clicked");
+
+        const mappedResponse = this.sections.map((section: any, sectionIndex: number) => {
+            const responses = section.questions.map((question: any, questionIndex: number) => {
+                let answer = this.answer?.[sectionIndex]?.[questionIndex];
+                const otherText = this.otherInputValues?.[sectionIndex]?.[questionIndex];
+
+                if (Array.isArray(answer) && otherText) {
+                    answer = answer.map((ans: string) => ans === 'Other' ? otherText : ans);
+                } else {
+                    if (answer === 'Other' && otherText) {
+                        answer = otherText;
+                    }
+                }
+                
+                return {
+                    question: question.label,
+                    answers: answer !== undefined && answer !== null
+                        ? Array.isArray(answer)
+                            ? answer
+                            : typeof answer === 'object'
+                                ? JSON.stringify(answer) // for grid answers
+                                : answer.toString()
+                    : ''
+                };
+            });
+            
+            if(this.validateCurrentSection(section)) {
+                return {
+                    section: section.title,
+                    responses
+                };
+            }
+            else {
+                section.questions.forEach((question: any, questionIndex: number) => {
+                    const ques = document.getElementById(`question-${this.currentSectionIndex}-${questionIndex}`);
+                    if(ques && this.validationErrors[this.currentSectionIndex][questionIndex]) {
+                        ques.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+                return null;
+            }
+
+            
+        });
+        if(mappedResponse) {
+            this.responseService.submitResponse(this.formId, JSON.stringify(mappedResponse)).subscribe({
+                next: (res) => console.log('Response submitted successfully', res),
+                error: (err) => console.error('Submission error:', err)
+            });
+            this.router.navigate(['/submit', this.loadedForm.title], { replaceUrl: true });
+        }
+        
     }
 }

@@ -9,11 +9,13 @@ import { Router } from '@angular/router';
 })
 export class FormTemplateComponent {
   templates: any[] = [];
+  drafts: any[] = [];
   isLoading = true;
 
 
   constructor(private formService: FormService, private router: Router) {
     this.loadTemplates();
+    this.loadDrafts();
   }
 
   loadTemplates() {
@@ -26,6 +28,26 @@ export class FormTemplateComponent {
         console.error('Error loading templates:', err);
         this.isLoading = false;
       }
+    });
+  }
+
+  loadDrafts() {
+    this.formService.getDrafts().subscribe({
+      next: (drafts) => {
+        this.drafts = drafts;
+        this.isLoading = false;
+        console.log(this.drafts);
+      },
+      error: (err) => {
+        console.error('Error loading templates:', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  openDraft(draftId: number) {
+    this.router.navigate(['/create'], { 
+      queryParams: { draftId: draftId } 
     });
   }
   

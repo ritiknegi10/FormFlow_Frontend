@@ -66,7 +66,53 @@ export class FormService {
     });
   }
 
+  createDraft(draft: any): void {
+    const allQuestions: any[] = [];
+    
+    if (draft.formSchema && draft.formSchema.sections) {
+      draft.formSchema.sections.forEach((section: any) => {
+        if (section.questions) {
+          allQuestions.push(...section.questions.map((q: any) => ({
+            label: q.questionText,
+            type: q.type,
+            required: q.required,
+            options: q.options?.length ? q.options : undefined,
+            rating: q.rating ?? 5,
+            startValue: q.startValue ?? 0,
+            endValue: q.endValue ?? 5,
+            rows: q.rows?.length ? q.rows : undefined,
+            columns: q.columns?.length ? q.columns : undefined,
+            fileUrl: q.fileUrl
+          })));
+        }
+      });
+    }
 
+    const backendFormat = {
+      title: draft.title,
+      description: draft.description,
+      deadline: draft.deadline,
+      formSchema: JSON.stringify({
+        sections: draft.formSchema.sections
+      }),
+      isTemplate: false
+    };
+
+    this.http.post(`${this.apiUrl}/createDraft`, backendFormat).subscribe({
+      next: (response) => console.log("Draft saved successfully", response),
+      error: (error) => console.error("Error saving draft", error)
+    });
+
+  }
+
+  getDrafts(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/my-drafts`).pipe(
+        catchError(error => {
+            console.error('Error fetching templates:', error);
+            return of([]);
+        })
+    );
+  }
   getForms(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/myCreated`).pipe(
       map(forms => forms.map(form => ({
@@ -97,14 +143,14 @@ export class FormService {
     return this.http.post(`${this.apiUrl}/create`, backendFormat);
   }
 
-getTemplates(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/templates`).pipe(
-        catchError(error => {
-            console.error('Error fetching templates:', error);
-            return of([]);
-        })
-    );
-}
+  getTemplates(): Observable<any[]> {
+      return this.http.get<any[]>(`${this.apiUrl}/templates`).pipe(
+          catchError(error => {
+              console.error('Error fetching templates:', error);
+              return of([]);
+          })
+      );
+  }
   
   uploadFile(file: File): Observable<string> {
     const formData = new FormData();

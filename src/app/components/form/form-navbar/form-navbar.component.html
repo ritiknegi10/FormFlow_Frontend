@@ -154,11 +154,11 @@
             </div>
 
             <h2 *ngIf="currentUrl=='/create'"
-                class="hidden lg:block absolute left-1/2 -translate-x-1/2 text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                class="hidden xl:block absolute left-1/2 -translate-x-1/2 text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Build Your Form
             </h2>
             <h2 *ngIf="currentUrl?.startsWith('/edit')"
-                class="hidden lg:block absolute left-1/2 -translate-x-1/2 text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                class="hidden xl:block absolute left-1/2 -translate-x-1/2 text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Edit Your Form
             </h2>
 
@@ -213,7 +213,7 @@
                 </div>
 
                 <!-- Save for small screens -->
-                <div class="relative md:hidden flex flex-col items-end">
+                <!-- <div class="relative md:hidden flex flex-col items-end">
                     <button (click)="toggleSaveMenu()"
                         class="p-2 ml-2 rounded-full bg-indigo-50 transition-all duration:300 shadow-sm hover:bg-indigo-100 text-indigo-700 peer">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" class="w-6 h-6">
@@ -238,12 +238,12 @@
                                 </button></li>
                         </ul>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Save for large screens -->
-                <div class="hidden md:flex items-center text-slate-700 font-medium ml-4 gap-2">
+                <div class="relative flex flex-col items-end text-slate-700 font-medium ml-4 gap-2">
 
-                    <button *ngIf="currentUrl === '/create'" (click)="onSaveClick()"
+                    <!-- <button *ngIf="currentUrl === '/create'" (click)="onSaveClick()"
                         class="px-4 py-2 bg-indigo-200 hover:bg-indigo-300 rounded-md transition-all duration-300 shadow-sm">
                         Save as template
                     </button>
@@ -253,14 +253,37 @@
                                 rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
                         <span *ngIf="currentUrl?.startsWith('/edit')">Save changes</span>
                         <span *ngIf="currentUrl?.startsWith('/edit') === false">Save</span>
+                    </button> -->
+
+                    <button (click)="toggleSaveMenu()" type="button"
+                        class="px-4 py-2 bg-gradient-to-r from-purple-700 to-indigo-600 text-white font-medium 
+                        rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
+                        <span>Save ⏷</span>
                     </button>
 
-                    <!-- Publish Button -->
-                    <!-- <button type="submit" 
-                        class="px-4 py-2 bg-gradient-to-r from-purple-700 to-indigo-600 text-white font-medium 
-                                rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">
-                        Publish
-                    </button> -->
+                    <div *ngIf="isSaveMenuOpen" 
+                        class="absolute top-[2.75rem] min-w-fit bg-white border 
+                            hover:shadow-lg transition-all duration:300 rounded-md shadow-md">
+                        <ul class="flex flex-col">
+                            <li><button (click)="onSaveClick()"
+                                    class="w-full text-left px-4 py-2 rounded-t-md hover:bg-gray-100">
+                                    Save
+                                </button>
+                            </li>
+                            <li *ngIf="currentUrl?.startsWith('/create')">
+                                <button (click)="onSaveAsTemplateClick()"
+                                    class="w-full text-left text-nowrap px-4 py-2 rounded-b-md hover:bg-gray-100">
+                                    Save as template
+                                </button>
+                            </li>
+                            <li><button (click)="onSaveDraftClick()"
+                                class="w-full text-left text-nowrap px-4 py-2 rounded-b-md hover:bg-gray-100">
+                                Save draft
+                            </button>
+                            </li>
+                        </ul>
+                    </div>
+
                 </div>
 
             </div>

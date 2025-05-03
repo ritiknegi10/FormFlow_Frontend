@@ -85,6 +85,10 @@ export class FormNavbarComponent implements OnInit {
         this.saveAsTemplateClicked.emit();
     }
 
+    onSaveDraftClick() {
+        
+    }
+
     //* Handling preview button click
     @Output() onPreviewClicked = new EventEmitter<void>();
     onPreviewClick() {
@@ -115,7 +119,6 @@ export class FormNavbarComponent implements OnInit {
 
     // save menu function
     toggleSaveMenu() {
-        if(this.currentUrl === 'create') this.isSaveMenuOpen = !this.isSaveMenuOpen;
-        else this.onSaveClick();
+        this.isSaveMenuOpen = !this.isSaveMenuOpen;
     }
 }
