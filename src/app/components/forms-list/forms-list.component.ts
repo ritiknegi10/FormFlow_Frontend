@@ -3,9 +3,6 @@ import { FormService } from '../../services/form.service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 
-
-
-
 @Component({
   selector: 'app-forms-list',
   templateUrl: './forms-list.component.html',

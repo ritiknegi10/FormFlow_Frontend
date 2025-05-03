@@ -32,7 +32,7 @@ export class FormHeroComponent implements OnInit{
     ratingOptions = Array.from({ length: 8 }, (_, i) => i + 3);
     scalingOptions = Array.from({ length: 6 }, (_, i) => i + 5);
     minDateTime!: string;
-    currentUrl!: String;
+    currentUrl!: string;
 
     // Flags
     showTemplateSuccess = false;
@@ -82,186 +82,133 @@ export class FormHeroComponent implements OnInit{
         this.updateDeadlineValidator();
         this.setMinDateTime();
 
-        // if you're editing an existing form, fetch data
+        // if you're editing an existing form/template/draft, fetch data
         const urlParts = this.router.url.split('/');
         this.route.queryParams.subscribe(params => {
 
-            // for template form
             const templateId = params['templateId'];
+            const draftId = params['draftId'];
+
             if (templateId) {
-              this.loadTemplate(templateId);
+              this.loadForm(templateId, true);
             }
 
-            // for non-template form
+            else if(draftId) {
+                console.log("it's a draft!");
+                this.loadForm(draftId, false);
+            }
+
             else if (urlParts[1] === 'edit' && urlParts[2]) {
                 this.formId = parseInt(urlParts[2]);
-                this.formService.getFormById(this.formId).subscribe(form => {
+                this.loadForm(this.formId, false);
 
+            } 
+            else {
+                this.addSection(); 
+            }
+        });
+    }
+    
+    private loadForm(formId: number, isTemplate: boolean) {
+        this.formService.getFormById(formId).subscribe({
+            next: (form) => {
+
+                console.log(form);
+                // Clear existing form
+                while (this.sections.length !== 0) {
+                    this.sections.removeAt(0);
+                }
+
+                if(isTemplate) {
+                    this.formBuilder.patchValue({
+                        title: form.title + ' (Copy)',
+                        description: form.description,
+                        deadline: form.deadline
+                    });
+                } else {
                     this.formBuilder.patchValue({
                         title: form.title,
                         description: form.description,
                         deadline: form.deadline
                     });
-
-                    if(form.deadline) {
-                        this.isDeadline = true;
-                        this.formBuilder.get('deadline')?.updateValueAndValidity();
-                    }
-                    this.updateDeadlineValidator();
-                    
-                    // Send form title to navbar component
-                    this.formTitleChange.emit(form.title);
-
-                    // console.log(form);
-                    const parsedSchema = JSON.parse(form.formSchema);
-                    // console.log(JSON.stringify(parsedSchema));
-                    console.log(form);
-
-                    const sectionsArray = (parsedSchema.sections || []).map((section: any, sIdx: number) => {
-                        const questions = section.questions.map((field: any, qIdx: number) => {
-
-                            if(field.description) {
-                                this.showQuestionDescription[sIdx][qIdx] = true;
-                            }
-
-                            return this.fb.group({
-                                questionText: field.questionText,
-                                questionDescription: field.questionDescription,
-                                type: field.type,
-                                required: field.required,
-                                sectionBasedonAnswer: field.sectionBasedonAnswer || false,
-                                options: this.fb.array(
-                                    (field.options || []).map((option: any) => 
-                                        this.fb.group({
-                                            label: option.label,
-                                            goToSection: option.goToSection || null
-                                        })
-                                    )
-                                ),
-                                rating: field.rating || 5,
-                                startValue: [field.startValue ?? 0],
-                                endValue: [field.endValue ?? 5],
-                                rows: this.fb.array(field.rows || []),         
-                                columns: this.fb.array(field.columns || []),   
-                                fileUrl: [field.fileUrl || ''], 
-                            });
-                        });
-                        if (!this.showQuestionDescription[sIdx]) this.showQuestionDescription[sIdx] = {};
-                        if (!this.questionTypeDropdown[sIdx]) this.questionTypeDropdown[sIdx] = {};
-                        if (!this.collapseQuestionMap[sIdx]) this.collapseQuestionMap[sIdx] = {};
-                        return this.fb.group({
-                            sectionTitle: section.sectionTitle,
-                            sectionDescription: section.sectionDescription,
-                            nextSection: section.nextSection,
-                            questions: this.fb.array(questions)
-                        });
-                    });
-                    this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
-                    
-                    // Initialise map properties
-                    this.selectedTypes = parsedSchema.sections.map((section: any) => 
-                        section.questions.map((question: any) => {
-                        const found = this.questionTypes.find(q => q.type === question.type);
-                        return { ...found };
-                        })
-                    );
-                    this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
-                        section.questions.map(() => false)
-                    );
-                    this.collapseQuestionMap = parsedSchema.sections.map((section: any) => 
-                        section.questions.map(() => false)
-                    );
-
-                    this.formFetched = true;
-                    
-                });
-
-            } 
-            else {
-                this.addSection(); // Start with one section by default
-            }
-        });
-    }
-
-    private loadTemplate(templateId: number) {
-        this.formService.getFormById(templateId).subscribe({
-            next: (form) => {
-                // Clear existing form
-                while (this.sections.length !== 0) {
-                    this.sections.removeAt(0);
                 }
-        
+
+                // Show deadline if present
+                if(form.deadline) {
+                    this.isDeadline = true;
+                    this.formBuilder.get('deadline')?.updateValueAndValidity();
+                }
+                this.updateDeadlineValidator();
+                
+                // Send form title to navbar component
+                this.formTitleChange.emit(this.formBuilder.value.title);
+                
                 // Parse form schema
                 const parsedSchema = typeof form.formSchema === 'string' ? JSON.parse(form.formSchema) : form.formSchema;
-        
-                // Rebuild sections
-                parsedSchema.sections.forEach((section: any) => {
-                    const newSection = this.fb.group({
+                
+                const sectionsArray = (parsedSchema.sections || []).map((section: any, sIdx: number) => {
+                    const questions = section.questions.map((field: any, qIdx: number) => {
+
+                        if(field.questionDescription) {
+                            this.showQuestionDescription[sIdx][qIdx] = true;
+                        }
+
+                        return this.fb.group({
+                            questionText: field.questionText,
+                            questionDescription: field.questionDescription,
+                            type: field.type,
+                            required: field.required,
+                            sectionBasedonAnswer: field.sectionBasedonAnswer || false,
+                            options: this.fb.array(
+                                (field.options || []).map((option: any) => 
+                                    this.fb.group({
+                                        label: option.label,
+                                        goToSection: option.goToSection || null,
+                                        isOther: option.isOther
+                                    })
+                                )
+                            ),
+                            rating: field.rating || 5,
+                            startValue: [field.startValue ?? 0],
+                            endValue: [field.endValue ?? 5],
+                            rows: this.fb.array(field.rows || []),         
+                            columns: this.fb.array(field.columns || []),   
+                            fileUrl: [field.fileUrl || ''], 
+                        });
+                    });
+                    
+                    return this.fb.group({
                         sectionTitle: section.sectionTitle,
                         sectionDescription: section.sectionDescription,
                         nextSection: section.nextSection,
-                        questions: this.fb.array([])
+                        questions: this.fb.array(questions)
                     });
-        
-                    section.questions.forEach((question: any) => {
-                        const questionGroup = this.fb.group({
-                        questionText: question.questionText,
-                        questionDescription: question.questionDescription,
-                        type: question.type,
-                        required: question.required,
-                        sectionBasedonAnswer: question.sectionBasedonAnswer,
-                        options: this.fb.array(
-                            (question.options || []).map((opt: any) =>
-                            this.fb.group({
-                                label: opt.label,
-                                goToSection: opt.goToSection
-                            })
-                            )
-                        ),
-                        rating: question.rating || 5,
-                        startValue: [question.startValue ?? 0],
-                        endValue: [question.endValue ?? 5],
-                        rows: this.fb.array(question.rows || []),         
-                        columns: this.fb.array(question.columns || []),   
-                        fileUrl: [question.fileUrl || ''], 
-                    
                 });
-                    
-                (newSection.get('questions') as FormArray).push(questionGroup);
-            });
-        
-                this.sections.push(newSection);
-        });
-        
-                this.formBuilder.patchValue({
-                    title: form.title + ' (Copy)',
-                    description: form.description,
-                    deadline: form.deadline
-                });
-                this.formFetched = true;
-
-                // Initialise map properties
+                this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
+                
+                // Initialise mapping properties
                 this.selectedTypes = parsedSchema.sections.map((section: any) => 
                     section.questions.map((question: any) => {
-                        const found = this.questionTypes.find(q => q.type === question.type);
-                        return { ...found };
+                    const found = this.questionTypes.find(q => q.type === question.type);
+                    return { ...found };
                     })
                 );
                 this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
                     section.questions.map(() => false)
                 );
-                this.collapseQuestionMap = parsedSchema.sections.map((section: any) => 
+                this.showQuestionDescription = parsedSchema.sections.map((section: any) => 
                     section.questions.map(() => false)
                 );
                 
+                this.formFetched = true;
             },
             error: (err) => {
-                console.error('Error loading template:', err);
+                console.error('Error loading form', err);
                 this.router.navigate(['/form-template']);
             }
         });
     }
-  
+
     ngAfterViewInit() {
         if (this.formFetched && !this.sections.length) {
         this.router.navigate(['/form-template'], {
@@ -292,11 +239,9 @@ export class FormHeroComponent implements OnInit{
 
     static futureDateValidator(control: AbstractControl): ValidationErrors | null {
         if (!control.value) return null;
-      
         const selectedDate = new Date(control.value);
         const now = new Date();
-        
-        // console.log("future validator", selectedDate);
+
         return selectedDate > now ? null : { pastDate: true };
     }
 
@@ -326,7 +271,6 @@ export class FormHeroComponent implements OnInit{
         }
     }
 
-    // navigate to question from form navigation
     scrollToTarget(targetId: string, color: string): void {
 
         const el = document.getElementById(targetId);
@@ -387,7 +331,7 @@ export class FormHeroComponent implements OnInit{
         this.updateDeadlineValidator();
     }
 
-    togglesectionBasedonAnswer(sectionIndex: number, questionIndex: number){
+    toggleSectionBasedonAnswer(sectionIndex: number, questionIndex: number) {
         const question = (this.sections.at(sectionIndex).get('questions') as FormArray).at(questionIndex) as FormGroup;
         
         const currentVal = question.get('sectionBasedonAnswer')?.value || false;
@@ -523,6 +467,7 @@ export class FormHeroComponent implements OnInit{
             sectionBasedonAnswer: false, 
         });
 
+
         if (!this.showQuestionDescription[sectionIndex]) this.showQuestionDescription[sectionIndex] = {};
         if (!this.questionTypeDropdown[sectionIndex]) this.questionTypeDropdown[sectionIndex] = {};
         if (!this.collapseQuestionMap[sectionIndex]) this.collapseQuestionMap[sectionIndex] = {};
@@ -550,9 +495,12 @@ export class FormHeroComponent implements OnInit{
             if (options.length === 0) {
                 options.push(this.fb.group({
                     label: ['Option 1'],
-                    goToSection: [sectionIndex + 1]
+                    goToSection: [sectionIndex + 1],
+                    isOther: [false]
                 }));
             }
+
+            console.log(options);
         }
 
         // --Handle grid-based questions
@@ -570,7 +518,8 @@ export class FormHeroComponent implements OnInit{
             if (isNewOptionType && options.length === 0) {
                 options.push(this.fb.group({
                     label: ['Option 1'],
-                    goToSection: [sectionIndex + 1]
+                    goToSection: [sectionIndex + 1],
+                    isOther: [false]
                 }));
             } else if (!isNewOptionType) {
                 options.clear();
@@ -609,32 +558,102 @@ export class FormHeroComponent implements OnInit{
         }
     }
 
-    duplicateQuestion(sectionIndex: number, questionIndex: number){
-        this.submitClicked = false;
+    duplicateQuestion(sectionIndex: number, questionIndex: number) {
         const section = this.getSectionQuestions(sectionIndex);
-        const originalQuestion = section.at(questionIndex).value;
+        const originalQuestion = section.at(questionIndex);
+    
+        if (!originalQuestion) return;
+    
         const duplicated = this.fb.group({
-            questionText: [originalQuestion.questionText],
-            questionDescription: [originalQuestion.questionDescription || null],
-            type: [originalQuestion.type],
-            options: this.fb.array(originalQuestion.options.map((opt: any) => this.fb.control(opt))),
-            rating: [originalQuestion.rating],
-            required: [originalQuestion.required],
-            startValue: [originalQuestion.startValue ?? 0],
-            endValue: [originalQuestion.endValue ?? 5],
-            rows: this.fb.array(
-                originalQuestion.rows
-                ? originalQuestion.rows.map((row: any) => this.fb.control(row))
-                : []
-            ),
-            columns: this.fb.array(
-                originalQuestion.columns
-                ? originalQuestion.columns.map((col: any) => this.fb.control(col))
-                : []
-            ),
-            sectionBasedonAnswer: [originalQuestion.sectionBasedonAnswer] 
+            questionText: [originalQuestion.get('questionText')?.value || ''],
+            questionDescription: [originalQuestion.get('questionDescription')?.value || ''],
+            type: [originalQuestion.get('type')?.value || 'multipleChoice'],
+            options: this.fb.array([]),
+            rating: [originalQuestion.get('rating')?.value || 5],
+            required: originalQuestion.get('required')?.value || false,
+            rows: this.fb.array([]),
+            columns: this.fb.array([]),
+            startValue: [originalQuestion.get('startValue')?.value || 0],
+            endValue: [originalQuestion.get('endValue')?.value || 5],
+            sectionBasedonAnswer: originalQuestion.get('sectionBasedonAnswer')?.value || false,
         });
+    
+        const options = duplicated.get('options') as FormArray;
+        const rows = duplicated.get('rows') as FormArray;
+        const columns = duplicated.get('columns') as FormArray;
+    
+        const type = duplicated.get('type')?.value;
+    
+        if (['multipleChoice', 'checkboxes', 'dropdown'].includes(type)) {
+            const originalOptions = originalQuestion.get('options') as FormArray;
+            originalOptions?.controls.forEach(opt => {
+                options.push(this.fb.group({
+                    label: [opt.get('label')?.value || ''],
+                    goToSection: [opt.get('goToSection')?.value ?? null],
+                    isOther: [opt.get('isOther')?.value ?? false]
+                }));
+            });
+        }
+    
+        if (['multipleChoiceGrid', 'checkboxGrid'].includes(type)) {
+            const originalRows = originalQuestion.get('rows') as FormArray;
+            const originalCols = originalQuestion.get('columns') as FormArray;
+    
+            originalRows?.controls.forEach(row => rows.push(this.fb.control(row.value)));
+            originalCols?.controls.forEach(col => columns.push(this.fb.control(col.value)));
+        }
+    
+        // Initialise map properties
+        const qIdx = section.length;
+        if (!this.selectedTypes[sectionIndex]) this.selectedTypes[sectionIndex] = {};
+        this.selectedTypes[sectionIndex][qIdx] = this.questionTypes.find(q => q.type === type);
+    
+        if (!this.showQuestionDescription[sectionIndex]) this.showQuestionDescription[sectionIndex] = {};
+        if (!this.questionTypeDropdown[sectionIndex]) this.questionTypeDropdown[sectionIndex] = {};
+        if (!this.collapseQuestionMap[sectionIndex]) this.collapseQuestionMap[sectionIndex] = {};
+    
+        
+        duplicated.get('type')?.valueChanges.subscribe(updatedType => {
+            const isNewOptionType = ['multipleChoice', 'checkboxes', 'dropdown'].includes(updatedType);
+            const isNewGridType = ['multipleChoiceGrid', 'checkboxGrid'].includes(updatedType);
+    
+            if (isNewOptionType && options.length === 0) {
+                options.push(this.fb.group({
+                    label: ['Option 1'],
+                    goToSection: [sectionIndex + 1],
+                    isOther: [false]
+                }));
+            } else if (!isNewOptionType) {
+                options.clear();
+            }
+    
+            if (isNewGridType) {
+                if (rows.length === 0) rows.push(this.fb.control('Row 1'));
+                if (columns.length === 0) columns.push(this.fb.control('Column 1'));
+            } else {
+                rows.clear();
+                columns.clear();
+            }
+    
+            if (updatedType !== 'linearScale') {
+                duplicated.patchValue({ startValue: 0, endValue: 5 });
+            }
+    
+            this.submitClicked = false;
+        });
+    
         section.insert(questionIndex + 1, duplicated);
+        this.cdr.detectChanges();
+    
+        // Scroll to duplicated question
+        const el = document.getElementById(`question-${sectionIndex}-${questionIndex + 1}`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('ring-2', 'ring-indigo-200');
+            setTimeout(() => {
+                el.classList.remove('ring-2', 'ring-indigo-200');
+            }, 1500);
+        }
     }
 
     removeQuestion(sectionIndex: number, questionIndex: number){
@@ -656,7 +675,7 @@ export class FormHeroComponent implements OnInit{
         }
     }
 
-    getOptions(question: any): FormArray{
+    getOptions(question: any): FormArray {
         return question.get('options') as FormArray;
     }
 
@@ -673,24 +692,25 @@ export class FormHeroComponent implements OnInit{
             this.otherAddedMap[sectionIndex][questionIndex] = true;
             const newOption = this.fb.group({
                 label: ['Other'],
-                goToSection: [sectionIndex + 1]
+                goToSection: [sectionIndex + 1],
+                isOther: [true],
             });
+            newOption.disable();
             options.push(newOption);
-             
+            console.log(newOption.value);
         }
         else {
             const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
-            const otherIndex = options.controls.findIndex(opt => opt.value.label === 'Other');
+            const otherIndex = options.controls.findIndex(opt => opt.value.isOther === true);
             const newOption = this.fb.group({
                 label: [`Option ${index + (otherAdded? 0:1)}`],
-                goToSection: [sectionIndex + 1]
+                goToSection: [sectionIndex + 1],
+                isOther: [false],
             });
             
             // -- keeping 'Other' option always below normal options
-            if(otherIndex != -1)
-                options.insert(otherIndex, newOption)
-            else
-            options.push(newOption);
+            if(otherIndex != -1) options.insert(otherIndex, newOption);
+            else options.push(newOption);
         }
     }
 
@@ -782,10 +802,20 @@ export class FormHeroComponent implements OnInit{
         return array.controls.some(control => !control.value?.trim());
     }
   
+    saveDraft() {
+        const payload = {
+            title: this.formBuilder.value.title,
+            description: this.formBuilder.value.description,
+            deadline: this.formBuilder.value.deadline,
+            formSchema: {
+                sections: this.formBuilder.value.sections
+            }
+        };
+        this.formService.createDraft(payload);
+    }
 
     onSubmit(isTemplate: boolean = false) {
         this.submitClicked = true;
-        // this.isQuestionInvalid = false;
 
         // Validating form fields
         console.log("onsubmit called");
@@ -834,11 +864,10 @@ export class FormHeroComponent implements OnInit{
                 description: this.formBuilder.value.description,
                 deadline: this.formBuilder.value.deadline,
                 formSchema: {
-                    sections: this.formBuilder.value.sections
+                    sections: this.formBuilder.get('sections')?.getRawValue()
                 }
             };
-
-            console.log(payload);
+            
 
             // For saving template
             if (isTemplate) {

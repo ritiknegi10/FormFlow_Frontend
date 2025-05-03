@@ -15,15 +15,13 @@ export class FormNavbarComponent implements OnInit {
     // side drawer
     isDrawerOpen: boolean = false;
     firstRender: boolean = true;
-    
-    isProfileMenuOpen: boolean = false;
     isSaveMenuOpen = false;
 
     ngOnInit() {
         // using firstRender to remove side drawer from DOM until page is ready
         window.scrollTo(0, 0);
         setTimeout(() => {
-            this.firstRender=false;
+            this.firstRender = false;
         }, 0);
     }
 
@@ -39,7 +37,6 @@ export class FormNavbarComponent implements OnInit {
         Swal.fire({
             title: 'Do you want to save your changes?',
             text: 'If you leave now, your unsaved changes will be lost.',
-            customClass: { popup: 'my-swal-z-index'},
             icon: 'warning',
             showDenyButton: true,
             showCancelButton: true,
@@ -59,14 +56,10 @@ export class FormNavbarComponent implements OnInit {
             // if canceled, do nothing
         });
     }
+
     //* Handling Form Title change
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
-
-
-    onSaveAsTemplateClick() {
-        this.saveAsTemplateClicked.emit();
-    }
 
     onTitleChange(event: Event) {
         const input = event.target as HTMLInputElement;
@@ -81,29 +74,47 @@ export class FormNavbarComponent implements OnInit {
         }
     }
     
-    //* Handling publish button click
+    //* Handling save button click
     @Output() publishClicked = new EventEmitter<void>();
     onSaveClick(){
         this.publishClicked.emit();
     }
 
+    //* Handling save as template button click
+    onSaveAsTemplateClick() {
+        this.saveAsTemplateClicked.emit();
+    }
+
+    onSaveDraftClick() {
+        
+    }
+
     //* Handling preview button click
     @Output() onPreviewClicked = new EventEmitter<void>();
-    onPreviewClick(){
+    onPreviewClick() {
         this.onPreviewClicked.emit();
-
         //Open New tab
         window.open('/form-preview', '_blank')
+    }
+
+    //* Handling copyLink button click
+    copyLink(id: number) {   
+        const baseUrl = window.location.origin; 
+        const shareableLink = `${baseUrl}/sharelink/${id}`; 
+        navigator.clipboard.writeText(shareableLink).then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Link Copied!',
+            text: 'You can now share the form link easily.',
+            confirmButtonColor: '#4CAF50',
+            timer: 2000, 
+          });
+        });
     }
 
     // drawer function
     toggleDrawer(){
         this.isDrawerOpen = !this.isDrawerOpen;
-    }
-
-    // profile menu function
-    toggleProfileMenu() {
-        this.isProfileMenuOpen = !this.isProfileMenuOpen;
     }
 
     // save menu function

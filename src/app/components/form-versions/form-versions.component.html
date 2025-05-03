@@ -1,3 +1,6 @@
+<!-- CHANGE DEADLINE POPUP -->
+
+<!-- Page Overlay -->
 <div *ngIf="isChangeDeadlinePopUp" (click)="closeChangeDeadlinePopUp()"
     class="fixed inset-0 bg-black/60 z-[900] transition-opacity duration-300" 
     [ngClass]="{
@@ -6,6 +9,7 @@
     }">
 </div>
 
+<!-- PopUp -->
 <div *ngIf="isChangeDeadlinePopUp" class="px-8 py-6 w-[75vw] sm:w-[30rem] fixed top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 rounded-2xl bg-white shadow-lg z-[1000]">
     <div class="flex items-center justify-between pb-3 mb-6 border-b border-gray-300">
         
@@ -71,8 +75,10 @@
             rounded-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration:300 shadow-sm">Update</button>
     </div>
 </div>
+
+<!-- BACK TO MY FORMS BUTTON -->
 <div class="absolute top-20 left-4 bg-transparent">
-    <button class="px-3 py-2 font-medium rounded-full bg-violet-200 hover:bg-violet-300 text-purple-800">
+    <button class="px-3 py-2 font-medium rounded-full bg-violet-100 hover:bg-violet-200 text-purple-800">
         <a routerLink="/forms" class="flex">
             <svg class="w-6 h-6 text-purple-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
@@ -82,7 +88,9 @@
         
     </button>
 </div>
-<div class="select-none min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
+
+<!-- MAIN CONTENT -->
+<div class="select-none min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-blue-100 py-12 px-2 sm:px-8 lg:px-20">
     <div class="max-w-5xl mx-auto">
 
         <!-- Page title -->
@@ -99,15 +107,15 @@
             <p class="text-lg text-gray-600 mt-2">Explore previous versions of your form</p>
         </div>
 
-        <div class="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm px-20 py-16">
-            <div class="flex justify-between items-start">
-                <div>
+        <div class="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm px-3 sm:px-6 md:px-14 lg:px-20 py-16">
+            <div class="flex flex-col justify-between items-center sm:flex-row sm:items-start px-2">
+                <div class="mb-3 sm:mb-0 text-center">
                     <h1 class="mb-2 text-3xl font-semibold tracking-wide text-purple-700">Version {{ selectedVersion }}</h1>
-                    <p class="text-gray-600 text-md">Created at {{ currentFormVersion.createdAt.split('T')[0] }}</p>
+                    <p class="text-gray-600 text-md">Created at {{ currentFormVersion?.createdAt.split('T')[0] }}</p>
                 </div>
                
                 <div class="flex items-center gap-3"> 
-                    <button *ngIf="currentFormVersion.deadline" (click)="openChangeDeadlinePopUp()"
+                    <button *ngIf="currentFormVersion?.deadline" (click)="openChangeDeadlinePopUp()"
                         class="px-4 py-2 rounded-md bg-violet-100 text-purple-800 font-medium hover:bg-violet-200">
                         Change deadline
                     </button>
@@ -128,7 +136,7 @@
 
             </div>
             
-            <div class="flex justify-center items-center mt-4 mb-8">
+            <div class="flex flex-col justify-center items-center sm:flex-row mt-4 mb-8">
                 <label for="versionDropdown" class="mr-3 font-medium text-gray-700 text-lg tracking-wide">Select Version:</label>
                 <select id="versionDropdown" [(ngModel)]="selectedVersion" (change)="onVersionChange()"
                     class="w-52 px-2 py-3 outline-none border-2 border-gray-300 rounded-lg focu:outline-none focus:border-none focus:ring-2 
@@ -165,7 +173,7 @@
                             </textarea>
                         </div>
                         <!-- Form deadline -->
-                        <div *ngIf="currentFormVersion.deadline" class="">
+                        <div *ngIf="currentFormVersion?.deadline" class="">
                         <label for="deadline" class="flex items-center gap-1 font-medium text-indigo-700 my-2 px-2">
                             <svg class="w-5 h-5 text-indigo-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.5 11H5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h4.5M7 11V7a3 3 0 0 1 6 0v1.5m2.5 5.5v1.5l1 1m3.5-1a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z"/>

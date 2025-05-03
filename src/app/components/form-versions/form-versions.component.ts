@@ -232,7 +232,7 @@ export class FormVersionsComponent implements OnInit {
     });
 
     this.closeChangeDeadlinePopUp();
-
+    this.loadFormVersion(this.currentFormVersion.version);
   }
 
   cloneVersion() {
