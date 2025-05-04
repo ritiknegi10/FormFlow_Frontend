@@ -677,7 +677,19 @@ export class FormHeroComponent implements OnInit{
 
         // --scroll to previous question
         if(questionIndex>0){
-            const el = document.getElementById(`question-${sectionIndex}-${section.controls.length-1}`);
+            const el = document.getElementById(`question-${sectionIndex}-${questionIndex-1}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                el.classList.add('ring-2', 'ring-indigo-200');
+            
+                setTimeout(() => {
+                    el.classList.remove('ring-2', 'ring-indigo-200');
+                }, 1500);
+            }
+        }
+        else{
+            const el = document.getElementById(`question-${sectionIndex}-${questionIndex}`);
             if (el) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
