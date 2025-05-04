@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs';
 import Swal from 'sweetalert2';
 
@@ -11,10 +11,22 @@ import Swal from 'sweetalert2';
 export class FormNavbarComponent implements OnInit {
 
     currentUrl!: string;
+    isTemplateMode = false;
+    isDraftMode = false;
+    isEditMode = false;
+
     // side drawer
     isDrawerOpen: boolean = false;
     firstRender: boolean = true;
     isSaveMenuOpen = false;
+
+    constructor(private router: Router, private eRef: ElementRef, private route: ActivatedRoute) {
+        this.router.events
+            .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event: any) => {
+            this.currentUrl = event.url;
+        });
+    }
 
     ngOnInit() {
         // using firstRender to remove side drawer from DOM until page is ready
@@ -22,15 +34,18 @@ export class FormNavbarComponent implements OnInit {
         setTimeout(() => {
             this.firstRender = false;
         }, 0);
-    }
 
-    constructor(private router: Router, private eRef: ElementRef) {
-        this.router.events
-            .pipe(filter(event => event instanceof NavigationEnd))
-        .subscribe((event: any) => {
-            this.currentUrl = event.url;
+        this.route.queryParams.subscribe(params => {
+
+            const templateId = params['templateId'];
+            const draftId = params['draftId'];
+
+            if(templateId) this.isTemplateMode = true;
+            if(draftId) this.isDraftMode = true;
         });
     }
+
+    
 
     confirmNavigateAway(targetRoute: string) {
         Swal.fire({
@@ -74,21 +89,21 @@ export class FormNavbarComponent implements OnInit {
     }
     
     //* Handling save button click
-    @Output() saveClicked = new EventEmitter<void>();
-    onSaveClick(){
-        this.saveClicked.emit();
+    @Output() saveClicked = new EventEmitter<boolean>();
+    onSaveClick(shouldNavigate: boolean = false) {
+        this.saveClicked.emit(shouldNavigate);
     }
 
     //* Handling save as template button click
-    @Output() saveAsTemplateClicked = new EventEmitter<void>();
-    onSaveAsTemplateClick() {
-        this.saveAsTemplateClicked.emit();
+    @Output() saveAsTemplateClicked = new EventEmitter<boolean>();
+    onSaveAsTemplateClick(shouldNavigate: boolean = false) {
+        this.saveAsTemplateClicked.emit(shouldNavigate);
     }
 
     //* Handling save draft button click
-    @Output() saveDraftClicked = new EventEmitter<void>();
-    onSaveDraftClick() {
-        this.saveDraftClicked.emit();
+    @Output() saveDraftClicked = new EventEmitter<boolean>();
+    onSaveDraftClick(shouldNavigate: boolean = false) {
+        this.saveDraftClicked.emit(shouldNavigate);
     }
 
     //* Handling preview button click
@@ -100,22 +115,19 @@ export class FormNavbarComponent implements OnInit {
     }
 
     //* Handling copyLink button click
-    copyLink(id: number) {   
-        const baseUrl = window.location.origin; 
-        const shareableLink = `${baseUrl}/sharelink/${id}`; 
-        navigator.clipboard.writeText(shareableLink).then(() => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Link Copied!',
-            text: 'You can now share the form link easily.',
-            confirmButtonColor: '#4CAF50',
-            timer: 2000, 
-          });
-        });
+    @Output() copyLinkCliked = new EventEmitter<number>();
+    onCopyLinkClick() {
+
+    }
+
+    //* Handling form assign button click
+    @Output() assignFormClicked = new EventEmitter<number>();
+    onAssignFormClicked() {
+
     }
 
     // drawer function
-    toggleDrawer(){
+    toggleDrawer() {
         this.isDrawerOpen = !this.isDrawerOpen;
     }
 
@@ -128,6 +140,7 @@ export class FormNavbarComponent implements OnInit {
 
     // save menu function
     toggleSaveMenu() {
-        this.isSaveMenuOpen = !this.isSaveMenuOpen;
+        if(this.currentUrl !== '/create' && !this.isDraftMode) this.onSaveClick(true);
+        else this.isSaveMenuOpen = !this.isSaveMenuOpen;
     }
 }

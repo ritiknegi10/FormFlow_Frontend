@@ -57,9 +57,12 @@ export class FormService {
       formSchema: JSON.stringify({
         sections: newForm.formSchema.sections
       }),
-      isTemplate: false
+      isTemplate: false,
+      isDraft: newForm.isDraft,
+      draftId: newForm.draftId 
     };
 
+    console.log(backendFormat);
     this.http.post(`${this.apiUrl}/create`, backendFormat).subscribe({
       next: (response) => console.log("Form saved successfully", response),
       error: (error) => console.error("Error saving form", error)

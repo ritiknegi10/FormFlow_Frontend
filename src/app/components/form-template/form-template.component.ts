@@ -36,13 +36,15 @@ export class FormTemplateComponent {
       next: (drafts) => {
         this.drafts = drafts;
         this.isLoading = false;
-        console.log(this.drafts);
       },
       error: (err) => {
         console.error('Error loading templates:', err);
         this.isLoading = false;
       }
     });
+  }
+  createNewForm() {
+    this.router.navigate(['/create']);
   }
 
   openDraft(draftId: number) {
@@ -56,30 +58,5 @@ export class FormTemplateComponent {
       queryParams: { templateId: templateId } 
     });
   }
-  // useTemplate(template: any) {
-  //   if (!template?.formSchema) {
-  //     console.error('Invalid template structure:', template);
-  //     alert('Corrupted template format. Please contact support.');
-  //     return;
-  //   }
-  
-  //   this.router.navigate(['/create'], {
-  //     state: {
-  //       templateData: {
-  //         title: template.title + ' (Copy)',
-  //         description: template.description,
-  //         // Handle both stringified and parsed schemas
-  //         formSchema: typeof template.formSchema === 'string' 
-  //                   ? JSON.parse(template.formSchema)
-  //                   : template.formSchema
-  //       }
-  //     }
-  //   });
-  // }
-  
-
-
-  createNewForm() {
-    this.router.navigate(['/create'])
-}
+    
 }

@@ -163,10 +163,11 @@
             </h2>
 
             <!-- ACTIONS -->
-            <div class="flex items-center px-4">
+            <div class="flex items-center">
                 <!-- Preview -->
                 <div class="relative flex flex-col items-center">
-                    <button (click)="onPreviewClick()" class="p-3 rounded-full hover:bg-gray-100 peer">
+                    <button (click)="onPreviewClick()" 
+                        class="p-3 rounded-full hover:bg-gray-100 peer">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
                                 stroke="rgb(75, 85, 99, 0.9)" stroke-width="2" />
@@ -181,7 +182,8 @@
 
                 <!-- Copy share link -->
                 <div class="relative flex flex-col items-center">
-                    <button class="p-3 rounded-full hover:bg-gray-100 peer">
+                    <button (click)="onCopyLinkClick()"
+                        class="p-3 rounded-full hover:bg-gray-100 peer">
                         <svg class="w-6 h-6 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                             width="24" height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="rgb(75, 85, 99, 0.9)" stroke-linecap="round" stroke-linejoin="round"
@@ -208,53 +210,31 @@
                     </button>
                     <div
                         class="absolute top-14 invisible peer-hover:visible text-nowrap transition-all duration-100 text-white text-xs px-2 py-1 rounded-lg bg-gray-700 bg-opacity-80">
-                        Manage form access
+                        Assign form
                     </div>
                 </div>
+                
+                <!-- <button *ngIf="isDraftMode"
+                    class="px-5 py-2 rounded-full border-2 border-indigo-600 hover:bg-indigo-100">
+                    Save draft
+                </button> -->
 
-                <!-- Save for small screens -->
-                <!-- <div class="relative md:hidden flex flex-col items-end">
-                    <button (click)="toggleSaveMenu()"
-                        class="p-2 ml-2 rounded-full bg-indigo-50 transition-all duration:300 shadow-sm hover:bg-indigo-100 text-indigo-700 peer">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" class="w-6 h-6">
-                            <path d="M433.9 129.9l-83.9-83.9A48 48 0 0 0 316.1 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V163.9a48 48 0 0 0 -14.1-33.9zM272 80v80H144V80h128zm122 352H54a6 6 0 0 1 -6-6V86a6 6 0 0 1 6-6h42v104c0 13.3 10.7 24 24 24h176c13.3 0 24-10.7 24-24V83.9l78.2 78.2a6 6 0 0 1 1.8 4.2V426a6 6 0 0 1 -6 6zM224 232c-48.5 0-88 39.5-88 88s39.5 88 88 88 88-39.5 88-88-39.5-88-88-88zm0 128c-22.1 0-40-17.9-40-40s17.9-40 40-40 40 17.9 40 40-17.9 40-40 40z" />
-                        </svg>
-                    </button>
-                    <div
-                        class="absolute top-14 invisible peer-hover:visible text-nowrap transition-all duration-100 text-white text-xs px-2 py-1 rounded-lg bg-gray-700 bg-opacity-80">
-                        Save
-                    </div>
-                    <div *ngIf="isSaveMenuOpen && currentUrl === '/create'" 
-                        class="absolute top-[2.75rem] min-w-fit bg-gradient-to-r from-purple-700 to-indigo-600 text-white font-medium 
-                            hover:shadow-lg transition-all duration:300 rounded-md shadow-md">
-                        <ul class="flex flex-col">
-                            <li><button (click)="onSaveClick()"
-                                    class="w-full text-left px-4 py-2 rounded-t-md bg-gradient-to-r hover:from-indigo-700 hover:to-purple-800 border-b border-gray-600 ">
-                                    Save
-                                </button></li>
-                            <li><button (click)="onSaveAsTemplateClick()"
-                                    class="w-full text-left text-nowrap px-4 py-2 rounded-b-md bg-gradient-to-r hover:from-indigo-700 hover:to-purple-800 ">
-                                    Save as template
-                                </button></li>
-                        </ul>
-                    </div>
-                </div> -->
-
-                <!-- Save for large screens -->
                 <div class="relative flex flex-col items-end ml-4 gap-2">
 
+
                     <button (click)="toggleSaveMenu()" type="button"
-                        class="pl-4 pr-3 py-2 bg-gradient-to-r from-purple-600 to-indigo-500 text-white font-medium 
+                        class="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-500 text-white font-medium 
                         rounded-full hover:shadow-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration:300 shadow-sm">
-                        <span>Save ⏷</span>
+                        <span *ngIf="currentUrl === '/create' || isDraftMode">Save ⏷</span>
+                        <span *ngIf="currentUrl !== '/create' && !isDraftMode">Save</span>
                     </button>
 
                     <div *ngIf="isSaveMenuOpen" 
                         class="absolute top-[2.75rem] min-w-fit bg-white border 
                             hover:shadow-lg transition-all duration:300 rounded-md shadow-md">
                         
-                            <ul class="flex flex-col">
-                            <li (click)="onSaveDraftClick()"
+                        <ul class="flex flex-col">
+                            <li (click)="onSaveDraftClick(true)"
                                 class="w-full flex gap-2 items-center text-slate-700 text-left text-nowrap px-4 py-2 hover:bg-gray-100 cursor-pointer">
                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
@@ -263,8 +243,7 @@
                                 </svg>
                                 <span>Save draft</span>
                             </li>   
-                            <li *ngIf="currentUrl?.startsWith('/create')"
-                                (click)="onSaveAsTemplateClick()"
+                            <li (click)="onSaveAsTemplateClick(true)" *ngIf="!isDraftMode"
                                 class="w-full flex gap-2 items-center text-slate-700 text-left text-nowrap px-4 py-2 hover:bg-gray-100 cursor-pointer">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -272,12 +251,13 @@
                                 </svg>
                                 <span>Save as template</span>
                             </li>
-                            <li (click)="onSaveClick()"
+                            <li (click)="onSaveClick(true)"
                                 class="w-full flex gap-2 items-center text-indigo-700 text-left px-4 py-2 border-t border-gray-200 hover:bg-gray-100 cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
                                     <path d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zM12 19a2 2 0 110-4 2 2 0 010 4zm4-10H8V5h8v4z" />
                                 </svg> 
-                                <span class="font-medium">Save</span>
+                                <span *ngIf="currentUrl === '/create'" class="font-medium">Save</span>
+                                <span *ngIf="isDraftMode" class="font-medium text-nowrap">Save Form</span>
                             </li>
                         </ul>
                         

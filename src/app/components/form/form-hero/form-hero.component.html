@@ -1,4 +1,4 @@
-<div class="select-none min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
+<div class="select-none min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-blue-100 py-12 px-2 sm:px-8 md:px-12 lg:px-20">
 
     <!-- FORM NAVIGATION -->
 
@@ -120,7 +120,7 @@
                 <div *ngFor="let section of sections.controls; let sIdx = index"
                     [formGroupName]="sIdx" [attr.id]="'section-' + sIdx" class="sections">
                     <div 
-                        class="bg-white/90 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-lg p-6 space-y-4">
+                        class="bg-white/90 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-lg p-3 sm:p-6 space-y-4">
                         <div class="flex justify-between items-center">
                             <div *ngIf="sections.controls.length > 1"
                                 class="text-lg tracking-wide font-semibold border-none outline-none text-indigo-700">
@@ -162,7 +162,8 @@
                                 <div class="flex items-center justify-between mb-3 px-6">
                                     <!-- QUESTION HEADER  -->
                                     <div class="flex items-center gap-2 text-gray-500 text-sm">
-                                        <span class="font-medium">Question {{ qIdx + 1 }}</span>
+                                        <span class="hidden sm:block font-medium">Question {{ qIdx + 1 }}</span>
+                                        <span class="sm:hidden font-medium">Q {{ qIdx + 1 }}</span>
                                         <div class="w-px h-4 bg-gray-300"></div>
                                         <span>{{ selectedTypes[sIdx][qIdx].label }}</span>
                                     </div>
@@ -599,14 +600,30 @@
     </div> <!--CONTAINER-->
     
     <!-- Success/Error Notifications -->
-    <!-- *****EDIT FORM***** -->
+    
     <div *ngIf="submitSuccess"
-        class="fixed top-16 right-4 z-[100] flex items-center bg-green-50 border-l-4 border-green-500 text-green-700 px-8 py-6 rounded-lg shadow-xl animate-slide-in">
+        class="fixed top-16 right-4 z-[100] flex items-center bg-green-50 border-l-[12px] border-t-2 border-r-2 border-b-2 border-green-500 text-green-700 px-8 py-6 rounded-lg shadow-xl animate-slide-in">
         <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span class="font-medium">Form Saved Successfully!</span>
+    </div>
+    <div *ngIf="showTemplateSuccess"
+        class="fixed top-16 right-4 z-[100] flex items-center bg-green-50 border-l-[12px] border-t-2 border-r-2 border-b-2 border-green-500 text-green-700 px-8 py-6 rounded-lg shadow-xl animate-slide-in">
+        <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="font-medium">Template Saved Successfully!</span>
+    </div>
+    <div *ngIf="showDraftSuccess"
+        class="fixed top-16 right-4 z-[100] flex items-center bg-green-50 border-l-[12px] border-t-2 border-r-2 border-b-2 border-green-500 text-green-700 px-8 py-6 rounded-lg shadow-xl animate-slide-in">
+        <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="font-medium">Draft Saved Successfully!</span>
     </div>
 </div> <!--BODY-->
   

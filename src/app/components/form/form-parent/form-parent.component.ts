@@ -20,16 +20,16 @@ export class FormParentComponent implements OnInit
         this.formTitle = newTitle;
     }
 
-    callOnSubmitMethod() {
-        this.formHero.onSubmit();
+    callOnSubmitMethod(shouldNavigate: boolean) {
+        this.formHero.onSubmit(false, shouldNavigate);
     }
 
-    handleSaveAsTemplate() {
-        this.formHero.onSubmit(true);
+    handleSaveAsTemplate(shouldNavigate: boolean) {
+        this.formHero.onSubmit(true, shouldNavigate);
     }
     
-    handleSaveDraft() {
-        this.formHero.saveDraft();
+    handleSaveDraft(shouldNavigate: boolean) {
+        this.formHero.saveDraft(shouldNavigate);
     }
 
     handlePreviewClick() {

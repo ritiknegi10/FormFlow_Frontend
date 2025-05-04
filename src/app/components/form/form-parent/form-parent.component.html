@@ -1,9 +1,9 @@
 <div class="body">
     <app-form-navbar [formTitle]="formTitle" (formTitleChange)="updateFormTitle($event)"
         (previewClicked)="handlePreviewClick()" 
-        (saveClicked)="callOnSubmitMethod()"
-        (saveAsTemplateClicked)="handleSaveAsTemplate()"
-        (saveDraftClicked)="handleSaveDraft()">
+        (saveClicked)="callOnSubmitMethod($event)"
+        (saveAsTemplateClicked)="handleSaveAsTemplate($event)"
+        (saveDraftClicked)="handleSaveDraft($event)">
     </app-form-navbar>
     <app-form-hero [formTitle]="formTitle" (formTitleChange)="updateFormTitle($event)"></app-form-hero>
 </div>

@@ -139,43 +139,6 @@ export class SharelinkComponent implements OnInit {
           }
     }
 
-    // private loadForm(formId: number): void {
-    //   this.formService.getFormById(formId).subscribe({
-    //     next: (form) => {
-    //       this.loadedForm = form;
-    //       this.formId = formId;
-    //       this.initializeFormData();
-    //     },
-    //     error: (error) => {
-    //       console.error('Error loading form:', error);
-    //     }
-    //   });
-    // }
-
-    // private initializeFormData(): void {
-    //   try {
-    //     this.loadedForm.formSchema = JSON.parse(this.loadedForm.formSchema);
-    //     this.initializeAnswers();
-    //     this.ratingValues = this.loadedForm.formSchema.fields
-    //       .filter((f: any) => f.type === 'rating')
-    //       .map(() => 0);
-    //   } catch (error) {
-    //     console.error('Error parsing form schema:', error);
-    //   }
-    // }
-
-    // private initializeAnswers(): void {
-    //   this.answer = this.loadedForm.formSchema.fields.map((field: any) => {
-    //     if (field.type === 'multipleChoiceGrid') {
-    //       return new Array(field.rows.length).fill(null);
-    //     }
-    //     if (field.type === 'checkboxGrid') {
-    //       return new Array(field.rows.length).fill(null).map(() => []);
-    //     }
-    //     return null;
-    //   });
-    // }
-
     gotoNextSection() {
         if(this.validateCurrentSection(this.currentSectionIndex)) {
             this.sectionHistory.push(this.currentSectionIndex);
@@ -260,14 +223,6 @@ export class SharelinkComponent implements OnInit {
     onOptionSelected(option: any, question: any) {
         if (!question.sectionBasedonAnswer) return;
 
-        // if (option.isOther) {
-        //     if (!this.otherInputValues[this.currentSectionIndex]) {
-        //       this.otherInputValues[this.currentSectionIndex] = {};
-        //     }
-        //     if (!this.otherInputValues[this.currentSectionIndex][this.qIdx]) {
-        //       this.otherInputValues[this.currentSectionIndex][this.qIdx] = '';
-        //     }
-        // }
         const gotoSectionIndex = option.goToSection;
         if (gotoSectionIndex !== undefined && gotoSectionIndex !== -1) {
             this.nextSectionData[this.currentSectionIndex] = gotoSectionIndex;
@@ -384,18 +339,37 @@ export class SharelinkComponent implements OnInit {
 
     clearForm(formRef: any) {
         formRef.resetForm();
+        this.answer = {};
+        this.otherInputValues = {};
+        this.validationErrors = {};
+
+        this.sections.forEach((section: any, sectionIndex: number) => {
+            
+            this.answer[sectionIndex] = {};
+            this.otherInputValues[sectionIndex] = {};
+            this.validationErrors[sectionIndex] = {};
+
+            section.questions.forEach((question: any, questionIndex: number) => {
+
+                this.otherInputValues[sectionIndex][questionIndex] = '';
+                this.validationErrors[sectionIndex][questionIndex] = false;
+
+                if (question.type === 'checkboxes') {
+                    this.answer[sectionIndex][questionIndex] = []; 
+                } else if (question.type === 'multipleChoiceGrid' || question.type === 'checkboxGrid') {
+                    const rowAnswers: any = {};
+                    question.rows.forEach((row: string) => {
+                        if(question.type == 'multipleChoiceGrid') rowAnswers[row] = ''; 
+                        else rowAnswers[row] = [];
+                    });
+                    this.answer[sectionIndex][questionIndex] = rowAnswers;
+                } else {
+                    this.answer[sectionIndex][questionIndex] = ''; 
+                }
+            });
+        });
     }
 
-    // isGridQuestionInvalid(i: number, question: any): boolean {
-    //     if (!question || !question.required || !Array.isArray(this.answer[i])) return false;
-    //     return (this.submitClicked || this.touchedFields[i]) && this.answer[i].some((val: any) => val === null);
-    // }
-
-    // isCheckboxGridInvalid(i: number, question: any): boolean {
-    //     if (!question || !question.required || !Array.isArray(this.answer[i])) return false;
-    //     return (this.submitClicked || this.touchedFields[i]) &&
-    //             this.answer[i].some((row: any) => !Array.isArray(row) || row.length === 0);
-    // }
 
     onFileSelected(event: Event, index: number): void {
         const input = event.target as HTMLInputElement;
@@ -450,12 +424,6 @@ export class SharelinkComponent implements OnInit {
         this.touchedFields[index] = true;
     }
 
-    toggleCheckboxgrid(questionIndex: number, rowIndex: number, column: string) {
-        const current: string[] = this.answer[questionIndex][rowIndex] || [];
-        this.answer[questionIndex][rowIndex] = current.includes(column)
-        ? current.filter(item => item !== column)
-        : [...current, column];
-    }
 
     // async submitForm() {
     //   this.submitClicked = true;

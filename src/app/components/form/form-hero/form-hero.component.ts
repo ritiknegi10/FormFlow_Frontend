@@ -36,6 +36,7 @@ export class FormHeroComponent implements OnInit{
 
     // Flags
     showTemplateSuccess = false;
+    showDraftSuccess = false;
     isTemplateMode = false;
     formFetched = false;
     submitClicked = false;
@@ -66,7 +67,9 @@ export class FormHeroComponent implements OnInit{
             title: 'Untitled Form',
             description: '',
             deadline: [null],
-            sections: this.fb.array([])
+            sections: this.fb.array([]),
+            isDraft: [false],
+            draftId: [null]
         });
         
         this.router.events
@@ -123,15 +126,21 @@ export class FormHeroComponent implements OnInit{
                     this.formBuilder.patchValue({
                         title: form.title + ' (Copy)',
                         description: form.description,
-                        deadline: form.deadline
+                        deadline: form.deadline,
+                        isDraft: form.isDraft,
+                        draftId: form.id
                     });
                 } else {
                     this.formBuilder.patchValue({
                         title: form.title,
                         description: form.description,
-                        deadline: form.deadline
+                        deadline: form.deadline,
+                        isDraft: form.isDraft,
+                        draftId: form.id
                     });
                 }
+
+                console.log(this.formBuilder.get('isDraft'));
 
                 // Show deadline if present
                 if(form.deadline) {
@@ -149,8 +158,14 @@ export class FormHeroComponent implements OnInit{
                 const sectionsArray = (parsedSchema.sections || []).map((section: any, sIdx: number) => {
                     const questions = section.questions.map((field: any, qIdx: number) => {
 
-                        if(field.questionDescription) {
-                            this.showQuestionDescription[sIdx][qIdx] = true;
+                        // Update map properties
+                        if(field.questionDescription) this.showQuestionDescription[sIdx][qIdx] = true;
+                        
+                        if (!this.otherAddedMap[sIdx]) this.otherAddedMap[sIdx] = {};
+                        if(field.options) {
+                            field.options.map((option: any) => {
+                                if(option.isOther) this.otherAddedMap[sIdx][qIdx] = true;
+                            });
                         }
 
                         return this.fb.group({
@@ -162,7 +177,7 @@ export class FormHeroComponent implements OnInit{
                             options: this.fb.array(
                                 (field.options || []).map((option: any) => 
                                     this.fb.group({
-                                        label: option.label,
+                                        label: [{ value: option.label, disabled: option.isOther }],
                                         goToSection: option.goToSection || null,
                                         isOther: option.isOther
                                     })
@@ -277,10 +292,10 @@ export class FormHeroComponent implements OnInit{
         if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-            el.classList.add('ring-2', `ring-${color}-300`);
+            el.classList.add('ring-2', 'ring-' + color + '-300');
         
             setTimeout(() => {
-              el.classList.remove('ring-2', `ring-${color}-300`);
+              el.classList.remove('ring-2', 'ring-' + color + '-300');
             }, 2000);
         }
     }
@@ -802,19 +817,26 @@ export class FormHeroComponent implements OnInit{
         return array.controls.some(control => !control.value?.trim());
     }
   
-    saveDraft() {
+    saveDraft(shouldNavigate: boolean = false) {
         const payload = {
             title: this.formBuilder.value.title,
             description: this.formBuilder.value.description,
             deadline: this.formBuilder.value.deadline,
             formSchema: {
-                sections: this.formBuilder.value.sections
-            }
+                sections: this.formBuilder.get('sections')?.getRawValue()
+            },
         };
+
+        // for creating new draft
         this.formService.createDraft(payload);
+        this.showDraftSuccess = true;
+        setTimeout(() => {
+            this.submitSuccess = false;
+            if(shouldNavigate) this.router.navigate(['/form-template']);
+        }, 2000);
     }
 
-    onSubmit(isTemplate: boolean = false) {
+    onSubmit(isTemplate: boolean = false, shouldNavigate: boolean = false) {
         this.submitClicked = true;
 
         // Validating form fields
@@ -859,23 +881,27 @@ export class FormHeroComponent implements OnInit{
         if (this.isQuestionInvalid) return;
 
         if (this.formBuilder.valid) {
+            console.log("form is valid");
             const payload = {
                 title: this.formBuilder.value.title,
                 description: this.formBuilder.value.description,
                 deadline: this.formBuilder.value.deadline,
                 formSchema: {
                     sections: this.formBuilder.get('sections')?.getRawValue()
-                }
+                },
+                isDraft: this.formBuilder.value.isDraft,
+                draftId: this.formBuilder.value.draftId
             };
             
-
+            console.log(payload);
             // For saving template
             if (isTemplate) {
                 this.formService.saveAsTemplate(payload).subscribe({
                     next: () => {
                         this.showTemplateSuccess = true;
                         setTimeout(() => {
-                            this.router.navigate(['/form-template']);
+                            this.showTemplateSuccess = false;
+                            if(shouldNavigate) this.router.navigate(['/form-template']);
                         }, 2000);
                     },
                     error: (error) => console.error(error)
@@ -889,8 +915,8 @@ export class FormHeroComponent implements OnInit{
                         this.submitSuccess = true;
                         setTimeout(() => {
                             this.submitSuccess = false;
-                            this.router.navigate(['/forms']);
-                        }, 3000);
+                            if(shouldNavigate) this.router.navigate(['/forms']);
+                        }, 2000);
                     },
                     error: (error) => {
                         console.error("Error updating form", error);
@@ -900,10 +926,11 @@ export class FormHeroComponent implements OnInit{
             // For saving new form 
             else {
                 this.formService.addForm(payload);
+                
                 this.submitSuccess = true;
                 setTimeout(() => {
                     this.submitSuccess = false;
-                    this.router.navigate(['/forms']);
+                    if(shouldNavigate) this.router.navigate(['/forms']);
                 }, 3000);
             }
              
