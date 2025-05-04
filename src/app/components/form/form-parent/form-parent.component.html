@@ -3,7 +3,8 @@
         (previewClicked)="handlePreviewClick()" 
         (saveClicked)="callOnSubmitMethod($event)"
         (saveAsTemplateClicked)="handleSaveAsTemplate($event)"
-        (saveDraftClicked)="handleSaveDraft($event)">
+        (saveDraftClicked)="handleSaveDraft($event)"
+        (copyLinkClicked)="handleCopyLink($event)">
     </app-form-navbar>
     <app-form-hero [formTitle]="formTitle" (formTitleChange)="updateFormTitle($event)"></app-form-hero>
 </div>

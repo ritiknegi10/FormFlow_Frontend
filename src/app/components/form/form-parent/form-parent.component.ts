@@ -36,4 +36,10 @@ export class FormParentComponent implements OnInit
         const formData = this.formHero.getFormData();
         sessionStorage.setItem('formPreviewData', JSON.stringify(formData));
     }
+
+    handleCopyLink(formId: string) {
+        const id = Number(formId);
+        console.log(id);
+        console.log("yoooo");
+    }
 }

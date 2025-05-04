@@ -90,7 +90,7 @@ export class FormNavbarComponent implements OnInit {
     
     //* Handling save button click
     @Output() saveClicked = new EventEmitter<boolean>();
-    onSaveClick(shouldNavigate: boolean = false) {
+    onSaveClick(shouldNavigate: boolean = false, callback?: (formId: string) => void) {
         this.saveClicked.emit(shouldNavigate);
     }
 
@@ -115,15 +115,17 @@ export class FormNavbarComponent implements OnInit {
     }
 
     //* Handling copyLink button click
-    @Output() copyLinkCliked = new EventEmitter<number>();
+    @Output() copyLinkClicked = new EventEmitter<string>();
     onCopyLinkClick() {
-
+        this.onSaveClick(true, (savedFormId: string) => {
+            this.copyLinkClicked.emit(savedFormId);
+        });
     }
 
     //* Handling form assign button click
     @Output() assignFormClicked = new EventEmitter<number>();
     onAssignFormClicked() {
-
+        this.assignFormClicked.emit();
     }
 
     // drawer function

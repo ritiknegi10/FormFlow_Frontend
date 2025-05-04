@@ -93,11 +93,12 @@ export class FormHeroComponent implements OnInit{
             const draftId = params['draftId'];
 
             if (templateId) {
-              this.loadForm(templateId, true);
+                this.formId = templateId;
+                this.loadForm(templateId, true);
             }
 
             else if(draftId) {
-                console.log("it's a draft!");
+                this.formId = draftId;
                 this.loadForm(draftId, false);
             }
 
@@ -848,7 +849,7 @@ export class FormHeroComponent implements OnInit{
         }, 2000);
     }
 
-    onSubmit(isTemplate: boolean = false, shouldNavigate: boolean = false) {
+    onSubmit(isTemplate: boolean = false, shouldNavigate: boolean = false, callback?: (formId: string) => void) {
         this.submitClicked = true;
 
         // Validating form fields
@@ -937,13 +938,27 @@ export class FormHeroComponent implements OnInit{
             } 
             // For saving new form 
             else {
-                this.formService.addForm(payload);
+                this.formService.addForm(payload).subscribe({
+                    next: (response: any) => {
+                        const formId = response.id;
+                        localStorage.setItem('formId', formId);
+                        console.log(response);
+                        this.submitSuccess = true;
+                        setTimeout(() => {
+                            this.submitSuccess = false;
+                            if(shouldNavigate) this.router.navigate(['/forms']);
+                        }, 3000);
+
+                        if (callback) {
+                            callback(formId);
+                        }
+                    },
+                    error: (error) => {
+                        console.error("Error updating form", error);
+                    }
+                });
                 
-                this.submitSuccess = true;
-                setTimeout(() => {
-                    this.submitSuccess = false;
-                    if(shouldNavigate) this.router.navigate(['/forms']);
-                }, 3000);
+                
             }
              
         } 

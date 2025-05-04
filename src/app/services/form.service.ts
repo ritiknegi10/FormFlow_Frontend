@@ -28,7 +28,7 @@ export class FormService {
     this.forms.next(forms);
   }
 
-  addForm(newForm: any): void { 
+  addForm(newForm: any): Observable<any> { 
     const allQuestions: any[] = [];
     
     if (newForm.formSchema && newForm.formSchema.sections) {
@@ -62,14 +62,10 @@ export class FormService {
       draftId: newForm.draftId 
     };
 
-    console.log(backendFormat);
-    this.http.post(`${this.apiUrl}/create`, backendFormat).subscribe({
-      next: (response) => console.log("Form saved successfully", response),
-      error: (error) => console.error("Error saving form", error)
-    });
+    return this.http.post(`${this.apiUrl}/create`, backendFormat);
   }
 
-  createDraft(draft: any): void {
+  createDraft(draft: any): Observable<any> {
     const allQuestions: any[] = [];
     
     if (draft.formSchema && draft.formSchema.sections) {
@@ -101,10 +97,7 @@ export class FormService {
       isTemplate: false
     };
 
-    this.http.post(`${this.apiUrl}/createDraft`, backendFormat).subscribe({
-      next: (response) => console.log("Draft saved successfully", response),
-      error: (error) => console.error("Error saving draft", error)
-    });
+    return this.http.post(`${this.apiUrl}/createDraft`, backendFormat);
 
   }
 

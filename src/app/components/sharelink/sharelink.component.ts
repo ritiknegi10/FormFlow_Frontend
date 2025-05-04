@@ -497,7 +497,7 @@ export class SharelinkComponent implements OnInit {
         this.validationErrors = {}; 
       
         const section = this.sections[sectionIndex];
-      
+        console.log(section);
         section.questions.forEach((question: any, questionIndex: number) => {
             if (question.required) {
                 if (!this.validationErrors[sectionIndex]) this.validationErrors[sectionIndex] = {};
@@ -589,7 +589,7 @@ export class SharelinkComponent implements OnInit {
                 };
             });
             
-            if(this.validateCurrentSection(section)) {
+            if(this.validateCurrentSection(sectionIndex)) {
                 return {
                     section: section.title,
                     responses
