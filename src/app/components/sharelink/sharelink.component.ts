@@ -621,7 +621,7 @@ export class SharelinkComponent implements OnInit {
                 };
             });
             
-            if(this.validateCurrentSection(section)) {
+            if(this.validateCurrentSection(sectionIndex)) {
                 return {
                     section: section.title,
                     responses
