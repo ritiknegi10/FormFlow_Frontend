@@ -1,0 +1,79 @@
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-6 px-4 sm:px-6">
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-6">
+        <div class="mb-3 animate-bounce">
+          <svg class="w-10 h-10 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          Trends & Analytics
+        </h2>
+        <p class="text-sm sm:text-base text-gray-600 mt-1">View user, form, and response trends</p>
+      </div>
+  
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading" class="flex justify-center items-center py-6">
+        <div class="spinner text-sm">Loading...</div>
+      </div>
+  
+      <!-- Error Message -->
+      <div *ngIf="adminError && !isLoading" class="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-4 w-full text-sm">
+        {{ adminError }}
+      </div>
+  
+      <!-- Charts Section -->
+      <div *ngIf="!isLoading" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+        <!-- User Stats Pie Chart -->
+        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 w-full">
+          <h2 class="text-base sm:text-lg font-semibold mb-3">User Stats</h2>
+          <ngx-charts-pie-chart
+            [results]="userPieData"
+            [legend]="showLegend"
+            [labels]="showLabels"
+            [explodeSlices]="explodeSlices"
+            [doughnut]="doughnut"
+            [scheme]="colorScheme"
+            class="h-auto max-h-48 w-full">
+          </ngx-charts-pie-chart>
+        </div>
+  
+        <!-- Form Stats Pie Chart -->
+        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 w-full">
+          <h2 class="text-base sm:text-lg font-semibold mb-3">Form Stats</h2>
+          <ngx-charts-pie-chart
+            [results]="formPieData"
+            [legend]="showLegend"
+            [labels]="showLabels"
+            [explodeSlices]="explodeSlices"
+            [doughnut]="doughnut"
+            [scheme]="colorScheme"
+            class="h-auto max-h-48 w-full">
+          </ngx-charts-pie-chart>
+        </div>
+  
+        <!-- Response Stats Line Chart -->
+        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 sm:col-span-2 w-full">
+          <h2 class="text-base sm:text-lg font-semibold mb-3">Response Trend</h2>
+          <ngx-charts-line-chart
+            [results]="responseLineData"
+            [xAxis]="true"
+            [yAxis]="true"
+            [legend]="showLegend"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="true"
+            [xAxisLabel]="'Week'"
+            [yAxisLabel]="'Responses'"
+            [scheme]="colorScheme"
+            class="h-auto max-h-48 w-full">
+          </ngx-charts-line-chart>
+        </div>
+      </div>
+      <div class="mt-6 text-center">
+        <button (click)="goBack()" class="bg-indigo-600 text-white py-2 px-6 rounded-lg hover:bg-indigo-700 transition-all">
+          Back to Admin Panel
+        </button>
+      </div>
+    </div>
+  </div>

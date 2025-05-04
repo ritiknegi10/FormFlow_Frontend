@@ -47,6 +47,9 @@ import { AssignedViewersComponent } from './components/assigning/assigned-viewer
 import { AssignViewersComponent } from './components/assigning/assign-viewers/assign-viewers.component';
 import { AssigningComponent } from './components/assigning/assigning.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { AdminComponent } from './components/admin/admin.component';
+import { AdminTrendsComponent } from './components/admin-trends/admin-trends.component';
+import { AdminMiscellaneousComponent } from './components/admin-miscellaneous/admin-miscellaneous.component';
 
 
 
@@ -85,7 +88,10 @@ import { ProfileComponent } from './components/profile/profile.component';
     AssignedViewersComponent,
     AssignViewersComponent,
     AssigningComponent,
-    ProfileComponent
+    ProfileComponent,
+    AdminComponent,
+    AdminTrendsComponent,
+    AdminMiscellaneousComponent
   ],
   imports: [
     BrowserModule,
