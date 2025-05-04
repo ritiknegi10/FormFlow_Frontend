@@ -6,9 +6,8 @@ import { FormHeroComponent } from '../form-hero/form-hero.component';
   templateUrl: './form-parent.component.html',
   styleUrls: ['./form-parent.component.scss']
 })
-export class FormParentComponent implements OnInit{
-    
-  
+export class FormParentComponent implements OnInit 
+{
     formTitle = 'Untitled Form';
 
     ngOnInit() {
@@ -16,7 +15,12 @@ export class FormParentComponent implements OnInit{
     }
 
     @ViewChild(FormHeroComponent) formHero!: FormHeroComponent;
-    callOnSubmitMethod(){
+    
+    updateFormTitle(newTitle: string) {
+        this.formTitle = newTitle;
+    }
+
+    callOnSubmitMethod() {
         this.formHero.onSubmit();
     }
 
@@ -24,20 +28,12 @@ export class FormParentComponent implements OnInit{
         this.formHero.onSubmit(true);
     }
     
-    updateFormTitle(newTitle: string) {
-        this.formTitle = newTitle;
+    handleSaveDraft() {
+        this.formHero.saveDraft();
     }
 
-    handlePreviewClick(){
-        // console.log("Current session data - ", sessionStorage.getItem('formPreviewData'));
-        // console.log("**************************");
-
+    handlePreviewClick() {
         const formData = this.formHero.getFormData();
         sessionStorage.setItem('formPreviewData', JSON.stringify(formData));
-
-        // console.log("Form Saved to sessionstorage");
-        // console.log("**************************");
-        // console.log(sessionStorage.getItem('formPreviewData'));
-        // console.log("**************************");
     }
 }

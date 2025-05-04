@@ -3,10 +3,12 @@
     <!-- FORM NAVIGATION -->
 
     <!-- show/hide button -->
-    <div class="flex items-center justify-end fixed z-[90] right-0 top-16 w-72 max-h-screen">
+    <div class="flex items-center justify-end fixed z-[90] left-0 top-16 w-[17rem] max-h-screen">
         <button (click)="showFormNavigation = !showFormNavigation"
-            class="py-1.5 px-2 bg-gray-100 w-full relative flex items-center border border-gray-300"
+            class="py-1.5 px-2 bg-gray-100 w-full relative flex items-center justify-center border border-gray-300"
             [ngClass]="{'rounded-b-lg': !showFormNavigation, 'shadow-sm': !showFormNavigation }">
+            
+            <span class="font-semibold text-gray-700">Form Navigation</span>
             <div *ngIf="showFormNavigation">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M7 14l5-5 5 5H7z" />
@@ -16,14 +18,14 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M7 10l5 5 5-5H7z" />
                 </svg>
-            </div>
-            <span class="font-semibold text-gray-700">Form Navigation</span> 
+            </div> 
         </button>
     </div>
 
     <!-- navigation div -->
-    <div class="fixed z-[80] -mt-1 w-72 right-0 overflow-auto max-h-[calc(100vh-6rem)] p-6 bg-white border border-gray-200 rounded-bl-2xl shadow-xl transform transition-transform duration-500"
+    <div class="fixed z-[80] -mt-1 w-[17rem] left-0 overflow-auto max-h-[calc(100vh-6rem)] p-4 bg-white border border-gray-200 rounded-br-2xl shadow-xl transform transition-transform duration-500"
         [ngClass]="{ 'translate-y-0': showFormNavigation, '-translate-y-full': !showFormNavigation}">
+        
         <div cdkDropList class="space-y-2" (cdkDropListDropped)="dropSection($event)">
             <div *ngFor="let section of sections.controls; let sIdx = index" cdkDrag cdkDragLockAxis="y">
                 <div cdkDragHandle class="font-medium text-indigo-700 mb-2 truncate max-w-[160px]">
@@ -49,14 +51,7 @@
 
         <!-- FORM START -->
         <form [formGroup]="formBuilder" (ngSubmit)="onSubmit()">
-
-            <button (click)="saveDraft()"
-                type="button" 
-                class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700">
-                Save draft
-            </button>
-
-
+            
             <!-- FORM TITLE AND DESCRIPTION -->
             <div class="pt-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl backdrop-blur-md shadow-md">
             <div class="p-6 bg-white rounded-b-xl ">

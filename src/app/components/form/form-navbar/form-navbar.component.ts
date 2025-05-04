@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -9,7 +9,6 @@ import Swal from 'sweetalert2';
   styleUrls: ['./form-navbar.component.scss']
 })
 export class FormNavbarComponent implements OnInit {
-    @Output() saveAsTemplateClicked = new EventEmitter<void>();
 
     currentUrl!: string;
     // side drawer
@@ -25,7 +24,7 @@ export class FormNavbarComponent implements OnInit {
         }, 0);
     }
 
-    constructor(private router: Router){
+    constructor(private router: Router, private eRef: ElementRef) {
         this.router.events
             .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe((event: any) => {
@@ -75,24 +74,27 @@ export class FormNavbarComponent implements OnInit {
     }
     
     //* Handling save button click
-    @Output() publishClicked = new EventEmitter<void>();
+    @Output() saveClicked = new EventEmitter<void>();
     onSaveClick(){
-        this.publishClicked.emit();
+        this.saveClicked.emit();
     }
 
     //* Handling save as template button click
+    @Output() saveAsTemplateClicked = new EventEmitter<void>();
     onSaveAsTemplateClick() {
         this.saveAsTemplateClicked.emit();
     }
 
+    //* Handling save draft button click
+    @Output() saveDraftClicked = new EventEmitter<void>();
     onSaveDraftClick() {
-        
+        this.saveDraftClicked.emit();
     }
 
     //* Handling preview button click
-    @Output() onPreviewClicked = new EventEmitter<void>();
+    @Output() previewClicked = new EventEmitter<void>();
     onPreviewClick() {
-        this.onPreviewClicked.emit();
+        this.previewClicked.emit();
         //Open New tab
         window.open('/form-preview', '_blank')
     }
@@ -115,6 +117,13 @@ export class FormNavbarComponent implements OnInit {
     // drawer function
     toggleDrawer(){
         this.isDrawerOpen = !this.isDrawerOpen;
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent) {
+      if (!this.eRef.nativeElement.contains(event.target)) {
+        this.isSaveMenuOpen = false;
+      }
     }
 
     // save menu function
