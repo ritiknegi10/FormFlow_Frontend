@@ -201,6 +201,26 @@
         </div>
     </div>
 
+
+    <!-- Anonymous Submission Toggle -->
+    <div *ngIf="isPublic" class="mb-8 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800">Anonymous Submissions</h3>
+                <p class="text-sm text-gray-600">
+                    {{ allowAnonymous ? 'Anonymous submissions allowed' : 'Anonymous submissions disabled' }}
+                </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [checked]="allowAnonymous" (change)="updateAnonymousSubmission(!allowAnonymous)"
+                    class="sr-only peer">
+                <div
+                    class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-indigo-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all">
+                </div>
+            </label>
+        </div>
+    </div>
+
     <!-- Public Form Notice (Keep existing) -->
     <div *ngIf="isPublic" class="mb-8 p-4 bg-blue-50 text-blue-700 rounded-lg">
         <p>This form is now publicly accessible. Anyone with the link can submit responses.</p>
