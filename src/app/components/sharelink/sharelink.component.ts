@@ -162,6 +162,7 @@ export class SharelinkComponent implements OnInit {
     gotoPreviousSection() {
         if (this.sectionHistory.length > 0) {
             this.currentSectionIndex = this.sectionHistory.pop()!;
+            if (!this.validationErrors[this.currentSectionIndex]) this.validationErrors[this.currentSectionIndex] = {}; 
             window.scroll(0, 0);
         }
     }
