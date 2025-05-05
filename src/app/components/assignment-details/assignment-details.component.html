@@ -11,7 +11,7 @@
       <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
         Form Assignment Details
       </h2>
-      <p class="text-lg text-gray-600 mt-3">View assignment trends and assigned users</p>
+      <p class="text-lg text-gray-600 mt-3">View assigned users</p>
     </div>
 
     <!-- Single Box Container -->
@@ -21,101 +21,81 @@
         {{ errorMessage }}
       </div>
 
-      <!-- Flexbox for Line Chart and Assignment Details -->
-      <div class="flex flex-col gap-6">
-        <!-- Line Chart Container -->
-        <div class="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
-          <h3 class="text-2xl font-semibold text-gray-800 mb-4">Assignment Trends</h3>
-          <div *ngIf="loading.chart" class="text-center py-4">
-            <p class="text-gray-500">Loading chart...</p>
-          </div>
-          <ngx-charts-line-chart *ngIf="!loading.chart && assignmentTrend.length > 0" [view]="[700, 300]"
-            [scheme]="chartColorScheme" [results]="assignmentTrend" [xAxis]="true" [yAxis]="true" [legend]="true"
-            [showXAxisLabel]="true" [showYAxisLabel]="true" xAxisLabel="Date" yAxisLabel="Assignments">
-          </ngx-charts-line-chart>
-          <div *ngIf="!loading.chart && assignmentTrend[0]?.series.length === 0" class="text-center py-4">
-            <p class="text-gray-500">No assignment data available</p>
-          </div>
-        </div>
-
-        <!-- Assignment Details Container -->
-        <div class="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
-          <!-- <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
-              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Assignment Details Container -->
+      <div class="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+        <!-- Search Bar and Header -->
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            Assigned Users
+          </h3>
+          <div class="flex items-center gap-3">
+            <!-- Search Bar -->
+            <div class="relative">
+              <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="filterUsers()"
+                placeholder="Search by username or email"
+                class="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
+              <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              Assigned Users
-            </h3>
+            </div>
+            <!-- Bell Icon -->
+            <button (click)="sendReminders()" [disabled]="loading.reminders"
+              class="p-1 text-gray-400 hover:text-indigo-600 relative" title="Send reminders to all assigned users">
+              <svg *ngIf="!loading.reminders" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              <!-- Loading spinner -->
+              <svg *ngIf="loading.reminders" class="animate-spin h-6 w-6 text-indigo-600"
+                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+            </button>
+            <!-- Existing count badge -->
             <span class="bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-sm">
-              {{ assignedUsers.length }} {{ assignedUsers.length === 1 ? 'User' : 'Users' }}
+              {{ filteredUsers.length }} {{ filteredUsers.length === 1 ? 'User' : 'Users' }}
             </span>
-          </div> -->
+          </div>
+        </div>
+        <!-- User List -->
+        <div *ngIf="filteredUsers.length > 0; else noUsers" class="space-y-4">
+          <div *ngFor="let user of filteredUsers"
+            class="group p-6 bg-white border-2 border-gray-100 rounded-xl hover:border-indigo-100 transition-all shadow-sm hover:shadow-md">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <p class="text-gray-800 font-medium">{{ user.username }}</p>
+                <p class="text-sm text-gray-600">{{ user.email }}</p>
+                <p class="text-sm text-gray-500">
+                  Status: {{ user.hasSubmitted ? 'Submitted' : 'Not Submitted' }}
+                </p>
+                <p *ngIf="user.assignedAt" class="text-sm text-gray-500">
+                  Assigned: {{ user.assignedAt | date:'medium' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
-              <!-- Existing icon -->
-              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        <!-- Empty State for No Users -->
+        <ng-template #noUsers>
+          <div class="text-center py-12">
+            <div class="mb-4 text-gray-400">
+              <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                   d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
-              Assigned Users
-            </h3>
-            <div class="flex items-center gap-3">
-              <!-- Bell Icon -->
-              <button (click)="sendReminders()" [disabled]="loading.reminders"
-                class="p-1 text-gray-400 hover:text-indigo-600 relative" title="Send reminders to all assigned users">
-                <svg *ngIf="!loading.reminders" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <!-- Loading spinner -->
-                <svg *ngIf="loading.reminders" class="animate-spin h-6 w-6 text-indigo-600"
-                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                  </path>
-                </svg>
-              </button>
-              <!-- Existing count badge -->
-              <span class="bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-sm">
-                {{ assignedUsers.length }} {{ assignedUsers.length === 1 ? 'User' : 'Users' }}
-              </span>
             </div>
+            <p class="text-gray-500">No users assigned yet</p>
           </div>
-          <!-- User List -->
-          <div *ngIf="assignedUsers.length > 0; else noUsers" class="space-y-4">
-            <div *ngFor="let user of assignedUsers"
-              class="group p-6 bg-white border-2 border-gray-100 rounded-xl hover:border-indigo-100 transition-all shadow-sm hover:shadow-md">
-              <div class="flex items-center justify-between">
-                <div class="flex-1">
-                  <p class="text-gray-800 font-medium">{{ user.email }}</p>
-                  <p class="text-sm text-gray-500">
-                    Status: {{ user.hasSubmitted ? 'Submitted' : 'Not Submitted' }}
-                  </p>
-                  <p *ngIf="user.assignedAt" class="text-sm text-gray-500">
-                    Assigned: {{ user.assignedAt | date:'medium' }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty State for No Users -->
-          <ng-template #noUsers>
-            <div class="text-center py-12">
-              <div class="mb-4 text-gray-400">
-                <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-              <p class="text-gray-500">No users assigned yet</p>
-            </div>
-          </ng-template>
-        </div>
+        </ng-template>
       </div>
 
       <!-- Cancel Button -->

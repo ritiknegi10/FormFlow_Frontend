@@ -255,15 +255,28 @@ export class FormService {
     );
   }
 
+  // getAssignedUsers(formId: number): Observable<any[]> {
+  //   return this.http.get<any[]>(`${this.apiUrl}/${formId}/assigned-users`).pipe(
+  //     catchError(error => {
+  //       console.error('Error fetching assigned users:', error);
+  //       return of([]);
+  //     })
+  //   );
+  // }
   getAssignedUsers(formId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/${formId}/assigned-users`).pipe(
+      map(users => users.map(user => ({
+        username: user.username || user.email.split('@')[0], // Fallback to email prefix if username is missing
+        email: user.email,
+        assignedAt: user.assignedAt,
+        submitted: user.submitted
+      }))),
       catchError(error => {
         console.error('Error fetching assigned users:', error);
         return of([]);
       })
     );
   }
-  
   removeAssignedUsers(formId: number, emails: string[]): Observable<string> {
     return this.http.put(
         `${this.apiUrl}/${formId}/remove-assigned-users`,
