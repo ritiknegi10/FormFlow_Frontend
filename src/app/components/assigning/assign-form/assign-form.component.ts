@@ -1,3 +1,4 @@
+// assign-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormService } from '../../../services/form.service';
@@ -5,9 +6,9 @@ import { ResponseService } from '../../../services/response.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-assign-form',
-  templateUrl: './assign-form.component.html',
-  styleUrls: ['./assign-form.component.css']
+    selector: 'app-assign-form',
+    templateUrl: './assign-form.component.html',
+    styleUrls: ['./assign-form.component.css']
 })
 export class AssignFormComponent implements OnInit {
   formId: number;
@@ -28,26 +29,26 @@ allowAnonymous = false;
 
 
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private formService: FormService,
-    private responseService: ResponseService,
-    private fb: FormBuilder
-  ) {
-    this.formId = +this.route.snapshot.paramMap.get('id')!;
-    this.assignForm = this.fb.group({
-      searchInput: ['', [Validators.required]]
-    });
-  }
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private formService: FormService,
+        private responseService: ResponseService,
+        private fb: FormBuilder
+    ) {
+        this.formId = +this.route.snapshot.paramMap.get('id')!;
+        this.assignForm = this.fb.group({
+            searchInput: ['', [Validators.required]]
+        });
+    }
 
-  ngOnInit(): void {
-    this.loadAssignedUsers();
-    this.formId = +this.route.snapshot.paramMap.get('id')!;
-    this.loadInitialVisibility();
+    ngOnInit(): void {
+        this.loadAssignedUsers();
+        this.formId = +this.route.snapshot.paramMap.get('id')!;
+        this.loadInitialVisibility();
+    }
+
   
-  }
-
 
   get filteredUsers() {
     return this.assignedUsers.filter(user =>
@@ -112,7 +113,7 @@ private loadAssignedUsers(): Promise<void> {
                   next: (responses) => {
                       this.assignedUsers = userEmails.map(email => ({
                           email,
-                          hasSubmitted: responses.some((r: any) => 
+                          hasSubmitted: responses.some((r: any) =>
                               r.respondent?.email.toLowerCase() === email.toLowerCase()
                           )
                       }));
@@ -225,38 +226,51 @@ updateAnonymousSubmission(value: boolean) {
 // Update the component class
 attemptVisibilityChange() {
   const newPublicState = !this.isPublic;
-  
-  if (newPublicState) { // Trying to make public
-    if (this.assignedUsers.length > 0) {
-      this.errorMessage = 'Remove all assigned users before making the form public';
-      setTimeout(() => this.errorMessage = '', 5000);
-      return;
-    }
-    
-    this.formService.updateVisibility(this.formId, true).subscribe({
-      next: (res) => {
-        this.isPublic = true;
-        this.successMessage = res;
-        setTimeout(() => this.successMessage = '', 3000);
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to update visibility';
-        setTimeout(() => this.errorMessage = '', 5000);
+  if (newPublicState) {
+      if (this.assignedUsers.length > 0) {
+          this.errorMessage = 'Remove all assigned users before making the form public';
+          setTimeout(() => this.errorMessage = '', 5000);
+          return;
       }
-    });
-  } else { // Making private is always allowed
-    this.formService.updateVisibility(this.formId, false).subscribe({
-      next: (res) => {
-        this.isPublic = false;
-        this.successMessage = res;
-        setTimeout(() => this.successMessage = '', 3000);
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to update visibility';
-        setTimeout(() => this.errorMessage = '', 5000);
-      }
-    });
+      this.formService.updateVisibility(this.formId, true).subscribe({
+          next: (res) => {
+              this.isPublic = true;
+              this.successMessage = res;
+              setTimeout(() => this.successMessage = '', 3000);
+          },
+          error: (err) => {
+              this.errorMessage = 'Failed to update visibility';
+              setTimeout(() => this.errorMessage = '', 5000);
+          }
+      });
+  } else {
+      this.formService.updateVisibility(this.formId, false).subscribe({
+          next: (res) => {
+              this.isPublic = false;
+              this.successMessage = res;
+              setTimeout(() => this.successMessage = '', 3000);
+          },
+          error: (err) => {
+              this.errorMessage = 'Failed to update visibility';
+              setTimeout(() => this.errorMessage = '', 5000);
+          }
+      });
   }
+}
+
+toggleAnonymous() {
+  const newAllowAnonymous = !this.allowAnonymous;
+  this.formService.updateFormAnonymous(this.formId, newAllowAnonymous).subscribe({
+      next: (res) => {
+          this.allowAnonymous = newAllowAnonymous;
+          this.successMessage = res;
+          setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (err) => {
+          this.errorMessage = 'Failed to update anonymous setting';
+          setTimeout(() => this.errorMessage = '', 5000);
+      }
+  });
 }
 
 
@@ -288,28 +302,26 @@ attemptVisibilityChange() {
   //   });
   // }
 
-processInput(): void {
+  processInput(): void {
     const input = this.assignForm.get('searchInput')?.value || '';
     const emails = input.split(',')
         .map((e: string) => e.trim())
         .filter((e: string) => e.length > 0);
-
-    const newValid = emails.filter((e: string) => 
-        this.emailPattern.test(e) && 
-        !this.validEmails.includes(e) && 
+    const newValid = emails.filter((e: string) =>
+        this.emailPattern.test(e) &&
+        !this.validEmails.includes(e) &&
         !this.assignedUsers.some(u => u.email === e)
     );
-    
-    const newInvalid = emails.filter((e: string) => 
+    const newInvalid = emails.filter((e: string) =>
         !this.emailPattern.test(e) ||
         this.assignedUsers.some(u => u.email === e)
     );
-
     this.validEmails = [...this.validEmails, ...newValid];
     this.invalidEmails = [...this.invalidEmails, ...newInvalid];
-    
     this.assignForm.patchValue({ searchInput: '' });
 }
+
+
 
   removeEmail(email: string): void {
     this.validEmails = this.validEmails.filter(e => e !== email);
@@ -317,37 +329,32 @@ processInput(): void {
 
   onSubmit(): void {
     if (this.validEmails.length === 0) return;
-
     this.loading.assign = true;
     this.errorMessage = '';
     this.successMessage = '';
-    
     this.formService.assignUsersToForm(this.formId, this.validEmails).subscribe({
-      next: (response) => {
-        this.successMessage = `${this.validEmails.length} users assigned successfully!`;
-        this.validEmails = [];
-        this.invalidEmails = [];
-        this.loadAssignedUsers();
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 3000);
-    
-      },
-      error: (err) => {
-        console.error('Assignment error:', err);
-        this.errorMessage = err.error || 'Failed to assign users. Please try again.';
-        
-        // Clear error message after 5 seconds
-        setTimeout(() => {
-          this.errorMessage = '';
-        }, 5000);
-      },
-      complete: () => {
-        this.loading.assign = false;
-        this.assignForm.reset();
-      }
+        next: (response) => {
+            this.successMessage = `${this.validEmails.length} users assigned successfully!`;
+            this.validEmails = [];
+            this.invalidEmails = [];
+            this.loadAssignedUsers();
+            setTimeout(() => {
+                this.successMessage = '';
+            }, 3000);
+        },
+        error: (err) => {
+            console.error('Assignment error:', err);
+            this.errorMessage = err.error || 'Failed to assign users. Please try again.';
+            setTimeout(() => {
+                this.errorMessage = '';
+            }, 5000);
+        },
+        complete: () => {
+            this.loading.assign = false;
+            this.assignForm.reset();
+        }
     });
-  }
+}
 
   cancel(): void {
     this.router.navigate(['/forms']);
