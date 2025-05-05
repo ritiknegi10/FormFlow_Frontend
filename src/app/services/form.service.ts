@@ -61,7 +61,7 @@ export class FormService {
       isDraft: newForm.isDraft,
       draftId: newForm.draftId 
     };
-
+    console.log(backendFormat);
     return this.http.post(`${this.apiUrl}/create`, backendFormat);
   }
 

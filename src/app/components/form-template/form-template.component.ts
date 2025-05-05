@@ -97,6 +97,5 @@ export class FormTemplateComponent {
       error: (err) => console.log("Error deleting draft", err)
     })
   }
-
-    
+   
 }

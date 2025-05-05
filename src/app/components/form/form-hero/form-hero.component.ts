@@ -842,12 +842,18 @@ export class FormHeroComponent implements OnInit{
         };
 
         // for creating new draft
-        this.formService.createDraft(payload);
-        this.submitSuccess = true;
-        setTimeout(() => {
-            this.submitSuccess = false;
-            if(shouldNavigate) this.router.navigate(['/form-template']);
-        }, 2000);
+        this.formService.createDraft(payload).subscribe({
+            next: () => {
+                this.showDraftSuccess = true;
+                setTimeout(() => {
+                    this.showDraftSuccess = false;
+                    if(shouldNavigate) this.router.navigate(['/form-template']);
+                }, 2000);
+            },
+            error: (error) => {
+                console.error("Error updating draft", error);
+            }
+        });
     }
 
     updateDraft() {
