@@ -1,11 +1,15 @@
 <div class="body">
-    <app-form-navbar [formTitle]="formTitle" (formTitleChange)="updateFormTitle($event)"
+    <app-form-navbar [formTitle]="formTitle" 
+        (formTitleChange)="updateFormTitle($event)"
         (previewClicked)="handlePreviewClick()" 
         (saveClicked)="callOnSubmitMethod($event)"
         (saveAsTemplateClicked)="handleSaveAsTemplate($event)"
         (saveDraftClicked)="handleSaveDraft($event)"
-        (copyLinkClicked)="handleCopyLink($event)">
+        (updateDraftClicked)="handleUpdateDraft()">
     </app-form-navbar>
-    <app-form-hero [formTitle]="formTitle" (formTitleChange)="updateFormTitle($event)"></app-form-hero>
+    <app-form-hero [formTitle]="formTitle" 
+        (formTitleChange)="updateFormTitle($event)"
+        (formSaved)="getSavedFormId($event)">
+    </app-form-hero>
 </div>
 

@@ -838,18 +838,48 @@ export class FormHeroComponent implements OnInit{
             formSchema: {
                 sections: this.formBuilder.get('sections')?.getRawValue()
             },
+            isTemplate: false,
         };
 
         // for creating new draft
         this.formService.createDraft(payload);
-        this.showDraftSuccess = true;
+        this.submitSuccess = true;
         setTimeout(() => {
             this.submitSuccess = false;
             if(shouldNavigate) this.router.navigate(['/form-template']);
         }, 2000);
     }
 
-    onSubmit(isTemplate: boolean = false, shouldNavigate: boolean = false, callback?: (formId: string) => void) {
+    updateDraft() {
+        const payload = {
+            title: this.formBuilder.value.title,
+            description: this.formBuilder.value.description,
+            deadline: this.formBuilder.value.deadline,
+            formSchema: {
+                sections: this.formBuilder.get('sections')?.getRawValue()
+            },
+            isTemplate: false,
+        };
+        if(this.formId) {
+            this.formService.updateDraft(this.formId, payload).subscribe({
+                next: () => {
+                    this.showDraftSuccess = true;
+                    setTimeout(() => {
+                        this.showDraftSuccess = false;
+                        this.router.navigate(['/form-template']);
+                    }, 2000);
+                },
+                error: (error) => {
+                    console.error("Error updating draft", error);
+                }
+            });
+        }
+        
+    }
+
+    @Output() formSaved = new EventEmitter<number>();
+
+    onSubmit(isTemplate: boolean = false, shouldNavigate: boolean = false) {
         this.submitClicked = true;
 
         // Validating form fields
@@ -910,12 +940,15 @@ export class FormHeroComponent implements OnInit{
             // For saving template
             if (isTemplate) {
                 this.formService.saveAsTemplate(payload).subscribe({
-                    next: () => {
+                    next: (response: any) => {
                         this.showTemplateSuccess = true;
                         setTimeout(() => {
                             this.showTemplateSuccess = false;
                             if(shouldNavigate) this.router.navigate(['/form-template']);
                         }, 2000);
+
+                        const formId = response.id;
+                        this.formSaved.emit(formId);
                     },
                     error: (error) => console.error(error)
                 });
@@ -924,12 +957,14 @@ export class FormHeroComponent implements OnInit{
             // For saving changes (edit-form)
             else if (this.formId) {
                 this.formService.updateForm(this.formId, payload).subscribe({
-                    next: () => {
+                    next: (response: any) => {
                         this.submitSuccess = true;
                         setTimeout(() => {
                             this.submitSuccess = false;
                             if(shouldNavigate) this.router.navigate(['/forms']);
                         }, 2000);
+                        const formId = response.id;
+                        this.formSaved.emit(formId);
                     },
                     error: (error) => {
                         console.error("Error updating form", error);
@@ -940,8 +975,6 @@ export class FormHeroComponent implements OnInit{
             else {
                 this.formService.addForm(payload).subscribe({
                     next: (response: any) => {
-                        const formId = response.id;
-                        localStorage.setItem('formId', formId);
                         console.log(response);
                         this.submitSuccess = true;
                         setTimeout(() => {
@@ -949,9 +982,8 @@ export class FormHeroComponent implements OnInit{
                             if(shouldNavigate) this.router.navigate(['/forms']);
                         }, 3000);
 
-                        if (callback) {
-                            callback(formId);
-                        }
+                        const formId = response.id;
+                        this.formSaved.emit(formId);
                     },
                     error: (error) => {
                         console.error("Error updating form", error);

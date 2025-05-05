@@ -199,7 +199,8 @@
 
                 <!-- Form access -->
                 <div class="relative flex flex-col items-center">
-                    <button class="p-3 rounded-full hover:bg-gray-100 peer">
+                    <button (click)="onAssignFormClick()"
+                        class="p-3 rounded-full hover:bg-gray-100 peer">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="9" cy="7" r="4" stroke="rgb(75, 85, 99, 0.9)" stroke-width="2" />
                             <path d="M2 20C2 16 6 14 9 14C12 14 16 16 16 20" stroke="rgb(75, 85, 99, 0.9)"

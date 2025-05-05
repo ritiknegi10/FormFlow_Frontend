@@ -1,5 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, ActivatedRoute } from '@angular/router';
+import { FormParentComponent } from '../form-parent/form-parent.component'
 import { filter } from 'rxjs';
 import Swal from 'sweetalert2';
 
@@ -28,6 +29,7 @@ export class FormNavbarComponent implements OnInit {
         });
     }
 
+    @ViewChild(FormParentComponent) formParent!: FormParentComponent;
     ngOnInit() {
         // using firstRender to remove side drawer from DOM until page is ready
         window.scrollTo(0, 0);
@@ -71,6 +73,10 @@ export class FormNavbarComponent implements OnInit {
         });
     }
 
+    confirmSaveAndCopyLink() {
+        
+    }
+
     //* Handling Form Title change
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
@@ -90,7 +96,7 @@ export class FormNavbarComponent implements OnInit {
     
     //* Handling save button click
     @Output() saveClicked = new EventEmitter<boolean>();
-    onSaveClick(shouldNavigate: boolean = false, callback?: (formId: string) => void) {
+    onSaveClick(shouldNavigate: boolean = false) {
         this.saveClicked.emit(shouldNavigate);
     }
 
@@ -102,8 +108,11 @@ export class FormNavbarComponent implements OnInit {
 
     //* Handling save draft button click
     @Output() saveDraftClicked = new EventEmitter<boolean>();
+    @Output() updateDraftClicked = new EventEmitter<void>();
+    
     onSaveDraftClick(shouldNavigate: boolean = false) {
-        this.saveDraftClicked.emit(shouldNavigate);
+        if(this.isDraftMode) this.updateDraftClicked.emit();
+        else this.saveDraftClicked.emit(shouldNavigate);
     }
 
     //* Handling preview button click
@@ -114,18 +123,45 @@ export class FormNavbarComponent implements OnInit {
         window.open('/form-preview', '_blank')
     }
 
-    //* Handling copyLink button click
-    @Output() copyLinkClicked = new EventEmitter<string>();
+   
+    actionAfterSave: 'copy' | 'assign' | null = null;
+
     onCopyLinkClick() {
-        this.onSaveClick(true, (savedFormId: string) => {
-            this.copyLinkClicked.emit(savedFormId);
-        });
+        Swal.fire({
+            title: 'Save Form and Copy Link?',
+            text: 'To copy the form link, your form needs to be saved first.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Save & Copy Link',
+            cancelButtonText: 'Keep Editing',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#aaa'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User chose to Save & Copy
+                this.onSaveClick(true);  // Save the form without navigation
+                this.actionAfterSave = 'copy';  // so after saving you know you need to copy
+            }
+        }); 
     }
 
-    //* Handling form assign button click
-    @Output() assignFormClicked = new EventEmitter<number>();
-    onAssignFormClicked() {
-        this.assignFormClicked.emit();
+    onAssignFormClick() {
+        Swal.fire({
+            title: 'Save Form and Assign?',
+            text: 'The form needs to be saved before you can assign it.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Save & Assign',
+            cancelButtonText: 'Keep Editing',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#aaa'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User chose to Save & Copy
+                this.onSaveClick(false);  // Save the form without navigation
+                this.actionAfterSave = 'assign';  // so after saving you know you need to copy
+            }
+        });  
     }
 
     // drawer function
