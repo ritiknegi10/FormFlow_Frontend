@@ -17,8 +17,8 @@ export class ResponseService {
     return this.http.get<any[]>(`${this.apiUrl}/${formId}`);
   }
 
-  submitResponse(formId: number, response: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/submit/${formId}`, response).pipe(
+  submitResponse(formId: number, response: any, isAnonymous: boolean): Observable<any> {
+    return this.http.post(`${this.apiUrl}/submit/${formId}?isAnonymous=${isAnonymous}`, response).pipe(
       catchError(error => {
         console.error('Submission error:', error);
         return throwError(() => error);

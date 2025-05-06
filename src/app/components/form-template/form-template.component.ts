@@ -36,6 +36,7 @@ export class FormTemplateComponent {
     this.formService.getDrafts().subscribe({
       next: (drafts) => {
         this.drafts = drafts;
+        console.log(drafts);
         this.isLoading = false;
       },
       error: (err) => {

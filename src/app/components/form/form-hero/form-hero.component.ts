@@ -38,6 +38,8 @@ export class FormHeroComponent implements OnInit{
     showTemplateSuccess = false;
     showDraftSuccess = false;
     isTemplateMode = false;
+    isDraftMode = false;
+    isEditMode = false;
     formFetched = false;
     submitClicked = false;
     submitSuccess = false;
@@ -94,16 +96,19 @@ export class FormHeroComponent implements OnInit{
 
             if (templateId) {
                 this.formId = templateId;
+                this.isTemplateMode = true;
                 this.loadForm(templateId, true);
             }
 
             else if(draftId) {
                 this.formId = draftId;
+                this.isDraftMode = true;
                 this.loadForm(draftId, false);
             }
 
             else if (urlParts[1] === 'edit' && urlParts[2]) {
                 this.formId = parseInt(urlParts[2]);
+                this.isEditMode = true;
                 this.loadForm(this.formId, false);
 
             } 
@@ -140,8 +145,6 @@ export class FormHeroComponent implements OnInit{
                         draftId: form.id
                     });
                 }
-
-                console.log(this.formBuilder.get('isDraft'));
 
                 // Show deadline if present
                 if(form.deadline) {
@@ -515,8 +518,6 @@ export class FormHeroComponent implements OnInit{
                     isOther: [false]
                 }));
             }
-
-            console.log(options);
         }
 
         // --Handle grid-based questions
@@ -725,7 +726,6 @@ export class FormHeroComponent implements OnInit{
             });
             newOption.disable();
             options.push(newOption);
-            console.log(newOption.value);
         }
         else {
             const otherAdded = this.otherAddedMap[sectionIndex]?.[questionIndex];
@@ -930,7 +930,6 @@ export class FormHeroComponent implements OnInit{
         if (this.isQuestionInvalid) return;
 
         if (this.formBuilder.valid) {
-            console.log("form is valid");
             const payload = {
                 title: this.formBuilder.value.title,
                 description: this.formBuilder.value.description,
@@ -961,7 +960,7 @@ export class FormHeroComponent implements OnInit{
             }
 
             // For saving changes (edit-form)
-            else if (this.formId) {
+            else if (this.formId && this.isEditMode) {
                 this.formService.updateForm(this.formId, payload).subscribe({
                     next: (response: any) => {
                         this.submitSuccess = true;
@@ -981,18 +980,19 @@ export class FormHeroComponent implements OnInit{
             else {
                 this.formService.addForm(payload).subscribe({
                     next: (response: any) => {
-                        console.log(response);
+
                         this.submitSuccess = true;
                         setTimeout(() => {
                             this.submitSuccess = false;
                             if(shouldNavigate) this.router.navigate(['/forms']);
                         }, 3000);
 
+                        
                         const formId = response.id;
                         this.formSaved.emit(formId);
                     },
                     error: (error) => {
-                        console.error("Error updating form", error);
+                        console.error("Error saving form", error);
                     }
                 });
                 

@@ -83,7 +83,6 @@ export class SharelinkComponent implements OnInit {
             this.formService.getFormById(formId).subscribe({
                 next: (form) => {
                     this.loadedForm = form;
-                    console.log(this.loadedForm);
                     
                     const formSchema = typeof form.formSchema === 'string' ? JSON.parse(form.formSchema) : form.formSchema;
                     this.formData = formSchema;
@@ -495,13 +494,11 @@ export class SharelinkComponent implements OnInit {
 
     validateCurrentSection(sectionIndex: number): boolean {
         let isValid = true;
-        this.validationErrors = {}; 
+        if (!this.validationErrors[sectionIndex]) this.validationErrors[sectionIndex] = {};
       
         const section = this.sections[sectionIndex];
-        console.log(section);
         section.questions.forEach((question: any, questionIndex: number) => {
             if (question.required) {
-                if (!this.validationErrors[sectionIndex]) this.validationErrors[sectionIndex] = {};
                 let answer = this.answer?.[sectionIndex]?.[questionIndex];
                 const otherInput = this.otherInputValues?.[sectionIndex]?.[questionIndex];
                 
@@ -565,7 +562,29 @@ export class SharelinkComponent implements OnInit {
     onSubmit() {
         console.log("Submit button clicked");
 
+        let allSectionsValid = true;
+
+        for (let i = 0; i < this.sections.length; i++) {
+            if (!this.validateCurrentSection(i)) {
+                allSectionsValid = false;
+                const section = this.sections[i];
+                section.questions.forEach((question: any, questionIndex: number) => {
+                    const ques = document.getElementById(`question-${i}-${questionIndex}`);
+                    if (ques && this.validationErrors[i][questionIndex]) {
+                        ques.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+                break; // stop checking further, show first invalid section
+            }
+        }
+
+        if (!allSectionsValid) {
+            console.warn('Validation failed. Not submitting.');
+            return; // don't proceed if validation fails
+        }
+
         const mappedResponse = this.sections.map((section: any, sectionIndex: number) => {
+
             const responses = section.questions.map((question: any, questionIndex: number) => {
                 let answer = this.answer?.[sectionIndex]?.[questionIndex];
                 const otherText = this.otherInputValues?.[sectionIndex]?.[questionIndex];
@@ -579,7 +598,7 @@ export class SharelinkComponent implements OnInit {
                 }
                 
                 return {
-                    question: question.label,
+                    question: question.questionText,
                     answers: answer !== undefined && answer !== null
                         ? Array.isArray(answer)
                             ? answer
@@ -590,31 +609,22 @@ export class SharelinkComponent implements OnInit {
                 };
             });
             
-            if(this.validateCurrentSection(sectionIndex)) {
-                return {
-                    section: section.title,
-                    responses
-                };
-            }
-            else {
-                section.questions.forEach((question: any, questionIndex: number) => {
-                    const ques = document.getElementById(`question-${this.currentSectionIndex}-${questionIndex}`);
-                    if(ques && this.validationErrors[this.currentSectionIndex][questionIndex]) {
-                        ques.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                });
-                return null;
-            }
-
+            
+            return {
+                section: section.sectionTitle,
+                responses
+            };
+          
             
         });
-        if(mappedResponse) {
-            this.responseService.submitResponse(this.formId, JSON.stringify(mappedResponse)).subscribe({
-                next: (res) => console.log('Response submitted successfully', res),
-                error: (err) => console.error('Submission error:', err)
-            });
-            this.router.navigate(['/submit', this.loadedForm.title], { replaceUrl: true });
-        }
+
+        this.responseService.submitResponse(this.formId, mappedResponse, false).subscribe({
+            next: (res) => {
+                console.log('Response submitted successfully', res),
+                this.router.navigate(['/submit', this.loadedForm.title], { replaceUrl: true });
+            },
+            error: (err) => console.error('Submission error:', err)
+        });
         
     }
 }
