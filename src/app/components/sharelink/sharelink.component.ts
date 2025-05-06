@@ -561,24 +561,17 @@ export class SharelinkComponent implements OnInit {
       
     onSubmit() {
         console.log("Submit button clicked");
+        console.log("current section index : ", this.currentSectionIndex);
 
-        let allSectionsValid = true;
-
-        for (let i = 0; i < this.sections.length; i++) {
-            if (!this.validateCurrentSection(i)) {
-                allSectionsValid = false;
-                const section = this.sections[i];
-                section.questions.forEach((question: any, questionIndex: number) => {
-                    const ques = document.getElementById(`question-${i}-${questionIndex}`);
-                    if (ques && this.validationErrors[i][questionIndex]) {
-                        ques.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                });
-                break; // stop checking further, show first invalid section
-            }
-        }
-
-        if (!allSectionsValid) {
+        // --validate last section
+        if(!this.validateCurrentSection(this.currentSectionIndex)){
+            const section = this.sections[this.currentSectionIndex];
+            section.questions.forEach((question: any, index: number) => {
+                const ques = document.getElementById(`question-${this.currentSectionIndex}-${index}`);
+                if(ques && this.validationErrors[this.currentSectionIndex][index]){
+                    ques.scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            });
             console.warn('Validation failed. Not submitting.');
             return; // don't proceed if validation fails
         }
@@ -608,7 +601,6 @@ export class SharelinkComponent implements OnInit {
                     : ''
                 };
             });
-            
             
             return {
                 section: section.sectionTitle,
