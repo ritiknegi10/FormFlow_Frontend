@@ -1,0 +1,46 @@
+:host {
+    display: block;
+  }
+  
+  .grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .chart-container {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  ngx-charts-line-chart {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+  }
+  
+  ngx-charts-pie-chart {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .max-w-md {
+    max-width: 20rem;
+  }
+  
+  .space-y-8 > * + * {
+    margin-top: 2rem;
+  }
