@@ -263,14 +263,13 @@
 
       <div class="p-4">
         <div *ngIf="currentSectionIndex != 0"
-          class="p-4 mb-5 text-purple-800 border-l-8 border-l-purple-800 shadow-md shadow-purple-200">
+          class="p-4 mb-5 bg-white text-purple-800 border-l-8 border-l-purple-800 shadow-md shadow-purple-200">
           <h2 class="text-2xl font-medium ">{{ sections[currentSectionIndex].sectionTitle }}</h2>
           <h4 class="text-md text-purple-700"
             [ngClass]="{'pt-2': formData.sections[currentSectionIndex].sectionDescription}">
             {{ formData.sections[currentSectionIndex].sectionDescription }}
           </h4>
         </div>
-        <!-- RATING QUESTION TYPE IS LEFT -->
 
 
         <div *ngFor="let question of sections[currentSectionIndex]?.questions; let qIdx = index">
@@ -548,7 +547,12 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                This is a required question
+                <span *ngIf="question.type !== 'multipleChoiceGrid' && question.type !== 'checkboxGrid'">
+                  This is a required question
+                </span>
+                <span *ngIf="question.type === 'multipleChoiceGrid' || question.type === 'checkboxGrid'">
+                  Response is required in each row
+                </span>
               </div>
               <div *ngIf="showClearSelection(question, currentSectionIndex, qIdx)" class="flex ml-auto">
                 <button (click)="clearSelection(currentSectionIndex, qIdx, question)"
@@ -575,7 +579,7 @@
       <div class="flex gap-3">
         <button (click)="gotoPreviousSection()" *ngIf="currentSectionIndex > 0"
           class="pr-6 pl-4 py-2 font-medium flex items-center rounded-md text-purple-700
-                  bg-violet-100 hover:bg-violet-200 hover:shadow-md border-2 border-purple-700 transition-all duration:300 shadow-sm">
+                    bg-violet-100 hover:bg-violet-200 hover:shadow-md border-2 border-purple-700 transition-all duration:300 shadow-sm">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16"
             height="16">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
@@ -587,11 +591,11 @@
           <span>Back</span>
         </button>
         <button (click)="gotoNextSection()" *ngIf="sections.length > 1 
-                  && sections[currentSectionIndex].nextSection < sections.length 
-                  && sections[currentSectionIndex].nextSection != -1;
-                  else dosubmit"
-          class="pl-6 pr-4 py-2 font-medium flex items-center rounded-md text-purple-800
-                  bg-violet-300 hover:bg-violet-200 hover:shadow-md border-2 border-purple-700 transition-all duration:300 shadow-sm">
+                    && sections[currentSectionIndex].nextSection < sections.length 
+                    && sections[currentSectionIndex].nextSection != -1;
+                    else dosubmit"
+          class="pl-6 pr-4 py-2 font-medium flex items-center rounded-md text-purple-700
+                    bg-violet-100 hover:bg-violet-200 hover:shadow-md border-2 border-purple-700 transition-all duration:300 shadow-sm">
           <span>Next</span>
 
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16"

@@ -28,7 +28,7 @@ export class FormService {
     this.forms.next(forms);
   }
 
-  addForm(newForm: any): void { 
+  addForm(newForm: any): Observable<any> { 
     const allQuestions: any[] = [];
     
     if (newForm.formSchema && newForm.formSchema.sections) {
@@ -57,16 +57,15 @@ export class FormService {
       formSchema: JSON.stringify({
         sections: newForm.formSchema.sections
       }),
-      isTemplate: false
+      isTemplate: false,
+      isDraft: newForm.isDraft,
+      draftId: newForm.draftId 
     };
-
-    this.http.post(`${this.apiUrl}/create`, backendFormat).subscribe({
-      next: (response) => console.log("Form saved successfully", response),
-      error: (error) => console.error("Error saving form", error)
-    });
+    console.log(backendFormat);
+    return this.http.post(`${this.apiUrl}/create`, backendFormat);
   }
 
-  createDraft(draft: any): void {
+  createDraft(draft: any): Observable<any> {
     const allQuestions: any[] = [];
     
     if (draft.formSchema && draft.formSchema.sections) {
@@ -98,10 +97,7 @@ export class FormService {
       isTemplate: false
     };
 
-    this.http.post(`${this.apiUrl}/createDraft`, backendFormat).subscribe({
-      next: (response) => console.log("Draft saved successfully", response),
-      error: (error) => console.error("Error saving draft", error)
-    });
+    return this.http.post(`${this.apiUrl}/createDraft`, backendFormat);
 
   }
 
@@ -162,7 +158,7 @@ export class FormService {
     const url = `${this.apiUrl}/${formId}/update-deadline`;
     const params = new HttpParams().set('deadline', deadline);
   
-    return this.http.put(url, null, { params: params });
+    return this.http.put(url, null, { params: params, responseType: 'text' });
   }
 
   deleteFile(fileUrl: string): Observable<any> {
@@ -184,11 +180,26 @@ export class FormService {
     return this.http.post(`${this.apiUrl}/edit/${id}`, backendFormat);
   }
 
-  // getForms(): Observable<any[]> {
-  //   return this.http.get<any[]>(`${this.apiUrl}/myCreated`).pipe(
-  //     tap(forms => this.formsSubject.next(forms))
-  //   );
-  // }
+  updateDraft(id: number, updatedDraft: any): Observable<any> {
+    const backendFormat = {
+      title: updatedDraft.title,
+      description: updatedDraft.description,
+      deadline: updatedDraft.deadline,
+      formSchema: JSON.stringify({
+        sections: updatedDraft.formSchema.sections
+      }),
+      isTemplate: false
+    };
+    return this.http.put(`${this.apiUrl}/edit-draft/${id}`, backendFormat, { responseType: 'text' });
+  }
+
+  deleteDraft(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/draft/${id}`, { responseType: 'text' });
+  }
+
+  deleteTemplate(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/template/${id}`, { responseType: 'text' });
+  }
 
   checkFormAccess(formId: number): Observable<string> {
     return this.http.get<string>(`${this.apiUrl}/${formId}/access-check`);

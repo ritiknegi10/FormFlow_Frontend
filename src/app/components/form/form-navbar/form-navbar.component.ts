@@ -1,5 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { Component, OnInit, Input, Output, EventEmitter, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { NavigationEnd, Router, ActivatedRoute } from '@angular/router';
+import { FormParentComponent } from '../form-parent/form-parent.component'
 import { filter } from 'rxjs';
 import Swal from 'sweetalert2';
 
@@ -9,29 +10,44 @@ import Swal from 'sweetalert2';
   styleUrls: ['./form-navbar.component.scss']
 })
 export class FormNavbarComponent implements OnInit {
-    @Output() saveAsTemplateClicked = new EventEmitter<void>();
 
     currentUrl!: string;
+    isTemplateMode = false;
+    isDraftMode = false;
+    isEditMode = false;
+
     // side drawer
     isDrawerOpen: boolean = false;
     firstRender: boolean = true;
     isSaveMenuOpen = false;
 
-    ngOnInit() {
-        // using firstRender to remove side drawer from DOM until page is ready
-        window.scrollTo(0, 0);
-        setTimeout(() => {
-            this.firstRender = false;
-        }, 0);
-    }
-
-    constructor(private router: Router){
+    constructor(private router: Router, private eRef: ElementRef, private route: ActivatedRoute) {
         this.router.events
             .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe((event: any) => {
             this.currentUrl = event.url;
         });
     }
+
+    @ViewChild(FormParentComponent) formParent!: FormParentComponent;
+    ngOnInit() {
+        // using firstRender to remove side drawer from DOM until page is ready
+        window.scrollTo(0, 0);
+        setTimeout(() => {
+            this.firstRender = false;
+        }, 0);
+
+        this.route.queryParams.subscribe(params => {
+
+            const templateId = params['templateId'];
+            const draftId = params['draftId'];
+
+            if(templateId) this.isTemplateMode = true;
+            if(draftId) this.isDraftMode = true;
+        });
+    }
+
+    
 
     confirmNavigateAway(targetRoute: string) {
         Swal.fire({
@@ -57,6 +73,10 @@ export class FormNavbarComponent implements OnInit {
         });
     }
 
+    confirmSaveAndCopyLink() {
+        
+    }
+
     //* Handling Form Title change
     @Input() formTitle: string = '';
     @Output() formTitleChange = new EventEmitter<string>();
@@ -75,50 +95,90 @@ export class FormNavbarComponent implements OnInit {
     }
     
     //* Handling save button click
-    @Output() publishClicked = new EventEmitter<void>();
-    onSaveClick(){
-        this.publishClicked.emit();
+    @Output() saveClicked = new EventEmitter<boolean>();
+    onSaveClick(shouldNavigate: boolean = false) {
+        this.saveClicked.emit(shouldNavigate);
     }
 
     //* Handling save as template button click
-    onSaveAsTemplateClick() {
-        this.saveAsTemplateClicked.emit();
+    @Output() saveAsTemplateClicked = new EventEmitter<boolean>();
+    onSaveAsTemplateClick(shouldNavigate: boolean = false) {
+        this.saveAsTemplateClicked.emit(shouldNavigate);
     }
 
-    onSaveDraftClick() {
-        
+    //* Handling save draft button click
+    @Output() saveDraftClicked = new EventEmitter<boolean>();
+    @Output() updateDraftClicked = new EventEmitter<void>();
+    
+    onSaveDraftClick(shouldNavigate: boolean = false) {
+        if(this.isDraftMode) this.updateDraftClicked.emit();
+        else this.saveDraftClicked.emit(shouldNavigate);
     }
 
     //* Handling preview button click
-    @Output() onPreviewClicked = new EventEmitter<void>();
+    @Output() previewClicked = new EventEmitter<void>();
     onPreviewClick() {
-        this.onPreviewClicked.emit();
+        this.previewClicked.emit();
         //Open New tab
         window.open('/form-preview', '_blank')
     }
 
-    //* Handling copyLink button click
-    copyLink(id: number) {   
-        const baseUrl = window.location.origin; 
-        const shareableLink = `${baseUrl}/sharelink/${id}`; 
-        navigator.clipboard.writeText(shareableLink).then(() => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Link Copied!',
-            text: 'You can now share the form link easily.',
-            confirmButtonColor: '#4CAF50',
-            timer: 2000, 
-          });
-        });
+   
+    actionAfterSave: 'copy' | 'assign' | null = null;
+
+    onCopyLinkClick() {
+        Swal.fire({
+            title: 'Save Form and Copy Link?',
+            text: 'To copy the form link, your form needs to be saved first.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Save & Copy Link',
+            cancelButtonText: 'Keep Editing',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#aaa'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User chose to Save & Copy
+                this.onSaveClick(true);  // Save the form without navigation
+                this.actionAfterSave = 'copy';  // so after saving you know you need to copy
+            }
+        }); 
+    }
+
+    onAssignFormClick() {
+        Swal.fire({
+            title: 'Save Form and Assign?',
+            text: 'The form needs to be saved before you can assign it.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Save & Assign',
+            cancelButtonText: 'Keep Editing',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#aaa'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User chose to Save & Copy
+                this.onSaveClick(false);  // Save the form without navigation
+                this.actionAfterSave = 'assign';  // so after saving you know you need to copy
+            }
+        });  
     }
 
     // drawer function
-    toggleDrawer(){
+    toggleDrawer() {
         this.isDrawerOpen = !this.isDrawerOpen;
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent) {
+      if (!this.eRef.nativeElement.contains(event.target)) {
+        this.isSaveMenuOpen = false;
+      }
     }
 
     // save menu function
     toggleSaveMenu() {
-        this.isSaveMenuOpen = !this.isSaveMenuOpen;
+        if(this.currentUrl !== '/create' && !this.isDraftMode) this.onSaveClick(true);
+        else this.isSaveMenuOpen = !this.isSaveMenuOpen;
     }
 }

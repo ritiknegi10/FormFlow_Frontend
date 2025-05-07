@@ -83,7 +83,6 @@ export class SharelinkComponent implements OnInit {
             this.formService.getFormById(formId).subscribe({
                 next: (form) => {
                     this.loadedForm = form;
-                    console.log(this.loadedForm);
                     
                     const formSchema = typeof form.formSchema === 'string' ? JSON.parse(form.formSchema) : form.formSchema;
                     this.formData = formSchema;
@@ -139,43 +138,6 @@ export class SharelinkComponent implements OnInit {
           }
     }
 
-    // private loadForm(formId: number): void {
-    //   this.formService.getFormById(formId).subscribe({
-    //     next: (form) => {
-    //       this.loadedForm = form;
-    //       this.formId = formId;
-    //       this.initializeFormData();
-    //     },
-    //     error: (error) => {
-    //       console.error('Error loading form:', error);
-    //     }
-    //   });
-    // }
-
-    // private initializeFormData(): void {
-    //   try {
-    //     this.loadedForm.formSchema = JSON.parse(this.loadedForm.formSchema);
-    //     this.initializeAnswers();
-    //     this.ratingValues = this.loadedForm.formSchema.fields
-    //       .filter((f: any) => f.type === 'rating')
-    //       .map(() => 0);
-    //   } catch (error) {
-    //     console.error('Error parsing form schema:', error);
-    //   }
-    // }
-
-    // private initializeAnswers(): void {
-    //   this.answer = this.loadedForm.formSchema.fields.map((field: any) => {
-    //     if (field.type === 'multipleChoiceGrid') {
-    //       return new Array(field.rows.length).fill(null);
-    //     }
-    //     if (field.type === 'checkboxGrid') {
-    //       return new Array(field.rows.length).fill(null).map(() => []);
-    //     }
-    //     return null;
-    //   });
-    // }
-
     gotoNextSection() {
         if(this.validateCurrentSection(this.currentSectionIndex)) {
             this.sectionHistory.push(this.currentSectionIndex);
@@ -199,6 +161,7 @@ export class SharelinkComponent implements OnInit {
     gotoPreviousSection() {
         if (this.sectionHistory.length > 0) {
             this.currentSectionIndex = this.sectionHistory.pop()!;
+            if (!this.validationErrors[this.currentSectionIndex]) this.validationErrors[this.currentSectionIndex] = {}; 
             window.scroll(0, 0);
         }
     }
@@ -260,14 +223,6 @@ export class SharelinkComponent implements OnInit {
     onOptionSelected(option: any, question: any) {
         if (!question.sectionBasedonAnswer) return;
 
-        // if (option.isOther) {
-        //     if (!this.otherInputValues[this.currentSectionIndex]) {
-        //       this.otherInputValues[this.currentSectionIndex] = {};
-        //     }
-        //     if (!this.otherInputValues[this.currentSectionIndex][this.qIdx]) {
-        //       this.otherInputValues[this.currentSectionIndex][this.qIdx] = '';
-        //     }
-        // }
         const gotoSectionIndex = option.goToSection;
         if (gotoSectionIndex !== undefined && gotoSectionIndex !== -1) {
             this.nextSectionData[this.currentSectionIndex] = gotoSectionIndex;
@@ -384,18 +339,37 @@ export class SharelinkComponent implements OnInit {
 
     clearForm(formRef: any) {
         formRef.resetForm();
+        this.answer = {};
+        this.otherInputValues = {};
+        this.validationErrors = {};
+
+        this.sections.forEach((section: any, sectionIndex: number) => {
+            
+            this.answer[sectionIndex] = {};
+            this.otherInputValues[sectionIndex] = {};
+            this.validationErrors[sectionIndex] = {};
+
+            section.questions.forEach((question: any, questionIndex: number) => {
+
+                this.otherInputValues[sectionIndex][questionIndex] = '';
+                this.validationErrors[sectionIndex][questionIndex] = false;
+
+                if (question.type === 'checkboxes') {
+                    this.answer[sectionIndex][questionIndex] = []; 
+                } else if (question.type === 'multipleChoiceGrid' || question.type === 'checkboxGrid') {
+                    const rowAnswers: any = {};
+                    question.rows.forEach((row: string) => {
+                        if(question.type == 'multipleChoiceGrid') rowAnswers[row] = ''; 
+                        else rowAnswers[row] = [];
+                    });
+                    this.answer[sectionIndex][questionIndex] = rowAnswers;
+                } else {
+                    this.answer[sectionIndex][questionIndex] = ''; 
+                }
+            });
+        });
     }
 
-    // isGridQuestionInvalid(i: number, question: any): boolean {
-    //     if (!question || !question.required || !Array.isArray(this.answer[i])) return false;
-    //     return (this.submitClicked || this.touchedFields[i]) && this.answer[i].some((val: any) => val === null);
-    // }
-
-    // isCheckboxGridInvalid(i: number, question: any): boolean {
-    //     if (!question || !question.required || !Array.isArray(this.answer[i])) return false;
-    //     return (this.submitClicked || this.touchedFields[i]) &&
-    //             this.answer[i].some((row: any) => !Array.isArray(row) || row.length === 0);
-    // }
 
     onFileSelected(event: Event, index: number): void {
         const input = event.target as HTMLInputElement;
@@ -450,12 +424,6 @@ export class SharelinkComponent implements OnInit {
         this.touchedFields[index] = true;
     }
 
-    toggleCheckboxgrid(questionIndex: number, rowIndex: number, column: string) {
-        const current: string[] = this.answer[questionIndex][rowIndex] || [];
-        this.answer[questionIndex][rowIndex] = current.includes(column)
-        ? current.filter(item => item !== column)
-        : [...current, column];
-    }
 
     // async submitForm() {
     //   this.submitClicked = true;
@@ -526,13 +494,11 @@ export class SharelinkComponent implements OnInit {
 
     validateCurrentSection(sectionIndex: number): boolean {
         let isValid = true;
-        this.validationErrors = {}; 
+        if (!this.validationErrors[sectionIndex]) this.validationErrors[sectionIndex] = {};
       
         const section = this.sections[sectionIndex];
-      
         section.questions.forEach((question: any, questionIndex: number) => {
             if (question.required) {
-                if (!this.validationErrors[sectionIndex]) this.validationErrors[sectionIndex] = {};
                 let answer = this.answer?.[sectionIndex]?.[questionIndex];
                 const otherInput = this.otherInputValues?.[sectionIndex]?.[questionIndex];
                 
@@ -595,8 +561,23 @@ export class SharelinkComponent implements OnInit {
       
     onSubmit() {
         console.log("Submit button clicked");
+        console.log("current section index : ", this.currentSectionIndex);
+
+        // --validate last section
+        if(!this.validateCurrentSection(this.currentSectionIndex)){
+            const section = this.sections[this.currentSectionIndex];
+            section.questions.forEach((question: any, index: number) => {
+                const ques = document.getElementById(`question-${this.currentSectionIndex}-${index}`);
+                if(ques && this.validationErrors[this.currentSectionIndex][index]){
+                    ques.scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            });
+            console.warn('Validation failed. Not submitting.');
+            return; // don't proceed if validation fails
+        }
 
         const mappedResponse = this.sections.map((section: any, sectionIndex: number) => {
+
             const responses = section.questions.map((question: any, questionIndex: number) => {
                 let answer = this.answer?.[sectionIndex]?.[questionIndex];
                 const otherText = this.otherInputValues?.[sectionIndex]?.[questionIndex];
@@ -610,7 +591,7 @@ export class SharelinkComponent implements OnInit {
                 }
                 
                 return {
-                    question: question.label,
+                    question: question.questionText,
                     answers: answer !== undefined && answer !== null
                         ? Array.isArray(answer)
                             ? answer
@@ -621,31 +602,21 @@ export class SharelinkComponent implements OnInit {
                 };
             });
             
-            if(this.validateCurrentSection(sectionIndex)) {
-                return {
-                    section: section.title,
-                    responses
-                };
-            }
-            else {
-                section.questions.forEach((question: any, questionIndex: number) => {
-                    const ques = document.getElementById(`question-${this.currentSectionIndex}-${questionIndex}`);
-                    if(ques && this.validationErrors[this.currentSectionIndex][questionIndex]) {
-                        ques.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                });
-                return null;
-            }
-
+            return {
+                section: section.sectionTitle,
+                responses
+            };
+          
             
         });
-        if(mappedResponse) {
-            this.responseService.submitResponse(this.formId, JSON.stringify(mappedResponse)).subscribe({
-                next: (res) => console.log('Response submitted successfully', res),
-                error: (err) => console.error('Submission error:', err)
-            });
-            this.router.navigate(['/submit', this.loadedForm.title], { replaceUrl: true });
-        }
+
+        this.responseService.submitResponse(this.formId, mappedResponse, false).subscribe({
+            next: (res) => {
+                console.log('Response submitted successfully', res),
+                this.router.navigate(['/submit', this.loadedForm.title], { replaceUrl: true });
+            },
+            error: (err) => console.error('Submission error:', err)
+        });
         
     }
 }
