@@ -47,6 +47,7 @@ export class FormHeroComponent implements OnInit{
     showFormNavigation = true;
     isDropdownOpen = false;
     isDeadline = false;
+    isSectionReorderPopup = false;
     
     // Mapping properties
     selectedTypes: { [sIdx: number]: { [qIdx: number]: any } } = {};
@@ -59,6 +60,7 @@ export class FormHeroComponent implements OnInit{
     
     formId: number | null = null;
     formBuilder: FormGroup;
+    shadowSections: number[] = []; // holds just the order (array of indexes)
 
     constructor(private fb: FormBuilder, 
                 private formService: FormService, 
@@ -204,6 +206,7 @@ export class FormHeroComponent implements OnInit{
                     });
                 });
                 this.formBuilder.setControl('sections', this.fb.array(sectionsArray));
+                this.shadowSections = this.formBuilder.get('sections')?.value.map((_: any, index: number) => index);
                 
                 // Initialise mapping properties
                 this.selectedTypes = parsedSchema.sections.map((section: any) => 
@@ -444,6 +447,7 @@ export class FormHeroComponent implements OnInit{
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
+        this.shadowSections = this.sections.controls.map((_, index) => index);
     }
 
     removeSection(sIdx: number){
@@ -772,8 +776,24 @@ export class FormHeroComponent implements OnInit{
         options.removeAt(optionIndex);
     }
 
-    dropSection(event: CdkDragDrop<string[]>){
-        moveItemInArray(this.sections.controls, event.previousIndex, event.currentIndex);
+    dropSection(event: CdkDragDrop<number[]>){
+        moveItemInArray(this.shadowSections, event.previousIndex, event.currentIndex);
+        console.log("current shadowsection : ", this.shadowSections);
+    }
+
+    cancelSectionOrder(){
+        this.shadowSections = this.sections.controls.map((_, index) => index);
+        this.isSectionReorderPopup = false;
+    }
+
+    saveSectionOrder(){
+        // Replace the original array
+        this.sections.controls = this.shadowSections.map(i => this.sections.at(i));
+
+        // close popup
+        this.isSectionReorderPopup = false;
+        // reset shadosection once saved
+        this.shadowSections = this.sections.controls.map((_, index) => index);
     }
 
     dropQuestion(event: CdkDragDrop<string[]>, sectionIndex: number){
