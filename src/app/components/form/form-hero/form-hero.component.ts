@@ -318,20 +318,35 @@ export class FormHeroComponent implements OnInit{
     }
     
     @ViewChildren('dropdownBox') dropdownBoxes!: QueryList<ElementRef>;
+    @ViewChildren('otherOptionsMenu') otherOptionsMenus!: QueryList<ElementRef>;
+
     @HostListener('document:click', ['$event.target'])
-    onClickOutside(target: HTMLElement) {
-        const clickedInsideAny = this.dropdownBoxes.some(dropdown =>
+    onDocumentClick(target: HTMLElement) {
+        const clickedInsideDropdown = this.dropdownBoxes?.some(dropdown =>
             dropdown.nativeElement.contains(target)
         );
-
-        if (!clickedInsideAny) {
+        
+        const clickedInsideOtherOptions = this.otherOptionsMenus?.some(menu =>
+            menu.nativeElement.contains(target)
+        );
+        
+        const clickedButton = (target as HTMLElement).closest('button');
+        
+        if (!clickedInsideDropdown) {
             this.isDropdownOpen = false;
-
-            // Optionally close all dropdowns
+            
             for (let sIdx in this.questionTypeDropdown) {
-            for (let qIdx in this.questionTypeDropdown[sIdx]) {
+                for (let qIdx in this.questionTypeDropdown[sIdx]) {
                 this.questionTypeDropdown[sIdx][qIdx] = false;
+                }
             }
+        }
+        
+        if (!clickedInsideOtherOptions && !clickedButton) {
+            for (let sIdx in this.showMenuMap) {
+                for (let qIdx in this.showMenuMap[sIdx]) {
+                    this.showMenuMap[sIdx][qIdx] = false;
+                }
             }
         }
     }
@@ -342,6 +357,9 @@ export class FormHeroComponent implements OnInit{
         }
         this.questionTypeDropdown[sectionIndex][questionIndex] = true;
         this.isDropdownOpen = true;
+
+        const el = document.getElementById(`qTypeDropdown-${sectionIndex}-${questionIndex}`);
+        if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     toggleDeadline() {
@@ -350,13 +368,6 @@ export class FormHeroComponent implements OnInit{
         this.updateDeadlineValidator();
     }
 
-    toggleSectionBasedonAnswer(sectionIndex: number, questionIndex: number) {
-        const question = (this.sections.at(sectionIndex).get('questions') as FormArray).at(questionIndex) as FormGroup;
-        
-        const currentVal = question.get('sectionBasedonAnswer')?.value || false;
-        question.get('sectionBasedonAnswer')?.setValue(!currentVal);
-    }
-  
     // other options menu toggle
     toggleOtherOptionsMenu(sectionIndex: number, questionIndex: number) {
         if (!this.showMenuMap[sectionIndex]) this.showMenuMap[sectionIndex] = {};
@@ -368,6 +379,15 @@ export class FormHeroComponent implements OnInit{
     toggleQuestionDescription(sectionIndex: number, questionIndex: number) {
         const isVisible = this.showQuestionDescription[sectionIndex][questionIndex];
         this.showQuestionDescription[sectionIndex][questionIndex] = !isVisible;
+        this.showMenuMap[sectionIndex][questionIndex] = false;
+    }
+    
+    toggleSectionBasedonAnswer(sectionIndex: number, questionIndex: number) {
+        const question = (this.sections.at(sectionIndex).get('questions') as FormArray).at(questionIndex) as FormGroup;
+        
+        const currentVal = question.get('sectionBasedonAnswer')?.value || false;
+        question.get('sectionBasedonAnswer')?.setValue(!currentVal);
+        this.showMenuMap[sectionIndex][questionIndex] = false;
     }
 
     setDefaultValueIfEmpty(inputElement: EventTarget | null, question: any, opIdx: number){
@@ -724,7 +744,7 @@ export class FormHeroComponent implements OnInit{
                 goToSection: [sectionIndex + 1],
                 isOther: [true],
             });
-            newOption.disable();
+            newOption.controls['label'].disable();
             options.push(newOption);
         }
         else {
