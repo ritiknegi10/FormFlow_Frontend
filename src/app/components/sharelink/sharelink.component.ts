@@ -33,6 +33,9 @@ export class SharelinkComponent implements OnInit {
     ratingValues: number[] = [];
     dropdownOpen: boolean[] = [];
 
+  
+    allowAnonymous: boolean = true;
+    anonymousToggle:boolean= false;
     submitClicked = false;
     isSubmitting = false;
     nextClicked= false;
@@ -48,6 +51,7 @@ export class SharelinkComponent implements OnInit {
         const formIdParam = this.route.snapshot.paramMap.get('id');
         const formId = formIdParam ? Number(formIdParam) : null;
 
+        
         if(formId !== null) this.formId = formId;
 
         this.formService.checkFormAccess(this.formId).subscribe({
@@ -137,6 +141,61 @@ export class SharelinkComponent implements OnInit {
               return null;
           }
     }
+
+    onAnonymousToggleChange(event: Event): void {
+      const input = event.target as HTMLInputElement;
+      this.anonymousToggle = input.checked;
+      console.log('Anonymous toggle:', this.anonymousToggle);
+    }
+    
+  
+    fetchFormDetails() {
+      this.formService.getFormSubmissionDetails(this.formId.toString()).subscribe({
+        next: (response: any) => {
+          this.allowAnonymous = response.allowAnonymous ?? false; 
+        },
+        error: (err) => {
+          console.error('Error fetching form details:', err);
+        }
+      });
+    }
+    
+    // private loadForm(formId: number): void {
+    //   this.formService.getFormById(formId).subscribe({
+    //     next: (form) => {
+    //       this.loadedForm = form;
+    //       this.formId = formId;
+    //       this.initializeFormData();
+    //     },
+    //     error: (error) => {
+    //       console.error('Error loading form:', error);
+    //     }
+    //   });
+    // }
+
+    // private initializeFormData(): void {
+    //   try {
+    //     this.loadedForm.formSchema = JSON.parse(this.loadedForm.formSchema);
+    //     this.initializeAnswers();
+    //     this.ratingValues = this.loadedForm.formSchema.fields
+    //       .filter((f: any) => f.type === 'rating')
+    //       .map(() => 0);
+    //   } catch (error) {
+    //     console.error('Error parsing form schema:', error);
+    //   }
+    // }
+
+    // private initializeAnswers(): void {
+    //   this.answer = this.loadedForm.formSchema.fields.map((field: any) => {
+    //     if (field.type === 'multipleChoiceGrid') {
+    //       return new Array(field.rows.length).fill(null);
+    //     }
+    //     if (field.type === 'checkboxGrid') {
+    //       return new Array(field.rows.length).fill(null).map(() => []);
+    //     }
+    //     return null;
+    //   });
+    // }
 
     gotoNextSection() {
         if(this.validateCurrentSection(this.currentSectionIndex)) {
@@ -604,6 +663,7 @@ export class SharelinkComponent implements OnInit {
             
             return {
                 section: section.sectionTitle,
+                isAnonymous: this.anonymousToggle,
                 responses
             };
           

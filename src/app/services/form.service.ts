@@ -16,7 +16,7 @@ export class FormService {
   constructor(private http: HttpClient, private router: Router) {
     this.loadForms();
   }
-
+  
   private loadForms(): any[] {
     const forms = JSON.parse(localStorage.getItem('forms') || '[]');
     this.forms.next(forms);
@@ -374,6 +374,10 @@ removeViewersFromForm(formId: number, emails: string[]): Observable<string> {
     };
     return typeMapping[type] || "shortText";
   }
+
+getFormSubmissionDetails(formId: string) {
+  return this.http.get<any>(`http://localhost:8080/responses/submit/${formId}`);
+}
 
   sendReminder(formId: number): Observable<string> {
    

@@ -131,7 +131,22 @@ export class ViewResponseComponent implements OnInit {
       });
   
       this.responseService.getResponsesByFormId(this.formId).subscribe(responses => {
-        this.responses = responses;
+        this.responses = responses.map(response => {
+          try {
+            const parsedData = JSON.parse(response.responseData);
+        
+            // Log to confirm what's parsed
+            console.log('Parsed responseData:', parsedData);
+            // Attach isAnonymous directly
+            response.isAnonymous = parsedData?.[0]?.isAnonymous ?? false;
+          } catch (error) {
+            console.error('Error parsing responseData:', error);
+            response.isAnonymous = false;
+          }
+        
+          return response;
+        });
+        console.log('Parsed responses:', this.responses);
       });
     }
   }
@@ -168,6 +183,23 @@ export class ViewResponseComponent implements OnInit {
     }
   }
   
+  getKeys(response: any): string[] {
+    try {
+      return Object.keys(JSON.parse(response.responseData));
+    } catch (error) {
+      console.error("Error parsing responseData:", error);
+      return [];
+    }
+  }
+  
+  getValue(response: any, key: string): string {
+    try {
+      return JSON.parse(response.responseData)[key] || "N/A";
+    } catch (error) {
+      console.error("Error parsing responseData:", error);
+      return "N/A";
+    }
+  }
   formatResponse(response: any): string {
     if (response === null || response === undefined || response === '') return '–';
   
@@ -185,11 +217,24 @@ export class ViewResponseComponent implements OnInit {
 
 filteredResponses() {
   if (!this.searchQuery) return this.responses;
-
+  
   const query = this.searchQuery.toLowerCase();
-  return this.responses.filter(response =>
-    (response.respondentUsername || '').toLowerCase().includes(query) ||
-    (response.respondentEmail || '').toLowerCase().includes(query)
+  return this.responses.filter(response =>{
+    let isAnonymous = false;
+
+    try {
+      const parsed = JSON.parse(response.responseData);
+      isAnonymous = parsed?.[0]?.isAnonymous ?? false;
+    } catch (e) {
+      console.warn('Failed to parse responseData:', response.responseData, e);
+      isAnonymous = false;
+    }
+    const username = isAnonymous ? 'Anonymous' : (response.respondentUsername || '');
+    const email = isAnonymous ? 'Anonymous' : (response.respondentEmail || '');
+    return username.toLowerCase().includes(query) || email.toLowerCase().includes(query);
+    // (response.respondentUsername || '').toLowerCase().includes(query) ||
+    // (response.respondentEmail || '').toLowerCase().includes(query) 
+  }
   );
 }
 }

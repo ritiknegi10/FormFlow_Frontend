@@ -270,7 +270,16 @@
             {{ formData.sections[currentSectionIndex].sectionDescription }}
           </h4>
         </div>
-
+        <div *ngIf="allowAnonymous" class="flex items-center gap-4 px-6 py-4">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" class="sr-only peer" [checked]="anonymousToggle" (change)="onAnonymousToggleChange($event)"              />
+              <div class="w-12 h-7 bg-gray-300 rounded-full peer peer-checked:bg-indigo-600 transition duration-300 ease-in-out"></div>
+              <div class="absolute left-1 top-1 bg-white w-5 h-5 rounded-full shadow-md transition-all duration-300 ease-in-out peer-checked:translate-x-5"></div>
+            </label>
+            <span class="text-base font-semibold text-gray-800">Submit anonymously</span>
+          </div>
+          <div>Anonymous Toggle Value: {{ anonymousToggle }}</div>
+        <!-- RATING QUESTION TYPE IS LEFT -->
 
         <div *ngFor="let question of sections[currentSectionIndex]?.questions; let qIdx = index">
 

@@ -69,8 +69,8 @@
 
               <!-- Right: Respondent Info -->
               <div class="lg:w-64 text-sm text-gray-700 border-l border-gray-100 pl-4 mt-6 lg:mt-0">
-                <div><span class="font-medium">Username:</span> {{ response.respondentUsername || 'N/A' }}</div>
-                <div><span class="font-medium">Email:</span> {{ response.respondentEmail || 'N/A' }}</div>
+                <div><span class="font-medium">Username:</span> {{ response.isAnonymous ? 'Anonymous Submission' : response.respondentUsername }}</div>
+                <div><span class="font-medium">Email:</span> {{ response.isAnonymous ? 'Anonymous' : response.respondentEmail }}</div>
               </div>
             </div>
 
@@ -78,6 +78,7 @@
         </div>
       </div>
 
+      
       <!-- Empty States -->
       <ng-template #noResponses>
         <div class="text-center py-12">
