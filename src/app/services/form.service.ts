@@ -359,6 +359,8 @@ removeViewersFromForm(formId: number, emails: string[]): Observable<string> {
       null, { responseType: 'text' as 'json' }
     );
   }
+
+  
   updateFormAnonymous(formId: number, allowAnonymous: boolean): Observable<string> {
     const url = `${this.apiUrl}/${formId}/anonymous`;
     const params = new HttpParams().set('value', allowAnonymous.toString());

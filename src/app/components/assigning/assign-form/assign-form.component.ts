@@ -11,19 +11,23 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
     styleUrls: ['./assign-form.component.css']
 })
 export class AssignFormComponent implements OnInit {
-    formId: number;
-    assignForm: FormGroup;
-    assignedUsers: any[] = [];
-    validEmails: string[] = [];
-    invalidEmails: string[] = [];
-    loading = { users: false, assign: false };
-    errorMessage = '';
-    successMessage = '';
-    emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    isPublic = false;
-    allowAnonymous: boolean = false;
-    searchQuery = '';
-    selectedUsers = new Set<string>();
+  formId: number;
+  assignForm: FormGroup;
+  assignedUsers: any[] = [];
+  validEmails: string[] = [];
+  invalidEmails: string[] = [];
+  loading = { users: false, assign: false };
+  errorMessage = '';
+  successMessage = '';
+  emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  isPublic = false;
+  searchQuery = '';
+selectedUsers = new Set<string>();
+allowAnonymous = false;
+
+// filteredUsers: any[] = [];
+
+
 
     constructor(
         private route: ActivatedRoute,
@@ -191,6 +195,8 @@ private loadInitialVisibility() {
   this.formService.getFormById(this.formId).subscribe({
     next: (form) => {
       this.isPublic = form.isPublic;
+      this.allowAnonymous = form.allowAnonymous;
+
       // Add warning if public with existing users
       if (this.isPublic && this.assignedUsers.length > 0) {
         this.errorMessage = 'Warning: Form is public but has assigned users';
@@ -203,6 +209,20 @@ private loadInitialVisibility() {
   });
 }
 
+
+updateAnonymousSubmission(value: boolean) {
+  this.formService.updateFormAnonymous(this.formId, value).subscribe({
+    next: (res) => {
+      this.allowAnonymous = value;
+      this.successMessage = res;
+      setTimeout(() => this.successMessage = '', 3000);
+    },
+    error: (err) => {
+      this.errorMessage = 'Failed to update anonymous setting';
+      setTimeout(() => this.errorMessage = '', 5000);
+    }
+  });
+}
 // Update the component class
 attemptVisibilityChange() {
   const newPublicState = !this.isPublic;
