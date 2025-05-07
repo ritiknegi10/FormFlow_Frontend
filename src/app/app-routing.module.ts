@@ -33,7 +33,10 @@ import { AssignViewersComponent } from './components/assigning/assign-viewers/as
 import { AssignedViewersComponent } from './components/assigning/assigned-viewers/assigned-viewers.component';
 import { AssigningComponent } from './components/assigning/assigning.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { AdminComponent } from './components/admin/admin.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
+import { AdminTrendsComponent } from './components/admin-trends/admin-trends.component';
+import { AdminMiscellaneousComponent } from './components/admin-miscellaneous/admin-miscellaneous.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -70,8 +73,10 @@ const routes: Routes = [
   { path: 'faq', component: FaqComponent },
   { path: 'sharelink/:id', component: SharelinkComponent, canActivate: [AuthGuard] },
   { path: 'submit/:title', component: SubmitPageComponent, canActivate: [AuthGuard] },
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard] },
-
+  { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
+  { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard] },
+  { path: 'admin/trends', component: AdminTrendsComponent, canActivate: [AuthGuard] },
+  { path: 'admin/miscellaneous', component: AdminMiscellaneousComponent, canActivate: [AuthGuard] },
 
   
   { path: 'create', component: FormParentComponent, canActivate: [AuthGuard] },

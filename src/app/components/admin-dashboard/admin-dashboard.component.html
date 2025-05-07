@@ -1,387 +1,97 @@
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-6 px-4 sm:px-6">
-  <div class="max-w-7xl mx-auto">
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
+  <div class="max-w-4xl mx-auto">
     <!-- Header -->
-    <div class="text-center mb-6">
-      <div class="mb-3 animate-bounce">
-        <svg class="w-10 h-10 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+    <div class="text-center mb-12">
+      <div class="mb-6 animate-pulse">
+        <svg class="w-16 h-16 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
       </div>
-      <h2 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-        Admin Dashboard
+      <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+        Manage Users
       </h2>
-      <p class="text-sm sm:text-base text-gray-600 mt-1">Manage users, forms, and analytics</p>
+      <p class="text-lg text-gray-600 mt-3">View and manage user roles and details</p>
     </div>
 
-    <!-- Error Message -->
-    <div *ngIf="errorMessage" class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg w-full text-sm">
-      {{ errorMessage }}
-    </div>
-
-    <!-- All Users Section -->
-    <div class="mb-6">
-      <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 w-full overflow-hidden">
-        <h2 class="text-base sm:text-lg font-semibold mb-3">All Users</h2>
-        <div *ngIf="loading.users" class="text-center py-3">
-          <p class="text-gray-500 text-sm">Loading users...</p>
-        </div>
-        <div *ngIf="!loading.users && allUsers.length === 0" class="text-center py-3">
-          <p class="text-gray-500 text-sm">No users found</p>
-        </div>
-        <div *ngIf="!loading.users && allUsers.length > 0" class="w-full">
-          <!-- Table for Desktop -->
-          <div class="hidden md:block overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr *ngFor="let user of allUsers" class="hover:bg-gray-50">
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[200px]">{{ user.username }}</td>
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[200px]">{{ user.email }}</td>
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                    {{ user.isAdmin ? 'Admin' : 'Non-Admin' }}
-                  </td>
-                  <td class="px-3 py-2 whitespace-nowrap text-sm">
-                    <div class="flex space-x-1">
-                      <button
-                        *ngIf="!user.isAdmin"
-                        (click)="makeAdmin(user.email)"
-                        class="px-2 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-xs">
-                        Make Admin
-                      </button>
-                      <button
-                        *ngIf="user.isAdmin"
-                        (click)="removeAdmin(user.email)"
-                        class="px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-xs">
-                        Remove Admin
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-8">
+      <!-- Search Bar -->
+      <div class="mb-6">
+        <div class="relative">
+          <input type="text" [(ngModel)]="searchTerm" (input)="filterUsers()"
+            placeholder="Search users by username or email..."
+            class="w-full p-4 pr-10 rounded-lg border border-gray-200 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-gray-700 placeholder-gray-400"
+          />
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
-          <!-- Cards for Mobile -->
-          <div class="md:hidden space-y-3">
-            <div *ngFor="let user of allUsers" class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <div class="flex flex-col space-y-1">
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Username:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ user.username }}</p>
-                </div>
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Email:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ user.email }}</p>
-                </div>
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Role:</span>
-                  <p class="text-sm text-gray-500">{{ user.isAdmin ? 'Admin' : 'Non-Admin' }}</p>
-                </div>
-                <div class="flex space-x-1">
-                  <button
-                    *ngIf="!user.isAdmin"
-                    (click)="makeAdmin(user.email)"
-                    class="px-2 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-xs">
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading.users" class="text-center py-4">
+        <svg class="animate-spin h-8 w-8 text-indigo-600 mx-auto" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        <p class="text-gray-600 mt-2">Loading users...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="errorMessage && !loading.users" class="text-center py-4 text-red-600">
+        {{ errorMessage }}
+      </div>
+
+      <!-- User Table -->
+      <div *ngIf="!loading.users && !errorMessage" class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-indigo-50 text-indigo-800">
+              <th class="p-4 rounded-tl-lg">Username</th>
+              <th class="p-4">Email</th>
+              <th class="p-4">Role</th>
+              <th class="p-4 rounded-tr-lg">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of filteredUsers" class="border-b border-gray-200 hover:bg-gray-50">
+              <td class="p-4">{{ user.username }} {{ user.email === currentUserEmail ? '(You)' : '' }}</td>
+              <td class="p-4">{{ user.email }}</td>
+              <td class="p-4">{{ user.isAdmin ? 'Admin' : 'User' }}</td>
+              <td class="p-4">
+                <ng-container *ngIf="user.email !== currentUserEmail">
+                  <button *ngIf="!user.isAdmin" (click)="makeAdmin(user.email)"
+                    class="bg-indigo-600 text-white py-1 px-3 rounded hover:bg-indigo-700">
                     Make Admin
                   </button>
-                  <button
-                    *ngIf="user.isAdmin"
-                    (click)="removeAdmin(user.email)"
-                    class="px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-xs">
+                  <button *ngIf="user.isAdmin" (click)="removeAdmin(user.email)"
+                    class="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700">
                     Remove Admin
                   </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                </ng-container>
+                <span *ngIf="user.email === currentUserEmail" class="text-gray-500">
+                  Cannot modify your own role.
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="filteredUsers.length === 0" class="text-center">
+              <td colspan="4" class="p-4 text-gray-600">No users found</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <div class="w-full">
-      <!-- Loading Spinner -->
-      <div *ngIf="isLoading" class="flex justify-center items-center py-6">
-        <div class="spinner text-sm">Loading...</div>
-      </div>
-
-      <!-- Error Message -->
-      <div *ngIf="adminError && !isLoading" class="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-4 w-full text-sm">
-        {{ adminError }}
-      </div>
-
-      <!-- Charts Section -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-        <!-- User Stats Pie Chart -->
-        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 w-full">
-          <h2 class="text-base sm:text-lg font-semibold mb-3">User Stats</h2>
-          <ngx-charts-pie-chart
-            [results]="userPieData"
-            [legend]="showLegend"
-            [labels]="showLabels"
-            [explodeSlices]="explodeSlices"
-            [doughnut]="doughnut"
-            [scheme]="colorScheme"
-            class="h-auto max-h-48 w-full">
-          </ngx-charts-pie-chart>
-        </div>
-
-        <!-- Form Stats Pie Chart -->
-        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 w-full">
-          <h2 class="text-base sm:text-lg font-semibold mb-3">Form Stats</h2>
-          <ngx-charts-pie-chart
-            [results]="formPieData"
-            [legend]="showLegend"
-            [labels]="showLabels"
-            [explodeSlices]="explodeSlices"
-            [doughnut]="doughnut"
-            [scheme]="colorScheme"
-            class="h-auto max-h-48 w-full">
-          </ngx-charts-pie-chart>
-        </div>
-
-        <!-- Response Stats Line Chart -->
-        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 sm:col-span-2 w-full">
-          <h2 class="text-base sm:text-lg font-semibold mb-3">Response Trend</h2>
-          <ngx-charts-line-chart
-            [results]="responseLineData"
-            [xAxis]="true"
-            [yAxis]="true"
-            [legend]="showLegend"
-            [showXAxisLabel]="true"
-            [showYAxisLabel]="true"
-            [xAxisLabel]="'Week'"
-            [yAxisLabel]="'Responses'"
-            [scheme]="colorScheme"
-            class="h-auto max-h-48 w-full">
-          </ngx-charts-line-chart>
-        </div>
-      </div>
-
-      <!-- Lists Section -->
-      <div class="space-y-6">
-        <!-- Top Creators -->
-        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 w-full overflow-hidden">
-          <h2 class="text-base sm:text-lg font-semibold mb-3">Top Form Creators</h2>
-          <div class="hidden md:block overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr *ngFor="let user of topCreators">
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[200px]">{{ user.username }}</td>
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[200px]">{{ user.email }}</td>
-                </tr>
-                <tr *ngIf="topCreators.length === 0">
-                  <td colspan="2" class="px-3 py-2 text-center text-gray-500 text-sm">No data available</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="md:hidden space-y-3">
-            <div *ngFor="let user of topCreators" class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <div class="flex flex-col space-y-1">
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Username:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ user.username }}</p>
-                </div>
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Email:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ user.email }}</p>
-                </div>
-              </div>
-            </div>
-            <div *ngIf="topCreators.length === 0" class="text-center py-3 text-gray-500 text-sm">
-              No data available
-            </div>
-          </div>
-        </div>
-
-        <!-- Most Assigned Users -->
-        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 w-full overflow-hidden">
-          <h2 class="text-base sm:text-lg font-semibold mb-3">Users with Most Assigned Forms</h2>
-          <div class="hidden md:block overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr *ngFor="let user of mostAssignedUsers">
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[200px]">{{ user.username }}</td>
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[200px]">{{ user.email }}</td>
-                </tr>
-                <tr *ngIf="mostAssignedUsers.length === 0">
-                  <td colspan="2" class="px-3 py-2 text-center text-gray-500 text-sm">No data available</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="md:hidden space-y-3">
-            <div *ngFor="let user of mostAssignedUsers" class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <div class="flex flex-col space-y-1">
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Username:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ user.username }}</p>
-                </div>
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Email:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ user.email }}</p>
-                </div>
-              </div>
-            </div>
-            <div *ngIf="mostAssignedUsers.length === 0" class="text-center py-3 text-gray-500 text-sm">
-              No data available
-            </div>
-          </div>
-        </div>
-
-        <!-- Viewers -->
-        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 w-full overflow-hidden">
-          <h2 class="text-base sm:text-lg font-semibold mb-3">Users with Viewer Access</h2>
-          <div class="hidden md:block overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr *ngFor="let user of viewers">
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[200px]">{{ user.username }}</td>
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[200px]">{{ user.email }}</td>
-                </tr>
-                <tr *ngIf="viewers.length === 0">
-                  <td colspan="2" class="px-3 py-2 text-center text-gray-500 text-sm">No data available</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="md:hidden space-y-3">
-            <div *ngFor="let user of viewers" class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <div class="flex flex-col space-y-1">
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Username:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ user.username }}</p>
-                </div>
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Email:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ user.email }}</p>
-                </div>
-              </div>
-            </div>
-            <div *ngIf="viewers.length === 0" class="text-center py-3 text-gray-500 text-sm">
-              No data available
-            </div>
-          </div>
-        </div>
-
-        <!-- Top Responded Forms -->
-        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 w-full overflow-hidden">
-          <h2 class="text-base sm:text-lg font-semibold mb-3">Most Responded Forms</h2>
-          <div class="hidden md:block overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr *ngFor="let form of topRespondedForms">
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[200px]">{{ form.title }}</td>
-                  <td class="px-3 py-2 text-sm text-gray-900 break-words max-w-[300px]">{{ form.description }}</td>
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">{{ form.createdAt | date:'short' }}</td>
-                </tr>
-                <tr *ngIf="topRespondedForms.length === 0">
-                  <td colspan="3" class="px-3 py-2 text-center text-gray-500 text-sm">No data available</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="md:hidden space-y-3">
-            <div *ngFor="let form of topRespondedForms" class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <div class="flex flex-col space-y-1">
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Title:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ form.title }}</p>
-                </div>
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Description:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ form.description }}</p>
-                </div>
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Created At:</span>
-                  <p class="text-sm text-gray-900">{{ form.createdAt | date:'short' }}</p>
-                </div>
-              </div>
-            </div>
-            <div *ngIf="topRespondedForms.length === 0" class="text-center py-3 text-gray-500 text-sm">
-              No data available
-            </div>
-          </div>
-        </div>
-
-        <!-- New Forms -->
-        <div class="bg-white/90 backdrop-blur-sm shadow rounded-2xl p-4 w-full overflow-hidden">
-          <h2 class="text-base sm:text-lg font-semibold mb-3">New Forms This Week</h2>
-          <div class="hidden md:block overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr *ngFor="let form of newForms">
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 truncate max-w-[200px]">{{ form.title }}</td>
-                  <td class="px-3 py-2 text-sm text-gray-900 break-words max-w-[300px]">{{ form.description }}</td>
-                  <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">{{ form.createdAt | date:'short' }}</td>
-                </tr>
-                <tr *ngIf="newForms.length === 0">
-                  <td colspan="3" class="px-3 py-2 text-center text-gray-500 text-sm">No data available</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="md:hidden space-y-3">
-            <div *ngFor="let form of newForms" class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <div class="flex flex-col space-y-1">
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Title:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ form.title }}</p>
-                </div>
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Description:</span>
-                  <p class="text-sm text-gray-900 break-words">{{ form.description }}</p>
-                </div>
-                <div>
-                  <span class="text-xs font-medium text-gray-500">Created At:</span>
-                  <p class="text-sm text-gray-900">{{ form.createdAt | date:'short' }}</p>
-                </div>
-              </div>
-            </div>
-            <div *ngIf="newForms.length === 0" class="text-center py-3 text-gray-500 text-sm">
-              No data available
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Back Button -->
+    <div class="mt-6 text-center">
+      <button (click)="goBack()" class="bg-indigo-600 text-white py-2 px-6 rounded-lg hover:bg-indigo-700 transition-all">
+        Back to Admin Panel
+      </button>
     </div>
   </div>
 </div>
