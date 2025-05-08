@@ -5,7 +5,7 @@
             <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Form Access Management
             </h2>
-            <p class="text-lg text-gray-600 mt-3">Manage who can submit responses or view form analytics</p>
+            <p class="text-lg text-gray-600 mt-4">Manage who can submit responses or view form analytics</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -19,16 +19,16 @@
                                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v2h5m-2-6a3 3 0 015.356-1.857M7 14H2v2h5m10 0a3 3 0 01-5.356 1.857M17 14h5v-2a3 3 0 00-5.356-1.857M12 14a3 3 0 110-6 3 3 0 010 6z" />
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Response Access</h3>
+                    <h3 class="text-2xl font-semibold tracking-wide text-indigo-800 mb-4">Response Access</h3>
                     <p class="text-gray-600 mb-6 flex-grow">
                         Assign users who can submit responses to this form. Manage submissions and track completion
                         status.
                     </p>
                     <button [routerLink]="['/forms', formId, 'assign']"
-                        class="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
+                        class="w-full px-6 py-3 bg-indigo-600 text-white font-medium tracking-wide rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
                         <span>Manage Responders</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                 d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
                     </button>
@@ -47,16 +47,16 @@
                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Viewing Access</h3>
+                    <h3 class="text-2xl font-semibold tracking-wide text-purple-800 mb-4">Viewing Access</h3>
                     <p class="text-gray-600 mb-6 flex-grow">
                         Assign users who can view form responses and analytics. Control who has read-only access to
                         results.
                     </p>
                     <button [routerLink]="['/forms', formId, 'assign-viewers']"
-                        class="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2">
+                        class="w-full px-6 py-3 bg-purple-600 text-white font-medium tracking-wide rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2">
                         <span>Manage Viewers</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                 d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
                     </button>
@@ -72,7 +72,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                <span>Back to Form Management</span>
+                <span>Back to My Forms</span>
             </button>
         </div>
     </div>
