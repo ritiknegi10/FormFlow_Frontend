@@ -34,8 +34,9 @@ export class SharelinkComponent implements OnInit {
     dropdownOpen: boolean[] = [];
 
     deadlinePassed = false;
-    allowAnonymous: boolean = true;
-    anonymousToggle: boolean= false;
+  
+    allowAnonymous: boolean = false;
+    anonymousToggle:boolean= false;
     submitClicked = false;
     isSubmitting = false;
     nextClicked= false;
@@ -87,10 +88,12 @@ export class SharelinkComponent implements OnInit {
         if (formId) {
             this.formService.getFormById(formId).subscribe({
                 next: (form) => {
+                    this.allowAnonymous = form.allowAnonymous ?? false;
                     this.loadedForm = form;
                     
                     if(form.deadline) this.checkDeadlineValidity(form.deadline);
 
+                    console.log('form',form);
                     const formSchema = typeof form.formSchema === 'string' ? JSON.parse(form.formSchema) : form.formSchema;
                     this.formData = formSchema;
                     this.sections = formSchema.sections;
@@ -230,6 +233,7 @@ export class SharelinkComponent implements OnInit {
     fetchFormDetails() {
       this.formService.getFormSubmissionDetails(this.formId.toString()).subscribe({
         next: (response: any) => {
+            console.log('response:',response)
           this.allowAnonymous = response.allowAnonymous ?? false; 
         },
         error: (err) => {
