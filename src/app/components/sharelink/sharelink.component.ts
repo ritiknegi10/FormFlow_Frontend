@@ -26,10 +26,10 @@ export class SharelinkComponent implements OnInit {
     selectedOption: string | null = null;
 
     touchedFields: boolean[] = [];
-    uploadedFiles: boolean[] = [];
-    uploadedFileNames: string[] = [];
-    invalidtype: boolean[] = [];
-    invalidsize: boolean[] = [];
+    uploadedFiles: boolean[][] = [];
+    uploadedFileNames: string[][] = [];
+    invalidtype: boolean[][] = [];
+    invalidsize: boolean[][] = [];
     ratingValues: number[] = [];
     dropdownOpen: boolean[] = [];
 
@@ -81,6 +81,7 @@ export class SharelinkComponent implements OnInit {
             }
         });
 
+        //this.fetchFormDetails();
         this.currentSectionIndex = 0;
         
         if (formId) {
@@ -97,6 +98,18 @@ export class SharelinkComponent implements OnInit {
                         this.answer[sIdx] = {};
                         this.otherInputValues[sIdx] = {};
 
+                        this.uploadedFiles = this.sections.map(section =>
+                            section.questions.map(() => false)
+                          );
+                          this.uploadedFileNames = this.sections.map(section =>
+                            section.questions.map(() => '')
+                          );
+                          this.invalidsize = this.sections.map(section =>
+                            section.questions.map(() => false)
+                          );
+                          this.invalidtype = this.sections.map(section =>
+                            section.questions.map(() => false)
+                          );
                         section.questions.forEach((question: any, qIdx: number) => {
                             this.answer[sIdx][qIdx] = this.getAnswerValueType(question.type);
                         });
@@ -113,6 +126,62 @@ export class SharelinkComponent implements OnInit {
         }
     }
 
+    onFileSelected(event: Event, sectionIndex: number, qIdx: number): void {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) return;
+      
+        const file = input.files[0];
+        const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+      
+        if (!allowedTypes.includes(file.type)) {
+          this.invalidtype[sectionIndex][qIdx] = true;
+          input.value = '';
+          return;
+        }
+      
+        if (file.size > maxSize) {
+          this.invalidsize[sectionIndex][qIdx] = true;
+          input.value = '';
+          return;
+        }
+      
+        this.invalidtype[sectionIndex][qIdx] = false;
+        this.invalidsize[sectionIndex][qIdx] = false;
+      
+        this.uploadedFileNames[sectionIndex][qIdx] = file.name;
+        this.uploadedFiles[sectionIndex][qIdx] = true;
+      
+        this.formService.uploadFile(file).subscribe({
+          next: (fileUrl: string) => {
+            console.log('File uploaded, URL:', fileUrl);
+            this.answer[sectionIndex][qIdx] = fileUrl;
+          },
+          error: (err) => {
+            console.error('File upload failed:', err);
+            this.uploadedFiles[sectionIndex][qIdx] = false;
+            alert('Failed to upload file.');
+          }
+        });
+      }
+      onDeleteFile(sectionIndex: number, qIdx: number): void {
+        const fileUrl = this.answer?.[sectionIndex]?.[qIdx];
+        this.uploadedFiles[sectionIndex][qIdx] = false;
+        this.uploadedFileNames[sectionIndex][qIdx] = '';
+        if (this.answer?.[sectionIndex]) {
+          this.answer[sectionIndex][qIdx] = '';
+        }
+        if (fileUrl) {
+          this.formService.deleteFile(fileUrl).subscribe({
+            next: () => {
+              console.log('File deleted from backend');
+            },
+            error: (err) => {
+              console.error('Error deleting file:', err);
+            }
+          });
+        }
+      }
     getAnswerValueType(questionType: string) {
         switch (questionType) {
             case 'shortText':
@@ -430,38 +499,38 @@ export class SharelinkComponent implements OnInit {
     }
 
 
-    onFileSelected(event: Event, index: number): void {
-        const input = event.target as HTMLInputElement;
-        if (!input.files || input.files.length === 0) return;
+    // onFileSelected(event: Event, index: number): void {
+    //     const input = event.target as HTMLInputElement;
+    //     if (!input.files || input.files.length === 0) return;
 
-        const file = input.files[0];
-        const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf'];
-        const maxSize = 5 * 1024 * 1024;
+    //     const file = input.files[0];
+    //     const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+    //     const maxSize = 5 * 1024 * 1024;
 
-        if (!allowedTypes.includes(file.type)) {
-            this.invalidtype[index] = true;
-            input.value = '';
-            return;
-        }
+    //     if (!allowedTypes.includes(file.type)) {
+    //         this.invalidtype[index] = true;
+    //         input.value = '';
+    //         return;
+    //     }
 
-        if (file.size > maxSize) {
-            this.invalidsize[index] = true;
-            input.value = '';
-            return;
-        }
+    //     if (file.size > maxSize) {
+    //         this.invalidsize[index] = true;
+    //         input.value = '';
+    //         return;
+    //     }
 
-        this.invalidsize[index] = false;
-        this.invalidtype[index] = false;
+    //     this.invalidsize[index] = false;
+    //     this.invalidtype[index] = false;
 
-        this.uploadedFileNames[index] = file.name;
-        this.uploadedFiles[index] = true;
+    //     this.uploadedFileNames[index] = file.name;
+    //     this.uploadedFiles[index] = true;
 
-        this.formService.uploadFile(file).subscribe({
-            next: (fileUrl: string) => {
-                this.answer[index] = fileUrl;
-            }
-        });
-    }
+    //     this.formService.uploadFile(file).subscribe({
+    //         next: (fileUrl: string) => {
+    //             this.answer[index] = fileUrl;
+    //         }
+    //     });
+    // }
 
     // onDeleteFile(index: number): void {
     //     this.uploadedFiles[index] = false;

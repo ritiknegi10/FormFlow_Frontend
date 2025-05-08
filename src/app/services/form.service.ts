@@ -8,6 +8,7 @@ import { BehaviorSubject, catchError, forkJoin, map, of, switchMap, tap, throwEr
 })
 export class FormService {
   private apiUrl = 'http://localhost:8080/forms';
+  private responseApiUrl = 'http://localhost:8080/responses/submit';
   private forms = new BehaviorSubject<any[]>([]);
   forms$ = this.forms.asObservable();
   private formsSubject = new BehaviorSubject<any[]>([]);
@@ -390,8 +391,8 @@ getFormSubmissionDetails(formId: string) {
 
   
   updateFormAnonymous(formId: number, allowAnonymous: boolean): Observable<string> {
-    const url = `${this.apiUrl}/${formId}/anonymous`;
-    const params = new HttpParams().set('value', allowAnonymous.toString());
+    const url = `${this.responseApiUrl}/${formId}`;
+    const params = new HttpParams().set('isAnonymous', allowAnonymous.toString());
     return this.http.put(url, null, { params, responseType: 'text' });
 }
 }

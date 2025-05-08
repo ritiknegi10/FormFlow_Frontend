@@ -211,14 +211,15 @@ private loadInitialVisibility() {
 
 
 updateAnonymousSubmission(value: boolean) {
+  this.allowAnonymous = value;
   this.formService.updateFormAnonymous(this.formId, value).subscribe({
     next: (res) => {
-      this.allowAnonymous = value;
       this.successMessage = res;
       setTimeout(() => this.successMessage = '', 3000);
     },
     error: (err) => {
       this.errorMessage = 'Failed to update anonymous setting';
+      this.allowAnonymous=!value;
       setTimeout(() => this.errorMessage = '', 5000);
     }
   });
