@@ -15,6 +15,7 @@ export class ResetPasswordComponent {
   submitClicked: boolean = false;
   message: string = '';
   error: string = '';
+  showPassword: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -36,6 +37,11 @@ export class ResetPasswordComponent {
     const newPassword = form.get('newPassword')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
     return newPassword === confirmPassword ? null : { mismatch: true };
+  }
+
+  togglePasswordView(state: boolean, event: Event) {
+    event.preventDefault();
+    this.showPassword = state;
   }
 
   onSubmit() {
