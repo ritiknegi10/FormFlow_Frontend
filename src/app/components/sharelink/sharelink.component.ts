@@ -33,6 +33,7 @@ export class SharelinkComponent implements OnInit {
     ratingValues: number[] = [];
     dropdownOpen: boolean[] = [];
 
+    deadlinePassed = false;
   
     allowAnonymous: boolean = false;
     anonymousToggle:boolean= false;
@@ -89,6 +90,9 @@ export class SharelinkComponent implements OnInit {
                 next: (form) => {
                     this.allowAnonymous = form.allowAnonymous ?? false;
                     this.loadedForm = form;
+                    
+                    if(form.deadline) this.checkDeadlineValidity(form.deadline);
+
                     console.log('form',form);
                     const formSchema = typeof form.formSchema === 'string' ? JSON.parse(form.formSchema) : form.formSchema;
                     this.formData = formSchema;
@@ -125,6 +129,13 @@ export class SharelinkComponent implements OnInit {
         else {
             console.warn('No form ID found in route.');
         }
+    }
+
+    checkDeadlineValidity(deadline: any) {
+        const now = new Date();
+        const formDeadline = new Date(deadline);
+
+        if(formDeadline < now) this.deadlinePassed = true;
     }
 
     onFileSelected(event: Event, sectionIndex: number, qIdx: number): void {
