@@ -391,8 +391,9 @@ getFormSubmissionDetails(formId: string) {
 
   
   updateFormAnonymous(formId: number, allowAnonymous: boolean): Observable<string> {
-    const url = `${this.responseApiUrl}/${formId}`;
-    const params = new HttpParams().set('isAnonymous', allowAnonymous.toString());
+    const url = '${this.apiUrl}/${formId}/anonymous';
+    const params = new HttpParams().set('value', allowAnonymous.toString());
     return this.http.put(url, null, { params, responseType: 'text' });
 }
+
 }
