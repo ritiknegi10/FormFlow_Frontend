@@ -4,6 +4,7 @@ import { FormService } from 'src/app/services/form.service';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { filter } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-form-hero',
@@ -51,6 +52,7 @@ export class FormHeroComponent implements OnInit{
     
     // Mapping properties
     selectedTypes: { [sIdx: number]: { [qIdx: number]: any } } = {};
+    showSectionMenuMap: { [sIdx: number] : boolean } = {};
     showMenuMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     showQuestionDescription: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
     collapseQuestionMap: { [sectionIndex: number]: { [questionIndex: number]: boolean } } = {};
@@ -165,7 +167,12 @@ export class FormHeroComponent implements OnInit{
                     const questions = section.questions.map((field: any, qIdx: number) => {
 
                         // Update map properties
-                        if(field.questionDescription) this.showQuestionDescription[sIdx][qIdx] = true;
+                        if(!this.showQuestionDescription) this.showQuestionDescription = this.showQuestionDescription = {};
+                        if(!this.showQuestionDescription[sIdx]) this.showQuestionDescription[sIdx] = [];
+                        if(field.questionDescription) {
+                            console.log(field.questionDescription);
+                            this.showQuestionDescription[sIdx][qIdx] = true;
+                        }
                         
                         if (!this.otherAddedMap[sIdx]) this.otherAddedMap[sIdx] = {};
                         if(field.options) {
@@ -216,9 +223,6 @@ export class FormHeroComponent implements OnInit{
                     })
                 );
                 this.questionTypeDropdown = parsedSchema.sections.map((section: any) => 
-                    section.questions.map(() => false)
-                );
-                this.showQuestionDescription = parsedSchema.sections.map((section: any) => 
                     section.questions.map(() => false)
                 );
                 
@@ -293,8 +297,15 @@ export class FormHeroComponent implements OnInit{
         }
     }
 
-    scrollToTarget(targetId: string, color: string): void {
+    onSectionTitleBlur(event: FocusEvent) {
+        const input = event.target as HTMLInputElement;
+        if (!input.value.trim()) {
+            input.value = 'Untitled Section';
+        }
+    }
 
+    scrollToTarget(targetId: string, color: string): void {
+        console.log(color);
         const el = document.getElementById(targetId);
         if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -322,6 +333,7 @@ export class FormHeroComponent implements OnInit{
     
     @ViewChildren('dropdownBox') dropdownBoxes!: QueryList<ElementRef>;
     @ViewChildren('otherOptionsMenu') otherOptionsMenus!: QueryList<ElementRef>;
+    @ViewChildren('sectionOptionsMenu') sectionOptionsMenus!: QueryList<ElementRef>;
 
     @HostListener('document:click', ['$event.target'])
     onDocumentClick(target: HTMLElement) {
@@ -332,9 +344,14 @@ export class FormHeroComponent implements OnInit{
         const clickedInsideOtherOptions = this.otherOptionsMenus?.some(menu =>
             menu.nativeElement.contains(target)
         );
+
+        const clickedInsideSectionMenu = this.sectionOptionsMenus?.some(menu =>
+            menu.nativeElement.contains(target)
+        );
         
         const clickedButton = (target as HTMLElement).closest('button');
-        
+        const clickedSectionMenuButton = (target as HTMLElement).closest('button');
+
         if (!clickedInsideDropdown) {
             this.isDropdownOpen = false;
             
@@ -350,6 +367,12 @@ export class FormHeroComponent implements OnInit{
                 for (let qIdx in this.showMenuMap[sIdx]) {
                     this.showMenuMap[sIdx][qIdx] = false;
                 }
+            }
+        }
+
+        if(!clickedInsideSectionMenu && !clickedSectionMenuButton) {
+            for(let sIdx in this.showSectionMenuMap) {
+                this.showSectionMenuMap[sIdx] = false;
             }
         }
     }
@@ -434,6 +457,7 @@ export class FormHeroComponent implements OnInit{
         this.getTitleControl()?.valueChanges.subscribe(title => {
             this.sections.at(0).get('sectionTitle')?.setValue(title);
         });
+        if(!this.showSectionMenuMap) this.showSectionMenuMap = {};
         this.sections.push(sectionGroup);
         
         // --Add 1 question by default to new section 
@@ -450,16 +474,108 @@ export class FormHeroComponent implements OnInit{
         this.shadowSections = this.sections.controls.map((_, index) => index);
     }
 
-    removeSection(sIdx: number){
-        this.sections.removeAt(sIdx);
+    toggleSectionOptionsMenu(sIdx: number) {
+        if(!this.showSectionMenuMap) this.showSectionMenuMap = {};
+        this.showSectionMenuMap[sIdx] = !this.showSectionMenuMap[sIdx];
+    }
 
-        // --scroll to previous section
-        if(sIdx !== -1){
-            const el = document.getElementById(`section-${sIdx-1}`);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+    duplicateSection(sIdx: number) {
+        const originalSection = this.sections.at(sIdx);
+        if (!originalSection) return;
+
+        const duplicatedQuestions = this.fb.array(
+            (originalSection.get('questions') as FormArray).controls.map(q => this.fb.group({
+                ...q.value
+            }))
+        );
+
+        const duplicatedSection = this.fb.group({
+            sectionTitle: [originalSection.get('sectionTitle')?.value || 'Untitled Section'],
+            sectionDescription: [originalSection.get('sectionDescription')?.value || ''],
+            nextSection: [this.sections.length + 1],
+            questions: duplicatedQuestions,
+        });
+
+        this.sections.insert(sIdx + 1, duplicatedSection);
+
+        if (!this.showSectionMenuMap) this.showSectionMenuMap = {};
+        if (!this.selectedTypes) this.selectedTypes = {};
+        if (!this.questionTypeDropdown) this.questionTypeDropdown = {};
+        if (!this.showQuestionDescription) this.showQuestionDescription = {};
+        
+        if (!this.selectedTypes[sIdx + 1]) this.selectedTypes[sIdx + 1] = [];
+        if (!this.questionTypeDropdown[sIdx + 1]) this.questionTypeDropdown[sIdx + 1] = [];
+        if (!this.showQuestionDescription[sIdx + 1]) this.showQuestionDescription[sIdx + 1] = [];
+        
+        this.selectedTypes[sIdx + 1] = (originalSection.get('questions') as FormArray).controls.map((question) => {
+            const found = this.questionTypes.find(q => q.type === question.get('type')?.value);
+            return found ? { ...found } : {};
+        });
+        this.questionTypeDropdown[sIdx + 1] = (originalSection.get('questions') as FormArray).controls.map(() => false);
+        this.showQuestionDescription[sIdx + 1] = (originalSection.get('questions') as FormArray).controls.map((question: any) => {
+            if(question.controls.questionDescription) return true;
+            else return false;
+        });
+
+        this.cdr.detectChanges();
+
+        // Scroll to the newly duplicated section
+        const el = document.getElementById(`section-${sIdx + 1}`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+
+        this.shadowSections = this.sections.controls.map((_, index) => index);
+        this.toggleSectionOptionsMenu(sIdx);
+    }
+
+    openMoveSectionPopup(sIdx: number) {
+        this.isSectionReorderPopup = true;
+        document.body.style.overflow = 'hidden';
+        this.toggleSectionOptionsMenu(sIdx);
+    }
+
+    closeMoveSectionPopup() {
+        this.isSectionReorderPopup = false;
+        document.body.style.overflow = 'auto';
+    }
+
+    cancelSectionOrder(){
+        this.shadowSections = this.sections.controls.map((_, index) => index);
+        this.closeMoveSectionPopup();
+    }
+
+    saveSectionOrder(){
+        this.sections.controls = this.shadowSections.map(i => this.sections.at(i));
+        this.closeMoveSectionPopup();
+        // reset shadosection once saved
+        this.shadowSections = this.sections.controls.map((_, index) => index);
+    }
+
+    removeSection(sIdx: number) {
+        this.toggleSectionOptionsMenu(sIdx);
+        Swal.fire({
+              title: 'Are you sure?',
+              text: 'This will delete all questions from this section',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#d33',
+              cancelButtonColor: '#3085d6',
+              confirmButtonText: 'Yes, delete it',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.sections.removeAt(sIdx);
+
+                    // --scroll to previous section
+                    if(sIdx !== -1) {
+                        const el = document.getElementById(`section-${sIdx-1}`);
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }
+        });
+        
     }
 
     getSectionTitleControl(section: any){
@@ -781,21 +897,6 @@ export class FormHeroComponent implements OnInit{
         console.log("current shadowsection : ", this.shadowSections);
     }
 
-    cancelSectionOrder(){
-        this.shadowSections = this.sections.controls.map((_, index) => index);
-        this.isSectionReorderPopup = false;
-    }
-
-    saveSectionOrder(){
-        // Replace the original array
-        this.sections.controls = this.shadowSections.map(i => this.sections.at(i));
-
-        // close popup
-        this.isSectionReorderPopup = false;
-        // reset shadosection once saved
-        this.shadowSections = this.sections.controls.map((_, index) => index);
-    }
-
     dropQuestion(event: CdkDragDrop<string[]>, sectionIndex: number){
         const questionsArray = this.getSectionQuestions(sectionIndex);
         moveItemInArray(questionsArray.controls, event.previousIndex, event.currentIndex);
@@ -946,7 +1047,17 @@ export class FormHeroComponent implements OnInit{
 
                     if (!this.getQuestionTextControl(ques)?.value.trim()) {
                         this.isQuestionInvalid = true;
-                        this.scrollToTarget(`question-${sIdx}-${qIdx}`, 'red');
+                        // this.scrollToTarget(`question-${sIdx}-${qIdx}`, 'red');
+                        const el = document.getElementById(`question-${sIdx}-${qIdx}`);
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                            el.classList.add('ring-2', 'ring-red-300');
+                        
+                            setTimeout(() => {
+                            el.classList.remove('ring-2', 'ring-red-300');
+                            }, 2000);
+                        }
                         
                     }
 
