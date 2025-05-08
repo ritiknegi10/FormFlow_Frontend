@@ -10,6 +10,8 @@ import Swal from 'sweetalert2';
 })
 export class FormsListComponent implements OnInit {
   forms: any[] = [];
+  activeForms: any[] = [];
+  expiredForms: any[] = [];
   noForms: boolean = false;
   submitSuccess: boolean = false;
   constructor(private formService: FormService, private router: Router) {}
@@ -26,10 +28,17 @@ export class FormsListComponent implements OnInit {
       }, 5000);
     }
     this.formService.getForms().subscribe(forms => {
-      this.forms = forms;
-      this.noForms = !this.forms.length;
-      // console.log(forms);
+      this.forms = (forms || []).map(form => ({
+        ...form,
+        expired: form.deadline ? new Date(form.deadline) < new Date() : false
+      }));
+      
+      this.activeForms = this.forms.filter(form => !form.expired) || [];
+      this.expiredForms = this.forms.filter(form => form.expired) || [];
+      
+      this.noForms = this.forms.length === 0;
     }); 
+  
   }
   
   goToAnalytics(index: number) {
@@ -87,3 +96,13 @@ export class FormsListComponent implements OnInit {
   }
 
 }
+
+
+
+
+
+
+
+
+
+                  
