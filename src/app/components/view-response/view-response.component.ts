@@ -168,20 +168,21 @@ export class ViewResponseComponent implements OnInit {
 
   getQuestions(response: any): any[] {
     try {
-      const parsed = JSON.parse(response.responseData);
-      if (Array.isArray(parsed)) {
-        // If responseData is a list of sections with questions
-        return parsed.flatMap(section => section.questions || []);
-      } else if (parsed.questions) {
-        // If responseData is a single section with questions
-        return parsed.questions;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error parsing responseData:', error);
+      const parsed = JSON.parse(response.responseData); // parsed is an array of sections
+      let allQuestions: any[] = [];
+      parsed.forEach((section: any) => {
+        if (Array.isArray(section.responses)) {
+          allQuestions = allQuestions.concat(section.responses);
+        }
+      });
+      return allQuestions;
+    } catch (e) {
+      console.warn('Failed to parse responseData in getQuestions:', e);
       return [];
     }
   }
+  
+  
   
   getKeys(response: any): string[] {
     try {

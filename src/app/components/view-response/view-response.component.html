@@ -51,9 +51,11 @@
               <!-- Left: Questions & Answers -->
               <div class="space-y-4 flex-1">
                 <div *ngFor="let question of getQuestions(response)">
-                  <div class="text-sm font-semibold text-gray-700">{{ question.questiontext }}</div>
+                  <div class="text-sm font-semibold text-gray-700">
+                    {{ question.question }}
+                  </div>
                   <div class="text-gray-900 whitespace-pre-wrap">
-                    {{ formatResponse(question.response) }}
+                    {{ question.answers }}
                   </div>
                 </div>
 
