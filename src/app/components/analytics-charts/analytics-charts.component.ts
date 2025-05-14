@@ -11,18 +11,30 @@ import { ScaleType } from '@swimlane/ngx-charts';
 })
 export class AnalyticsChartsComponent implements OnInit {
   formId: number | null = null;
-  submissionTrends: any[] = [];
-  pieCharts: { questionText: string; data: any[] }[] = [];
-  filteredPieCharts: { questionText: string; data: any[] }[] = [];
-  searchQuery: string = '';
-  loading = { trends: false, pieCharts: false };
-  errorMessage = '';
-  chartColorScheme = {
-    name: 'analytics',
-    selectable: true,
-    group: ScaleType.Ordinal,
-    domain: ['#4f46e5', '#7c3aed', '#db2777', '#10b981', '#f59e0b']
+  selectedForm: any = null;
+  responses: any[] = [];
+  submissionTrend: { name: string; value: number }[] = [];
+  questionResponseData: { [key: string]: { name: string; value: number }[] } = {};
+  // Chart configurations
+  showXAxis = true;
+  showYAxis = true;
+  gradient = false;
+  showLegend = true;
+  showXAxisLabel = true;
+  xAxisLabel = 'Submission Date';
+  showYAxisLabel = true;
+  yAxisLabel = 'Number of Submissions';
+  colorScheme = {
+    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
   };
+  // Line chart specific
+  autoScale = true;
+  showGridLines = true;
+  // Pie chart configurations
+  pieGradient = true;
+  pieShowLegend = true;
+  pieShowLabels = true;
+  pieIsDoughnut = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -31,165 +43,124 @@ export class AnalyticsChartsComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.formId = Number(params.get('id'));
-      if (this.formId && !isNaN(this.formId)) {
-        this.loadData();
+      const currentUrl = this.router.url;
+      if (currentUrl.includes('my-responses')) {
+        this.loadFormDataSubmissions();
       } else {
-        this.errorMessage = 'Invalid form ID';
+        this.loadFormData();
       }
     });
   }
 
-  private loadData(): void {
-    if (!this.formId) return;
-
-    this.loading.trends = true;
-    this.loading.pieCharts = true;
-    this.errorMessage = '';
-
-    // Fetch form and responses concurrently
-    Promise.all([
-      this.formService.getFormById(this.formId).toPromise(),
-      this.responseService.getResponsesByFormId(this.formId).toPromise()
-    ]).then(([form, responses]) => {
-      this.processSubmissionTrends(responses || []);
-      this.processPieCharts(form, responses || []);
-      this.loading.trends = false;
-      this.loading.pieCharts = false;
-    }).catch(err => {
-      console.error('Data Error:', err);
-      this.loading.trends = false;
-      this.loading.pieCharts = false;
-      this.errorMessage = 'Failed to load analytics data';
-    });
-  }
-
-  private processSubmissionTrends(responses: any[]): void {
-    const trendMap: { [date: string]: number } = {};
-
-    responses.forEach(response => {
-      if (response.submittedAt) {
-        const date = new Date(response.submittedAt).toLocaleDateString();
-        trendMap[date] = (trendMap[date] || 0) + 1;
-      }
-    });
-
-    const trendArray = Object.keys(trendMap).map(date => ({
-      name: date,
-      value: trendMap[date]
-    }));
-
-    this.submissionTrends = [
-      {
-        name: 'Submissions',
-        series: trendArray.sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime())
-      }
-    ];
-  }
-
-  private processPieCharts(form: any, responses: any[]): void {
-    if (!form?.formSchema?.sections) {
-      this.pieCharts = [];
-      this.filteredPieCharts = [];
-      return;
-    }
-
-    const questions: any[] = [];
-    form.formSchema.sections.forEach((section: any) => {
-      if (section.questions) {
-        questions.push(...section.questions.map((q: any) => ({
-          id: q.id || q.questionText, // Use id or questionText as fallback
-          questionText: q.questionText,
-          type: q.type,
-          options: q.options || []
-        })));
-      }
-    });
-
-    this.pieCharts = questions.map(question => {
-      const data = this.generatePieChartData(question, responses);
-      return {
-        questionText: question.questionText,
-        data
-      };
-    });
-
-    this.filteredPieCharts = [...this.pieCharts];
-  }
-
-  private generatePieChartData(question: any, responses: any[]): any[] {
-    if (['multipleChoice', 'dropdown'].includes(question.type)) {
-      const optionCounts: { [key: string]: number } = {};
-      question.options.forEach((option: string) => {
-        optionCounts[option] = 0;
+  loadFormData() {
+    if (this.formId !== null) {
+      this.formService.getFormById(this.formId).subscribe(form => {
+        this.selectedForm = form;
       });
 
-      responses.forEach(response => {
-        const answer = response.answers?.[question.id];
-        if (answer && optionCounts.hasOwnProperty(answer)) {
-          optionCounts[answer]++;
-        }
-      });
-
-      return Object.keys(optionCounts).map(option => ({
-        name: option,
-        value: optionCounts[option]
-      }));
-    } else if (question.type === 'checkboxes') {
-      const optionCounts: { [key: string]: number } = {};
-      question.options.forEach((option: string) => {
-        optionCounts[option] = 0;
-      });
-
-      responses.forEach(response => {
-        const answers = response.answers?.[question.id] || [];
-        answers.forEach((answer: string) => {
-          if (optionCounts.hasOwnProperty(answer)) {
-            optionCounts[answer]++;
+      this.responseService.getResponsesByFormId(this.formId).subscribe(responses => {
+        this.responses = responses.map(response => {
+          try {
+            const parsedData = JSON.parse(response.responseData);
+            response.isAnonymous = parsedData?.[0]?.isAnonymous ?? false;
+          } catch (error) {
+            console.error('Error parsing responseData:', error);
+            response.isAnonymous = false;
           }
+          return response;
         });
+        this.processSubmissionTrends();
+        this.processQuestionResponses();
+      });
+    }
+  }
+
+  loadFormDataSubmissions() {
+    if (this.formId !== null) {
+      this.formService.getFormById(this.formId).subscribe(form => {
+        this.selectedForm = form;
       });
 
-      return Object.keys(optionCounts).map(option => ({
-        name: option,
-        value: optionCounts[option]
-      }));
-    } else {
-      // For text, rating, date, etc., count answered vs. not answered
-      let answered = 0;
-      let notAnswered = 0;
+      this.responseService.getResponsesByFormIdandUser(this.formId).subscribe(responses => {
+        this.responses = responses;
+        this.processSubmissionTrends();
+        this.processQuestionResponses();
+      });
+    }
+  }
 
-      responses.forEach(response => {
-        const answer = response.answers?.[question.id];
-        if (answer && answer !== '') {
-          answered++;
-        } else {
-          notAnswered++;
+  processSubmissionTrends() {
+    const trendMap = new Map<string, number>();
+    
+    this.responses.forEach(response => {
+      const date = new Date(response.submittedAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      trendMap.set(date, (trendMap.get(date) || 0) + 1);
+    });
+
+    // Convert Map to array for ngx-charts and sort by date
+    this.submissionTrend = Array.from(trendMap.entries())
+      .map(([name, value]) => ({
+        name,
+        value
+      }))
+      .sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime());
+  }
+
+  processQuestionResponses() {
+    // Temporary storage for aggregating responses
+    const tempQuestionData: { [key: string]: Map<string, number> } = {};
+
+    this.responses.forEach(response => {
+      const questions = this.getQuestions(response);
+      
+      questions.forEach((question: any) => {
+        const questionText = question.question;
+        const answer = Array.isArray(question.answers) 
+          ? question.answers.join(', ') 
+          : question.answers?.toString() || 'No Answer';
+
+        if (!tempQuestionData[questionText]) {
+          tempQuestionData[questionText] = new Map<string, number>();
+        }
+
+        tempQuestionData[questionText].set(
+          answer,
+          (tempQuestionData[questionText].get(answer) || 0) + 1
+        );
+      });
+    });
+
+    // Convert to ngx-charts format
+    this.questionResponseData = {};
+    Object.keys(tempQuestionData).forEach(question => {
+      this.questionResponseData[question] = Array.from(
+        tempQuestionData[question].entries()
+      ).map(([name, value]) => ({
+        name,
+        value
+      }));
+    });
+  }
+
+  getQuestions(response: any): any[] {
+    try {
+      const parsed = JSON.parse(response.responseData);
+      let allQuestions: any[] = [];
+      parsed.forEach((section: any) => {
+        if (Array.isArray(section.responses)) {
+          allQuestions = allQuestions.concat(section.responses);
         }
       });
-
-      return [
-        { name: 'Answered', value: answered },
-        { name: 'Not Answered', value: notAnswered }
-      ];
+      return allQuestions;
+    } catch (e) {
+      console.warn('Failed to parse responseData in getQuestions:', e);
+      return [];
     }
-  }
-
-  filterPieCharts(): void {
-    const query = this.searchQuery.trim().toLowerCase();
-    if (!query) {
-      this.filteredPieCharts = [...this.pieCharts];
-      return;
-    }
-
-    this.filteredPieCharts = this.pieCharts.filter(chart =>
-      chart.questionText.toLowerCase().includes(query)
-    );
-  }
-
-  goBack(): void {
-    this.router.navigate(['/forms']);
-  }
-}
+  }}
