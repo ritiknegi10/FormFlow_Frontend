@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-12 px-3 sm:px-10 lg:px-20">
+<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-blue-100 py-12 px-3 sm:px-10 lg:px-20">
     <div class="max-w-6xl mx-auto">
         <!-- <div class="text-center mb-12">
             <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
@@ -7,29 +7,45 @@
             <p class="text-lg text-gray-600 mt-3">Manage and track your created forms</p>
         </div> -->
 
-        <div *ngIf="activeForms.length > 0">
-            <div class="text-center mb-12">
-                <h2
-                    class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Active Forms
-                </h2>
-                <p class="text-lg text-gray-600 mt-3">Forms currently accepting responses</p>
+        <div *ngIf="noForms" class="bg-white/50 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200 p-8">
+            <div class="text-center py-12">
+                <div class="mb-6 text-indigo-400">
+                    <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <p class="text-lg text-gray-500 mb-4">No forms created yet</p>
+                <a routerLink="/form-template" class="inline-flex items-center px-6 py-3 bg-indigo-200 hover:bg-indigo-100 text-indigo-700 font-medium rounded-full 
+                        shadow-sm hover:shadow-md">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Create New Form
+                </a>
             </div>
+        </div>
 
-            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                <div *ngFor="let form of activeForms"
-                    class="group bg-white/90 border-2 border-indigo-100 rounded-xl hover:border-indigo-300 transition-all shadow-sm hover:shadow-md py-5 px-3 sm:px-6">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex flex-col items-start max-w-[85%]">
-                            <h3 class="text-xl font-semibold text-indigo-900 tracking-wide text-wrap line-clamp-2">
-                                {{ form.title }}</h3>
-                            <div class="flex text-xs text-gray-500 mt-2">
-                                <span class="pr-3 border-r-2 border-gray-300">Version {{ form.version }}</span>
-                                <span class="pl-3">
-                                    {{ form.responsesCount ? form.responsesCount + (form.responsesCount === 1 ? '
-                                    response' : ' responses') : 'No responses yet'}}
-                                </span>
-                            </div>
+
+
+        <div *ngIf="!noForms" class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div *ngFor="let form of forms"
+                class="group bg-white/90 border-2 border-indigo-100 rounded-xl hover:border-indigo-300 transition-all shadow-sm hover:shadow-md py-5 px-3 sm:px-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex flex-col items-start max-w-[85%]">
+                        <h3 class="text-xl font-semibold text-indigo-900 tracking-wide text-wrap line-clamp-2">
+                            {{ form.title }}</h3>
+                        <div class="flex text-xs text-gray-500 mt-2">
+                            <span class="pr-3 border-r-2 border-gray-300">Version {{ form.version }}</span>
+                            <span class="pl-3">
+                                {{ form.responsesCount ?
+                                form.responsesCount + (form.responsesCount === 1 ?
+                                ' response'
+                                : ' responses')
+                                : 'No responses yet'
+                                }}
+                            </span>
                         </div>
                         <div class="flex flex-col items-center relative">
                             <button (click)="confirmDeleteForm(form.id)"

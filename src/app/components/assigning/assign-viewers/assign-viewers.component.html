@@ -1,10 +1,12 @@
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
+<div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100 py-12 px-6 sm:px-12 lg:px-20">
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-12">
-            <div class="mb-6 animate-pulse">
-                <svg class="w-16 h-16 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v2h5m-2-6a3 3 0 015.356-1.857M7 14H2v2h5m10 0a3 3 0 01-5.356 1.857M17 14h5v-2a3 3 0 00-5.356-1.857M12 14a3 3 0 110-6 3 3 0 010 6z" />
+            <div class="mb-4 animate-pulse">
+                <svg class="w-20 h-20 text-indigo-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
             </div>
             <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
@@ -13,38 +15,74 @@
             <p class="text-lg text-gray-600 mt-3">Add viewers by email to manage response viewing</p>
         </div>
 
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-8">
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-4 sm:p-8">
             <!-- Loading Overlay -->
             <div *ngIf="loading.viewers || loading.assign"
-                class="absolute inset-0 bg-white/50 flex items-center justify-center rounded-2xl z-10">
+                class="absolute inset-0 bg-white/60 flex items-center justify-center rounded-2xl z-10">
                 <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-600"></div>
             </div>
 
             <!-- Viewer Management Section -->
             <div class="mb-8">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        Currently Assigned Viewers ({{ assignedViewers.length }})
-                    </h3>
-                    <div class="flex items-center gap-2">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" [checked]="isAllSelected" (change)="toggleAllSelection()"
-                                [disabled]="assignedViewers.length === 0"
-                                class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                            <span class="text-sm text-gray-600">Select all</span>
+                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-4 relative">
+                    <div class="flex items-center gap-1">
+                        <svg class="h-5 w-5 text-purple-700" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <h3 class="text-lg font-semibold tracking-wide text-purple-800">
+                            Currently Assigned Viewers ({{ assignedViewers.length }})
+                        </h3>
+                    </div>
+
+                    <!-- <div *ngIf="assignedViewers.length"
+                        class="flex items-center gap-2 relative">
+                            <div class="flex items-center gap-1.5 mr-2">
+                                <input type="checkbox" [checked]="isAllSelected" (change)="toggleAllSelection()"
+                                    [disabled]="assignedViewers.length === 0" id="selectAll"
+                                    class="h-4 w-4 text-purple-700 border-gray-300 rounded focus:ring-purple-600">
+                                <label for="selectAll" class="text-sm text-gray-600 cursor-pointer">Select all</label>
+                            </div>
+                            <input type="text" [(ngModel)]="searchQuery" placeholder="Search users"
+                                class="pl-7 pr-3 py-1.5 border border-gray-300 peer focus:outline-none focus:border-none focus:ring-2 focus:ring-purple-700 rounded-full text-sm w-48">
+                            <svg class="absolute inset-y-0 left-[6.4rem] top-2 w-4 h-4 text-gray-500 peer-focus:text-purple-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-width="2.5" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
+                            </svg>
+
+                            <button (click)="removeSelectedViewers()" [disabled]="selectedViewers.size === 0 || loading.viewers" 
+                                class="px-4 py-1.5 bg-red-100 text-red-600 font-medium tracking-wide rounded-full text-sm hover:bg-red-200 hover:text-red-700 transition-colors disabled:opacity-50">
+                                Remove Selected ({{ selectedViewers.size }})
+                            </button>
+                    </div> -->
+
+                    <div *ngIf="assignedViewers.length"
+                        class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mt-3 lg:mt-0">
+                        <div class="lg:absolute lg:left-1/2 lg:-translate-x-1/2">
+                            <input type="text" [(ngModel)]="searchQuery" placeholder="Search viewers"
+                                class="w-full sm:w-60 lg:w-52 pl-8 pr-3 py-1.5 border-2 border-gray-300 shadow-sm peer focus:outline-none focus:border-none focus:ring-2 focus:ring-purple-700 rounded-full text-sm">
+                            <svg class="absolute inset-y-0 left-2 top-[3.1rem] lg:top-[0.55rem] w-4 h-4 text-gray-500 peer-focus:text-purple-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-width="3" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
+                            </svg>
                         </div>
-                        <input type="text" [(ngModel)]="searchQuery" placeholder="Search viewers..."
-                            class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm w-48">
-                        <button (click)="removeSelectedViewers()"
-                            [disabled]="selectedViewers.size === 0 || loading.viewers" class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm
-                                       hover:bg-red-700 transition-colors disabled:opacity-50">
-                            Remove Selected ({{ selectedViewers.size }})
-                        </button>
+                        <div class="flex justify-end items-center gap-2 relative">
+                            <div class="flex items-center gap-1.5">
+                                <input type="checkbox" [checked]="isAllSelected" (change)="toggleAllSelection()"
+                                    [disabled]="assignedViewers.length === 0" id="selectAll"
+                                    class="h-4 w-4 text-purple-700 border-gray-300 rounded focus:ring-purple-600">
+                                <label for="selectAll" class="text-sm text-gray-600 cursor-pointer">Select all</label>
+                            </div>
+
+                            <button (click)="removeSelectedViewers()" [disabled]="selectedViewers.size === 0 || loading.viewers" 
+                                class="px-4 py-1.5 bg-red-100 text-red-600 font-medium tracking-wide rounded-full text-sm hover:bg-red-200 hover:text-red-700 transition-colors disabled:opacity-50">
+                                Remove Selected ({{ selectedViewers.size }})
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Viewers List with Scroll -->
-                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <div *ngIf="assignedViewers.length"
+                    class="border border-gray-200 rounded-lg overflow-hidden">
                     <div class="max-h-96 overflow-y-auto">
                         <div *ngFor="let viewer of filteredViewers"
                             class="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 group">
@@ -52,13 +90,14 @@
                             <div class="flex items-center space-x-4 flex-1">
                                 <input type="checkbox" [checked]="selectedViewers.has(viewer.email)"
                                     (change)="toggleViewerSelection(viewer.email)"
-                                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                    class="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
 
                                 <!-- Viewer Info -->
                                 <div class="flex items-center space-x-3">
-                                    <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                                        <span class="text-indigo-600 font-medium">{{ viewer.email[0].toUpperCase()
-                                            }}</span>
+                                    <div class="h-8 w-8 rounded-full bg-violet-100 flex items-center justify-center">
+                                        <span class="text-purple-700 font-medium">
+                                            {{ viewer.email[0].toUpperCase() }}
+                                        </span>
                                     </div>
                                     <span class="text-gray-700">{{ viewer.email }}</span>
                                 </div>
@@ -67,8 +106,8 @@
                             <!-- Remove Button -->
                             <div class="flex items-center space-x-4">
                                 <button (click)="removeSingleViewer(viewer.email)"
-                                    class="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50">
-                                    ×
+                                    class="w-8 h-8 text-center text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50">
+                                    &times;
                                 </button>
                             </div>
                         </div>
@@ -83,24 +122,29 @@
             <!-- Add Viewers Form -->
             <form [formGroup]="assignForm" (ngSubmit)="onSubmit()" class="space-y-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Add Viewers</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 px-2">Add Viewers</label>
                     <div
-                        class="flex rounded-lg shadow-sm ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-indigo-500">
+                        class="relative flex rounded-lg shadow-sm ring-1 ring-slate-300 focus-within:ring-2 focus-within:ring-purple-700">
                         <input type="text" formControlName="searchInput" placeholder="Enter emails separated by commas"
                             (keyup.enter)="processInput()"
-                            class="block w-full px-4 py-2 border-0 rounded-l-lg placeholder-gray-400 focus:ring-0">
+                            class="block w-full pl-3 sm:pl-20 pr-3 py-2.5 border-0 rounded-l-lg placeholder-gray-400 text-gray-700 focus:ring-0 focus:outline-none peer">
+                        <svg class="hidden sm:block absolute inset-y-0 left-3 top-2.5 h-6 w-6 text-gray-600 peer-focus:text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <p class="hidden sm:block absolute inset-y-0 left-12 top-2.5 font-medium text-gray-700 peer-focus:text-purple-800">To:</p>
                         <button type="button" (click)="processInput()"
-                            class="px-4 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700 transition-colors">
+                            class="px-3 sm:px-4 bg-purple-700 text-white rounded-r-lg hover:bg-purple-800 ring-1 ring-purple-700 transition-colors">
                             Add
                         </button>
                     </div>
 
                     <div *ngIf="validEmails.length > 0" class="mt-4 flex flex-wrap gap-2">
                         <div *ngFor="let email of validEmails"
-                            class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full flex items-center gap-2">
+                            class="bg-violet-100 text-purple-800 px-3 py-1 rounded-full flex items-center gap-2">
                             {{ email }}
-                            <button (click)="removeEmail(email)" class="text-indigo-500 hover:text-indigo-700">
-                                ×
+                            <button (click)="removeEmail(email)" class="text-purple-600 hover:text-purple-800">
+                                &times;
                             </button>
                         </div>
                     </div>
@@ -110,14 +154,19 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-4 border-t pt-6">
+                <div class="flex justify-end gap-3 border-t pt-5">
                     <button type="button" (click)="cancel()"
-                        class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
                         Cancel
                     </button>
-                    <button type="submit" [disabled]="validEmails.length === 0 || loading.assign" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors
-                           disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                        <span *ngIf="!loading.assign">Assign {{ validEmails.length }} Viewers</span>
+                    <button type="submit" [disabled]="validEmails.length === 0 || loading.assign" 
+                        class="px-6 py-2 bg-gradient-to-r from-purple-700 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-500 transition-colors
+                            disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2">
+                        <span *ngIf="!loading.assign">
+                            Assign {{ validEmails.length ? 
+                                    validEmails.length === 1 ? validEmails.length + ' Viewer' : validEmails.length + ' Viewers'
+                                    : '' }}
+                        </span>
                         <span *ngIf="loading.assign" class="flex items-center">
                             <svg class="animate-spin h-5 w-5 text-white" xmlns="[invalid url, do not cite]" fill=" none"
                                 viewBox="0 0 24 24">

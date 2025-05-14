@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 export class UserFormsListComponent implements OnInit {
   submittedForms: any[] = [];
   noSubmissions: boolean = false;
+  submissionDates: { [id: number] : any } = {};
 
   constructor(
     private responseService: ResponseService,
@@ -38,6 +39,10 @@ export class UserFormsListComponent implements OnInit {
           formTitle: form.title,
           submissionDate: form.submissionDate,
         }));
+
+        this.submittedForms.forEach((form: any) => {
+          this.loadResponses(form.formId);
+        });
         this.noSubmissions = this.submittedForms.length === 0;
       },
       error: (error) => {
@@ -54,7 +59,10 @@ export class UserFormsListComponent implements OnInit {
   loadResponses(formId: number) {
     this.responseService.getResponsesByFormIdandUser(formId).subscribe({
       next: (responses) => {
-        console.log(responses)
+        console.log(responses);
+        responses.forEach((response: any) => {
+          this.submissionDates[response.formId] = response.createdAt.slice(0, 10);
+        });
       }
     })
   }

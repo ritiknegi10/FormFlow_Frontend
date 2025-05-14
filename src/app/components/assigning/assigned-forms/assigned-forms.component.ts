@@ -18,6 +18,9 @@ export class AssignedFormsComponent implements OnInit {
   loading = true;
   error: string | null = null;
   userEmail: string | null = null;
+  deadlinePassed: { [formId: number] : boolean } = {};
+  showAssigned = true;
+  showViewable = false;
 
   constructor(
     private formService: FormService,
@@ -62,7 +65,7 @@ export class AssignedFormsComponent implements OnInit {
           hasSubmitted: form.hasSubmitted || false,
           expired: true
         }));
-
+        this.checkDeadlineValidity(this.forms);
         this.viewableForms = data.viewable;
         this.loading = false;
       },
@@ -73,6 +76,19 @@ export class AssignedFormsComponent implements OnInit {
     });
   }
 
+  checkDeadlineValidity(forms: any) {
+    const now = new Date();
+    this.deadlinePassed = {}; 
+
+    forms.forEach((form: any) => {
+      if(form.deadline) {
+        const formDeadline = new Date(form.deadline);
+        const isPassed = formDeadline < now;
+        this.deadlinePassed[form.id] = isPassed;
+      }
+      else this.deadlinePassed[form.id] = false;
+    });
+  }
   openForm(formId: number): void {
     this.router.navigate([`/sharelink/${formId}`]);
   }
