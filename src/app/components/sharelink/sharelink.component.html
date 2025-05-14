@@ -275,7 +275,7 @@
 
   </div>
   <form #formRef="ngForm" *ngIf="!deadlinePassed">
-    <div class="max-w-3xl mx-auto rounded-lg bg-white/70 shadow-2xl ">
+    <div class="max-w-3xl mx-auto rounded-lg bg-white/70 shadow-lg ">
       <div class="bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-800 p-6 mb-4 rounded-t-lg">
         <h1 class="text-white text-3xl font-medium tracking-wide">{{ loadedForm?.title }}</h1>
         <h4 class="text-white text-md" [ngClass]="{'pt-4': loadedForm?.description}">{{ loadedForm?.description }}</h4>
@@ -290,14 +290,14 @@
             {{ formData.sections[currentSectionIndex].sectionDescription }}
           </h4>
         </div>
-        <div *ngIf="allowAnonymous" class="flex items-center gap-4 px-6 py-4">
+        <div *ngIf="allowAnonymous" class="flex items-center gap-2 px-3 py-2 mb-3">
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" class="sr-only peer" [checked]="anonymousToggle" (change)="onAnonymousToggleChange($event)"              />
-              <div class="w-12 h-7 bg-gray-300 rounded-full peer peer-checked:bg-indigo-600 transition duration-300 ease-in-out"></div>
-              <div class="absolute left-1 top-1 bg-white w-5 h-5 rounded-full shadow-md transition-all duration-300 ease-in-out peer-checked:translate-x-5"></div>
+              <div class="w-[2.75rem] h-6 bg-gray-300 rounded-full peer peer-checked:bg-purple-700 transition duration-400 ease-in-out"></div>
+              <div class="absolute left-[0.19rem] bg-white w-[1.2rem] h-[1.2rem] rounded-full shadow-md transition-all duration-300 ease-in-out peer-checked:translate-x-5"></div>
             </label>
-            <span class="text-base font-semibold text-gray-800">Submit anonymously</span>
-          </div>
+            <span class="text-base font-medium text-gray-800">Submit anonymously</span>
+        </div>
 
         <div *ngFor="let question of sections[currentSectionIndex]?.questions; let qIdx = index">
 
@@ -664,7 +664,7 @@
     <div class="max-w-3xl mx-auto flex justify-between py-6 text-base">
 
       <button (click)="confirmClearForm(formRef)"
-        class="px-4 py-0.5 text-purple-700 font-medium rounded-full bg-violet-200 hover:bg-violet-300 hover:text-purple-800 transition-all duration-300">
+        class="px-4 py-0.5 text-purple-700 font-medium rounded-full hover:bg-violet-200 hover:text-purple-800 transition-all duration-300">
         Clear form
       </button>
 

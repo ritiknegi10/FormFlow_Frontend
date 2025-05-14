@@ -41,6 +41,9 @@ export class FormVersionsComponent implements OnInit {
   isDeadlineRemoved = false;
   isDeadlineNull = false;
   isDeadlinePast = false;
+  // side drawer
+  isDrawerOpen: boolean = false;
+  firstRender: boolean = true;
 
   constructor(private route: ActivatedRoute, 
               private fb: FormBuilder, 
@@ -56,6 +59,9 @@ export class FormVersionsComponent implements OnInit {
   
   ngOnInit() {
     window.scrollTo(0, 0);
+    setTimeout(() => {
+      this.firstRender = false;
+    }, 0);
     this.setMinDateTime();
     this.route.paramMap.subscribe(params => {
 
@@ -64,6 +70,10 @@ export class FormVersionsComponent implements OnInit {
       this.loadVersions();
       
     });
+  }
+
+  toggleDrawer(){
+    this.isDrawerOpen = !this.isDrawerOpen;
   }
 
   loadVersions() {

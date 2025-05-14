@@ -16,6 +16,8 @@ export class AppComponent implements OnInit {
   // side drawer
   isDrawerOpen: boolean = false;
   firstRender: boolean = true;
+  isVersionView = true;
+  hideNavbar = false;
 
   constructor(
     public authService: AuthService,
@@ -26,8 +28,9 @@ export class AppComponent implements OnInit {
     this.router.events
         .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe((event: any) => {
-            // hide app component on /create
             this.formCreatorOrEditor = (event.url?.startsWith('/create') || event.url?.startsWith('/edit'));
+            this.isVersionView = /^\/forms\/\d+\/versions\/\d+$/.test(event.url);
+            this.hideNavbar = this.formCreatorOrEditor || this.isVersionView;
         });
   }
 

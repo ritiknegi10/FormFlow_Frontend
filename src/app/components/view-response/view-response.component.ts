@@ -215,28 +215,28 @@ export class ViewResponseComponent implements OnInit {
   }
   searchQuery: string = '';
 
-filteredResponses() {
-  if (!this.searchQuery) return this.responses;
-  
-  const query = this.searchQuery.toLowerCase();
-  return this.responses.filter(response =>{
-    let isAnonymous = false;
+  filteredResponses() {
+    if (!this.searchQuery) return this.responses;
+    
+    const query = this.searchQuery.toLowerCase();
+    return this.responses.filter(response =>{
+      let isAnonymous = false;
 
-    try {
-      const parsed = JSON.parse(response.responseData);
-      isAnonymous = parsed?.[0]?.isAnonymous ?? false;
-    } catch (e) {
-      console.warn('Failed to parse responseData:', response.responseData, e);
-      isAnonymous = false;
+      try {
+        const parsed = JSON.parse(response.responseData);
+        isAnonymous = parsed?.[0]?.isAnonymous ?? false;
+      } catch (e) {
+        console.warn('Failed to parse responseData:', response.responseData, e);
+        isAnonymous = false;
+      }
+      const username = isAnonymous ? 'Anonymous' : (response.respondentUsername || '');
+      const email = isAnonymous ? 'Anonymous' : (response.respondentEmail || '');
+      return username.toLowerCase().includes(query) || email.toLowerCase().includes(query);
+      // (response.respondentUsername || '').toLowerCase().includes(query) ||
+      // (response.respondentEmail || '').toLowerCase().includes(query) 
     }
-    const username = isAnonymous ? 'Anonymous' : (response.respondentUsername || '');
-    const email = isAnonymous ? 'Anonymous' : (response.respondentEmail || '');
-    return username.toLowerCase().includes(query) || email.toLowerCase().includes(query);
-    // (response.respondentUsername || '').toLowerCase().includes(query) ||
-    // (response.respondentEmail || '').toLowerCase().includes(query) 
+    );
   }
-  );
-}
 }
 
 

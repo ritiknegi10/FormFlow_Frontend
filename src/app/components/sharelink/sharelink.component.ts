@@ -226,7 +226,6 @@ export class SharelinkComponent implements OnInit {
     onAnonymousToggleChange(event: Event): void {
       const input = event.target as HTMLInputElement;
       this.anonymousToggle = input.checked;
-      console.log('Anonymous toggle:', this.anonymousToggle);
     }
     
   
@@ -752,7 +751,7 @@ export class SharelinkComponent implements OnInit {
             
         });
 
-        this.responseService.submitResponse(this.formId, mappedResponse, false).subscribe({
+        this.responseService.submitResponse(this.formId, mappedResponse, this.anonymousToggle).subscribe({
             next: (res) => {
                 console.log('Response submitted successfully', res),
                 this.router.navigate(['/submit', this.loadedForm.title], { replaceUrl: true });

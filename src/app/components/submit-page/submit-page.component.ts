@@ -21,7 +21,7 @@ export class SubmitPageComponent {
       this.formTitle = title ? title : 'Untitled Form';
     });
     if(this.formService.timestamp){
-      this.msg="(Your responses were automatically submitted as the time limit was reached.)";
+      this.msg="Your responses were automatically submitted as the time limit was reached.";
       this.formService.timestamp=false;
     }
   }

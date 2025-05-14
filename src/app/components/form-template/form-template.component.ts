@@ -12,12 +12,11 @@ export class FormTemplateComponent {
   templates: any[] = [];
   drafts: any[] = [];
   isLoading = true;
-
+  noDrafts = false;
 
   constructor(private formService: FormService, private router: Router) {
     this.loadTemplates();
-    this.loadDrafts();
-   
+    this.loadDrafts(); 
   }
 
   loadTemplates() {
@@ -37,7 +36,7 @@ export class FormTemplateComponent {
     this.formService.getDrafts().subscribe({
       next: (drafts) => {
         this.drafts = drafts;
-        console.log(drafts);
+        this.noDrafts = !this.drafts.length;
         this.isLoading = false;
       },
       error: (err) => {

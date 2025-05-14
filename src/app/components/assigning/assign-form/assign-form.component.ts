@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormService } from '../../../services/form.service';
 import { ResponseService } from '../../../services/response.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-assign-form',
@@ -22,8 +23,8 @@ export class AssignFormComponent implements OnInit {
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   isPublic = false;
   searchQuery = '';
-selectedUsers = new Set<string>();
-allowAnonymous = false;
+  selectedUsers = new Set<string>();
+  allowAnonymous = false;
 
 // filteredUsers: any[] = [];
 
@@ -61,7 +62,19 @@ allowAnonymous = false;
       this.selectedUsers.delete(email) :
       this.selectedUsers.add(email);
   }
-
+  copyLink() {   
+      const baseUrl = window.location.origin; 
+      const shareableLink = `${baseUrl}/sharelink/${this.formId}`; 
+      navigator.clipboard.writeText(shareableLink).then(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Link Copied!',
+          text: 'You can now share the form link easily.',
+          confirmButtonColor: '#4CAF50',
+          timer: 2000, 
+        });
+    });
+  }
   
   
 // Add these to the component class
@@ -335,7 +348,7 @@ toggleAnonymous() {
     this.successMessage = '';
     this.formService.assignUsersToForm(this.formId, this.validEmails).subscribe({
         next: (response) => {
-            this.successMessage = `${this.validEmails.length} users assigned successfully!`;
+            this.successMessage = `${this.validEmails.length + (this.validEmails.length === 1 ? ' user': ' users')} assigned successfully!`;
             this.validEmails = [];
             this.invalidEmails = [];
             this.loadAssignedUsers();
