@@ -11,7 +11,7 @@
       <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
         {{ selectedForm?.title || 'Form Responses' }}
       </h2>
-      <p class="text-lg text-gray-600 mt-3">Analyze form submission trends and responses</p>
+      <p class="text-lg text-gray-600 mt-3">Analyze form submission responses</p>
     </div>
 
     <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-8">
@@ -19,7 +19,7 @@
 
       <div *ngIf="selectedForm; else noData" class="flex flex-col gap-10">
         <!-- Submission Trend Chart (Line Chart) -->
-        <div class="mb-8">
+        <!-- <div class="mb-8">
           <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -46,7 +46,7 @@
           <div *ngIf="submissionTrend.length === 0" class="text-center text-gray-500 py-8">
             No submission data available
           </div>
-        </div>
+        </div> -->
 
         <!-- Question Response Charts (Larger Pie Charts) -->
         <div class="mb-8">
