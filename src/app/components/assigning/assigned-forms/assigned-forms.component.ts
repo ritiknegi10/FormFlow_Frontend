@@ -11,10 +11,8 @@ import Swal from 'sweetalert2';
   styleUrls: ['./assigned-forms.component.css']
 })
 export class AssignedFormsComponent implements OnInit {
-  forms: any[] = []; 
-  viewableForms: any[] = []; 
-  activeAssignedForms: any[] = []; 
-  expiredAssignedForms: any[] = [];
+  forms: any[] = []; // Forms assigned to respond
+  viewableForms: any[] = []; // Forms where the user has view access
   loading = true;
   error: string | null = null;
   userEmail: string | null = null;
@@ -40,30 +38,9 @@ export class AssignedFormsComponent implements OnInit {
       viewable: this.formService.getViewableForms()
     }).subscribe({
       next: (data) => {
-
-
-//         const now = new Date();
-// this.activeAssignedForms = data.assigned.filter(form => 
-//   !form.deadline || new Date(form.deadline) > now
-// );
-// this.expiredAssignedForms = data.assigned.filter(form => 
-//   form.deadline && new Date(form.deadline) <= now
-// );
-        const now = new Date();
-        this.activeAssignedForms = data.assigned.filter(form => 
-          !form.deadline || new Date(form.deadline) > now
-        ).map(form => ({
+        this.forms = data.assigned.map(form => ({
           ...form,
-          hasSubmitted: form.hasSubmitted || false,
-          expired: false
-        }));
-
-        this.expiredAssignedForms = data.assigned.filter(form => 
-          form.deadline && new Date(form.deadline) <= now
-        ).map(form => ({
-          ...form,
-          hasSubmitted: form.hasSubmitted || false,
-          expired: true
+          hasSubmitted: form.hasSubmitted || false
         }));
         this.checkDeadlineValidity(this.forms);
         this.viewableForms = data.viewable;
