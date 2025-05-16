@@ -328,7 +328,7 @@
                                           </div>
                                     
                                           <!-- Dropdown Menu -->
-                                          <div *ngIf="questionTypeDropdown[sIdx] && questionTypeDropdown[sIdx][qIdx] !== undefined && isDropdownOpen"
+                                          <div *ngIf="questionTypeDropdown[sIdx] && questionTypeDropdown[sIdx][qIdx] !== undefined && questionTypeDropdown[sIdx][qIdx] && isDropdownOpen"
                                               class="absolute z-[1000] top-1/2 transform -translate-y-1/2 w-full rounded-md shadow-2xl bg-white border">
                                               <ul class="flex flex-col text-gray-700">
                                                   
@@ -536,11 +536,11 @@
 
                                             <div *ngFor="let option of getOptions(question).controls; let opIdx = index" [formGroupName]="opIdx"
                                                 cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]=" option.get('label')?.value === 'Other'"
-                                                class="relative flex items-center group w-full overflow-hidden">
+                                                class="relative flex items-center group w-full">
 
                                                 <!-- option dragger -->
                                                 <div *ngIf="option.get('label')?.value !== 'Other'" cdkDragHandle 
-                                                    class="invisible relative group-hover:visible flex cursor-grab justify-center py-1 -ml-3.5"
+                                                    class="invisible relative group-hover:visible flex cursor-grab justify-center py-1 -ml-3"
                                                     [ngClass]="">
                                                     <svg width="14" height="20">
                                                         <circle cx="4" cy="4" r="1.4" fill="gray" />
